@@ -1,0 +1,58 @@
+.header-box {
+  height: 60px;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  padding: 0 5%;
+  background: #6760EF;
+}
+
+.logo img {
+  height: 60px;
+}
+
+.header-btns {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.header-btns .btn {
+  height: 40px;
+  width: 120px;
+  border: 2px solid;
+  border-radius: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  text-align: center;
+  cursor: pointer; 
+  
+}
+
+.header-btns .login-btn {
+  border-color: #FFF;
+  background: #6760EF;
+  color: #FFF;
+  padding-top: 2%;
+}
+
+.header-btns .login-btn:hover {
+  background: #FFF;
+  color: #6760EF;
+}
+
+.header-btns .signup-btn {
+  border-color: #6760EF;
+  background: #FFF;
+  color: #6760EF;
+  margin-left: 10%; 
+  padding-top: 2%;
+}
+
+.header-btns .signup-btn:hover {
+  background: #6760EF;
+  color: #FFF;
+}

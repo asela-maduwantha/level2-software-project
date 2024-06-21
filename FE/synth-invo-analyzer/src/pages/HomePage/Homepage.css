@@ -1,0 +1,82 @@
+.circle {
+    width: 70%; /* Adjust width as needed */
+    height: 100vh; /* Adjust height as needed */
+    background-color: #6760ef; /* Change to whatever color you prefer */
+    border-radius: 0 0% 100% 0 ; /* Bottom left corner to top right corner */
+    position: relative;
+    overflow: hidden;
+  }
+  
+
+  .description-box{
+    margin-top: 5%;
+    margin-left: 15%;
+    color: white;
+  }
+
+  .home-text{
+    font-size: 3rem;
+    font-weight: 620;
+    margin-bottom: 5%;
+  }
+
+
+  .home-list li{
+    line-height: 2.5rem;
+  }
+  .home-list h2{
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+   
+.home-list span{
+    font-weight: 650;
+}
+
+.home-list{
+    margin-bottom: 6%;
+}
+
+
+ .signup-btn{
+  height: auto;
+  width: auto;
+  padding: 1% 2% 1% 2%;
+  background: #ffff;
+  border: 2px solid #6760ef;
+  border-radius: 25px;
+  align-items: center;
+  justify-content: center;
+  color: #6760ef;
+  text-align: center;
+  font-weight: 600;
+  margin-right: 5%;
+  text-decoration: none;
+ }
+  
+ .pricing-btn{
+    height: auto;
+    width: auto;
+    padding: 1% 2% 1% 2%;
+    background: #6760ef;
+    border: 2px solid #FFFF;
+    border-radius: 25px;
+    align-items: center;
+    justify-content: center;
+    color: #FFFF;
+    text-align: center;
+    font-weight: 600;
+    text-decoration: none;
+   }
+    
+   .signup-btn:hover{
+    background-color: #6760ef;
+    color: #fff;
+    border: 2px white solid;
+   }
+   
+
+   .pricing-btn:hover{
+    background-color: #ffff;
+    color: #6760ef;
+   }

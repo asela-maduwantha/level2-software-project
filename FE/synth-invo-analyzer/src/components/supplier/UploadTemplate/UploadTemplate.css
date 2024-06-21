@@ -1,0 +1,43 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+  }
+  
+  .upload-text {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .drop-area {
+    width: 80%;
+    max-width: 600px;
+    margin: 0 auto;
+    border: 2px dashed #1890ff;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+  }
+  
+  .upload-btns {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+  }
+  
+  .ant-upload-drag-icon {
+    font-size: 32px;
+    color: #1890ff;
+  }
+  
+  .ant-upload-text {
+    font-size: 16px;
+    color: #999;
+  }
+  
+  .d-none {
+    display: none;
+  }
+  

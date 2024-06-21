@@ -1,0 +1,30 @@
+.add-employee-container {
+    padding: 20px;
+  }
+  
+  .add-employee-form .ant-form-item {
+    margin-bottom: 16px;
+  }
+  
+  .add-employee-form .ant-form-item-control-input {
+    height: 40px;
+  }
+  
+  .add-employee-form .ant-input-affix-wrapper {
+    height: 40px;
+  }
+  
+  .add-employee-form .ant-btn {
+    width: 100%;
+  }
+  
+  .add-employee-container .ant-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .add-employee-container .ant-col-12 {
+    max-width: 50%;
+  }
+  

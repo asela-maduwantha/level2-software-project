@@ -1,0 +1,45 @@
+.send-invoice-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Align to the top */
+    height: 100vh;
+    padding-top: 50px; /* Increase top padding */
+  }
+  
+  .send-invoice-content {
+    width: 100%;
+    max-width: 600px; /* Limit content width */
+    text-align: center;
+  }
+  
+  .send-invoice-title {
+    font-size: 36px;
+    margin-bottom: 40px;
+  }
+  
+  .upload-area {
+    margin-bottom: 40px;
+  }
+  
+  .larger-icon {
+    font-size: 64px;
+  }
+  
+  .larger-text {
+    font-size: 24px;
+  }
+  
+  .hidden {
+    display: none;
+  }
+  
+  .larger-select {
+    margin-bottom: 40px;
+  }
+  
+  .action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+  }
+  

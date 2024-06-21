@@ -1,0 +1,93 @@
+.header-box {
+  height: 60px;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  padding: 0 5%;
+  background: #6760ef;
+}
+
+.logo img {
+  height: 60px;
+}
+
+.header-btns {
+  padding-left: 60%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.header-btns .login-btn {
+  height: 40px;
+  width: 120px;
+  background: #6760ef;
+  border: 2px solid #ffff;
+  border-radius: 25px;
+  align-items: center;
+  justify-content: center;
+  color: #ffff;
+  text-align: center;
+  font-weight: 500;
+  padding: 1%;
+}
+
+.header-btns .login-btn:hover {
+  height: 40px;
+  width: 120px;
+  background: #ffff;
+  border: 2px solid #6760ef;
+  border-radius: 25px;
+  align-items: center;
+  justify-content: center;
+  color: #6760ef;
+  text-align: center;
+  font-weight: 500;
+}
+
+.header-btns .signup-btn:hover {
+  height: 40px;
+  width: 120px;
+  background: #6760ef;
+  border: 2px solid #ffff;
+  border-radius: 25px;
+  align-items: center;
+  justify-content: center;
+  color: #ffff;
+  text-align: center;
+  font-weight: 500;
+  margin-left: 10%;
+}
+
+.header-btns .signup-btn {
+  height: 40px;
+  width: 120px;
+  background: #ffff;
+  border: 2px solid #6760ef;
+  border-radius: 25px;
+  align-items: center;
+  justify-content: center;
+  color: #6760ef;
+  text-align: center;
+  font-weight: 500;
+  margin-left: 10%;
+}
+
+
+
+
+
+@media screen and (max-width: 900px) {
+.header-btns{
+  padding-left: 10%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+}
