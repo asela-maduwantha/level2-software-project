@@ -37,7 +37,10 @@ const MenuList = () => {
           <Link to="productanalysis" style={{textDecoration:"none"}}>Product Analysis</Link>
         </Menu.Item>
         <Menu.Item key="seasonal-analysis" >
-          <Link to="analytics" style={{textDecoration:"none"}}>Seasonal Analysis</Link>
+          <Link to="seasonalanalysis" style={{textDecoration:"none"}}>Seasonal Analysis</Link>
+        </Menu.Item>
+        <Menu.Item key="revenue-analysis" >
+          <Link to="revenueanalysis" style={{textDecoration:"none"}}>Revenue Analysis</Link>
         </Menu.Item>
         </Menu.SubMenu>
         <Menu.SubMenu key="account" icon={<UserOutlined />} style={{textDecoration:"none"}} title = "Account">

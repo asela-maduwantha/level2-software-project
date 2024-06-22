@@ -107,7 +107,7 @@ const ProductAnalysis = () => {
             <Row gutter={16}>
                 <Col span={12}>
                     {topSellingData && (
-                        <Card title="Top Selling Products/Services" style={{width:"500px", height:"400px"}}>
+                        <Card title="Top Selling Products/Services" style={{width:"500px", height:"auto"}}>
                             <Pie data={pieData} style={{width:"400px", height:"400px"}} />
                             <Button
                                 type="primary"

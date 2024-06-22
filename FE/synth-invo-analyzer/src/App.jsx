@@ -46,6 +46,8 @@ import VerifyOtp from './components/common/VerifyOtp/VerifyOtp'
 import ChangePassword from './components/common/ChangePassword/ChangePassword'
 
 import MapTemplates from './components/admin/MapTemplates/MapTemplates'
+import SeasonalAnalysis from './components/organization/SeasonalAnalysis/SeasonalAnalysis'
+import RevenueAnalysis from './components/organization/RevenueAnalysis/RevenueAnalysis'
 
 
 
@@ -108,6 +110,8 @@ const App = () => {
         <Route path="accountsettings" element={<AccountSettings />} />
         <Route path="addsupplier" element={<AddSupplier/>}/>
         <Route path = "productanalysis" element={<ProductAnalysis/>}/>
+        <Route path = "seasonalanalysis" element={<SeasonalAnalysis/>}/>
+        <Route path = "revenueanalysis" element={<RevenueAnalysis/>}/>
         <Route path = "search" element={<SearchInvoices/>}/>
         <Route path = 'supplierrequests' element ={<OutgoingSupplierRequests/>}/>
         <Route path = 'addemployee' element={<AddEmployee/>}/>

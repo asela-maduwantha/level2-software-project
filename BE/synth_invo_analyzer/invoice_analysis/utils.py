@@ -77,3 +77,74 @@ def product_analysis(data):
         return top_selling_years, price_analysis_years
     except KeyError as e:
         raise KeyError("Missing columns for product analysis")
+    
+
+def monthly_sales_analysis(data):
+    try:
+        monthly_sales = data.resample('ME', on='Invoice Date')['Price'].sum()
+        print(monthly_sales)
+        return monthly_sales
+    except Exception as e:
+        raise RuntimeError("Error during monthly sales analysis") from e
+
+def seasonal_sales_analysis(data):
+    try:
+        data['Month'] = data['Invoice Date'].dt.month
+        seasonal_sales = data.groupby('Month')['Price'].sum()
+        return seasonal_sales
+    except KeyError as e:
+        raise KeyError("Missing columns for seasonal sales analysis")
+
+
+def revenue_analysis(data):
+    try:
+        # Calculate the 'Revenue' column
+        data['Revenue'] = data['Quantity'] * data['Price']
+
+        # Add the invoice year and month columns
+        data['invoice_year'] = data['Invoice Date'].dt.year
+        data['invoice_month'] = data['Invoice Date'].dt.month
+
+        # Calculate monthly and yearly revenue
+        monthly_revenue = data.groupby(['invoice_year', 'invoice_month'])['Revenue'].sum()
+        yearly_revenue = data.groupby('invoice_year')['Revenue'].sum()
+
+        unique_years = list(data['invoice_year'].unique())
+        chart_dir = 'static/charts'
+        os.makedirs(chart_dir, exist_ok=True)
+        for year in unique_years:
+        
+            # Pie chart for yearly revenue
+            plt.figure(figsize=(5, 5))
+            plt.pie([yearly_revenue.loc[year]], labels=[str(year)], autopct='%1.1f%%', startangle=140)
+            plt.title(f'Total Revenue Distribution ({year})')
+            plt.axis('equal')
+            plt.savefig(f'{chart_dir}/revenue_pie_chart_{year}.png')
+            plt.close()
+
+            # Bar chart for monthly revenue
+            monthly_data = monthly_revenue.loc[year]
+            plt.figure(figsize=(10, 6)) 
+            plt.bar(monthly_data.index, monthly_data.values)
+            plt.title(f'Monthly Revenue Distribution ({year})')
+            plt.xlabel('Month')
+            plt.ylabel('Total Revenue')
+            plt.xticks(rotation=45)
+            plt.tight_layout()
+            plt.savefig(f'{chart_dir}/revenue_bar_chart_{year}.png')
+            plt.close()
+        
+            # Doughnut chart for yearly revenue
+            plt.figure(figsize=(5, 5))
+            plt.pie([yearly_revenue.loc[year]], labels=[str(year)], autopct='%1.1f%%', startangle=140, wedgeprops=dict(width=0.3))
+            plt.title(f'Total Revenue Distribution (Doughnut) ({year})')
+            plt.axis('equal')
+            plt.savefig(f'{chart_dir}/revenue_doughnut_chart_{year}.png')
+            plt.close()
+        
+        return monthly_revenue, yearly_revenue
+    except KeyError as e:
+        raise KeyError("Missing columns for revenue analysis")
+    except Exception as e:
+        print(f"Unexpected error in revenue_analysis: {str(e)}")
+        raise
