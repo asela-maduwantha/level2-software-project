@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Divider, Button, Modal } from 'antd'; // Import Button and Modal from antd
+import { Card, Divider, Button, Modal } from 'antd';
 import axios from 'axios';
+import fileDownload from 'js-file-download';
 
 const { Meta } = Card;
 
@@ -8,19 +9,17 @@ const ViewTemplate = () => {
   const [template, setTemplate] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [mapping, setMapping] = useState(null); // State to hold mapping data
-  const [showModal, setShowModal] = useState(false); // State to control modal visibility
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     const fetchTemplate = async () => {
       try {
-        const response = await axios.get('http://localhost:8000/invoice-template/get-template-by-supplier/', {
+        const response = await axios.get('http://localhost:8000/invoice-template/get-supplier-template/', {
           params: {
-            user_id: localStorage.getItem('supplier_id'), 
+            supplier_id: localStorage.getItem('supplier_id'), 
           },
         });
         setTemplate(response.data[0]);
-        console.log(response.data[0])
         setLoading(false);
       } catch (error) {
         setError(error.message);
@@ -31,24 +30,26 @@ const ViewTemplate = () => {
     fetchTemplate();
   }, []);
 
-  const handleViewMapping = async () => {
-    try {
-      const response = await axios.get('http://localhost:8000/invoice-template/get-mapping-by-id/', {
-        params: {
-          user_id: localStorage.getItem('supplier_id'),
-        },
-      });
-      const parsedMapping = JSON.parse(response.data);
-      setMapping(parsedMapping);
-      setShowModal(true);
-    } catch (error) {
-      setError(error.message);
-    }
+  const handleViewMapping = () => {
+    setShowModal(true);
   };
 
   const handleModalClose = () => {
-    setMapping(null);
     setShowModal(false);
+  };
+
+  const handleDownloadTemplate = () => {
+    if (template) {
+      const blob = new Blob([template.template_content], { type: 'text/xml' });
+      fileDownload(blob, `${template.template_name}`);
+    }
+  };
+
+  const handleDownloadMapping = () => {
+    if (template && template.mapping_dict) {
+      const blob = new Blob([JSON.stringify(template.mapping_dict, null, 2)], { type: 'application/json' });
+      fileDownload(blob, 'mapping.json');
+    }
   };
 
   if (loading) {
@@ -60,28 +61,38 @@ const ViewTemplate = () => {
   }
 
   return (
-    <div>
-      {template && (
-        <Card title={template.template_name} style={{ width: 500, margin: 'auto' }}>
-          <Meta description={template.template_content} />
-          <Divider />
-          <p>Uploaded At: {template.uploaded_at}</p>
-          <Button onClick={handleViewMapping} type="primary" style={{ marginTop: '1rem' }}>View Mapping</Button>
-        </Card>
-      )}
+    <>
+    <br></br>
+      <h1 style={{ textAlign: 'center' }}>Template Of Invoices</h1><br></br>
+      <div style={{ display: 'flex', height: '100vh', padding: '1rem' }}>
+        <div style={{ flex: '1', height: '60vh', overflow: 'auto', marginRight: '1rem' }}>
+          {template && (
+            <Card title={template.template_name} style={{ width: '80%', height: '100%' }}>
+              <Meta description={<pre>{template.template_content}</pre>} />
+              <Divider />
+              <p>Uploaded At: {new Date(template.uploaded_at).toLocaleString()}</p>
+            </Card>
+          )}
+        </div>
 
-   
-      <Modal
-        title="Template Mapping"
-        visible={showModal}
-        onCancel={handleModalClose}
-        footer={null}
-      >
-        {mapping && (
-          <pre>{JSON.stringify(mapping, null, 2)}</pre>
-        )}
-      </Modal>
-    </div>
+        <div style={{ width: '200px', padding: '0 1rem' }}>
+          <Button onClick={handleViewMapping} type="primary" style={{ marginBottom: '1rem', width: '100%' }}>View Mapping</Button>
+          <Button onClick={handleDownloadTemplate} style={{ marginBottom: '1rem', width: '100%' }}>Download Template</Button>
+          <Button onClick={handleDownloadMapping} style={{ width: '100%' }}>Download Mapping</Button>
+        </div>
+
+        <Modal
+          title="Template Mapping"
+          visible={showModal}
+          onCancel={handleModalClose}
+          footer={null}
+        >
+          {template && template.mapping_dict && (
+            <pre>{JSON.stringify(template.mapping_dict, null, 2)}</pre>
+          )}
+        </Modal>
+      </div>
+    </>
   );
 };
 
