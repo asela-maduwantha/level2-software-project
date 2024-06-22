@@ -53,6 +53,13 @@ function UploadTemplate() {
         });
       }
     } catch (error) {
+      if(error.response && error.response.status === 409){
+        notification.error({
+          message: "You alreaady have an template..",
+          duration: 3,
+        });
+        return;
+      }
       notification.error({
         message: "An error occurred. Try Uploading Template.",
         duration: 3,

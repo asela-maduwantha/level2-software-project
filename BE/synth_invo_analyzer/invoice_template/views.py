@@ -17,6 +17,10 @@ def save_invoice_template(request):
     if not template_file:
         return Response({"error": "Template file is required."}, status=status.HTTP_400_BAD_REQUEST)
 
+    
+    template  = Template.objects.filter(supplier = supplier)
+    if template.exists():
+        return Response({"error": "Template is already have to this user"}, status=status.HTTP_409_CONFLICT)
 
     template_content = template_file.read().decode('utf-8')
 
