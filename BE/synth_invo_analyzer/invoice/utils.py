@@ -2,8 +2,7 @@ from invoice_template.models import Template
 import json
 
 def clean_number_string(number_str):
-    """Clean up a number string to remove unwanted characters for conversion."""
-    # Remove any currency symbols and commas
+   
     number_str = number_str.replace('$', '').replace(',', '').strip()
     return number_str
 
@@ -15,7 +14,7 @@ def map_field(data, mapping, data_type=None):
     for key in keys:
         current_value = current_value.get(key, '')
     
-    # Clean the current_value if it's a string and needs to be converted to a number
+  
     if isinstance(current_value, str):
         current_value = clean_number_string(current_value)
     
@@ -93,5 +92,5 @@ def format_invoice(invoice, supplier_id):
             }
         }
     }
-    print(formatted_invoice)
+    
     return formatted_invoice

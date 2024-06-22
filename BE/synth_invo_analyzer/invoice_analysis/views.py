@@ -24,8 +24,8 @@ def generate_product_analysis(request):
         top_selling, price_analysis = product_analysis(data)
 
         response_data = {
-            'top_selling': format_chart_data(top_selling),
-            'price_analysis': format_chart_data(price_analysis),
+            'top_selling': format_product_chart_data(top_selling),
+            'price_analysis': format_product_chart_data(price_analysis),
         }
         return JsonResponse(response_data, status=200)
     except Exception as e:
@@ -70,7 +70,7 @@ def get_product_bar_chart(request, year):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
-def format_chart_data(chart_data):
+def format_product_chart_data(chart_data):
     response = []
     for year, data in chart_data.items():
         formatted_data = {
