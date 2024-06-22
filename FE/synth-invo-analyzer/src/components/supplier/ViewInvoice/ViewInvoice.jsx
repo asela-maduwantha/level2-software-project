@@ -6,7 +6,7 @@ import InvoiceDetailsModal from '../../common/InvoiceDetailsModel/InvoiceDetails
 const ViewInvoice = () => {
   const [data, setData] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedData, setSelectedData] = useState(null); // Use null instead of {} for better type handling
+  const [selectedData, setSelectedData] = useState(null);
 
   useEffect(() => {
     fetchData();
@@ -24,26 +24,27 @@ const ViewInvoice = () => {
 
   const columns = [
     {
-      title: 'Sender',
-      dataIndex: 'issuer',
-      key: 'sender',
+      title: 'No.',
+      key: 'no',
+      render: (text, record, index) => index + 1,
     },
     {
-      title: 'Receiver',
-      dataIndex: 'recipient',
-      key: 'receiver',
+      title: 'Recipient',
+      dataIndex: 'recipient_name',
+      key: 'recipient',
     },
     {
       title: 'Datetime',
       dataIndex: 'created_at',
-      key: 'datetime',
+      key: 'created_at',
       render: (datetime) => new Date(datetime).toLocaleString(),
+      sorter: (a, b) => new Date(a.created_at) - new Date(b.created_at),
     },
     {
       title: 'Actions',
       key: 'actions',
       render: (text, record) => (
-        <button onClick={() => handleViewDetails(record)}>View Details</button>
+        <button onClick={() => handleViewDetails(record)}>View more</button>
       ),
     },
   ];
@@ -55,14 +56,17 @@ const ViewInvoice = () => {
 
   return (
     <div>
-      <Table dataSource={data} columns={columns} />
+      <center>
+        <h1>Invoices</h1>
+        
+        <Table dataSource={data} columns={columns} rowKey="id" style={{width:'80%', paddingTop:'2%'}} />
       {selectedData && (
         <InvoiceDetailsModal
           visible={modalVisible}
           onClose={() => setModalVisible(false)}
           invoice={JSON.parse(selectedData.internal_format)}
         />
-      )}
+      )}</center>
     </div>
   );
 };

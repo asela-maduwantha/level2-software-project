@@ -196,12 +196,10 @@ def supplier_signin(request):
         try:
             supplier = user.supplier
             
-           
-            
             access_token = generate_token(supplier.user_id, 'supplier', '')
             refresh_token = generate_refresh_token(access_token)
             if supplier.temporary_password:
-                return Response({'message' : 'You must change your Password', 'supplier' : supplier.user_id, 'token': access_token}, status = status.HTTP_307_TEMPORARY_REDIRECT )
+                return Response({'message' : 'You must change your Password', 'supplier' : supplier.user_id, 'token': access_token, 'email': user.email}, status = status.HTTP_307_TEMPORARY_REDIRECT )
             return Response({
                 'access': access_token, 
                 'refresh': refresh_token, 
@@ -347,7 +345,7 @@ def get_org_by_supplier(request):
 
 @api_view(['GET'])
 def pending_requests_supplier_view(request):
-    supplier_email = request.query_params.get('email')
+    supplier_email = request.query_params.get('supplier_email')
     
     if not supplier_email:
         return Response({"error": "Supplier email is required"}, status=status.HTTP_400_BAD_REQUEST)
@@ -386,13 +384,16 @@ def add_supplier_to_organization(request):
     supplier_email = request.data.get('email')
     
     add_request = SupplierRequest.objects.filter(organization_id=organization_id, email = supplier_email)
-    
+    organization = Organization.objects.get(id = organization_id)
+    supplier = Supplier.objects.get(id = supplier_id)
     if add_request.exists():
         supplierorganization = SupplierOrganization.objects.create(
-            supplier = supplier_id,
-            organization = organization_id
+            supplier = supplier,
+            organization = organization
         )
-        return Response({supplierorganization}, status=status.HTTP_201_CREATED)
+        
+        add_request.delete()
+        return Response({"message": "supplier added succesfully"}, status=status.HTTP_201_CREATED)
     else: 
         return Response({'message':'Request not found'}, status=status.HTTP_404_NOT_FOUND)
 

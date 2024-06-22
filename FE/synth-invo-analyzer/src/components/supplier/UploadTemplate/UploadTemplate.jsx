@@ -25,13 +25,13 @@ function UploadTemplate() {
   const handleUpload = async () => {
     const formData = new FormData();
     selectedFiles.forEach((file) => {
-      formData.append("invoice_template", file);
+      formData.append("template", file);
     });
     const uploaded_user = localStorage.getItem("supplier_id");
-    formData.append("uploaded_user", uploaded_user);
+    formData.append("supplier_id", uploaded_user);
 
     try {
-      const response = await axios.post(`http://127.0.0.1:8000/invoice-template/upload_invoice_template/`, formData, {
+      const response = await axios.post(`http://127.0.0.1:8000/invoice-template/save-invoice-template/`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -45,7 +45,7 @@ function UploadTemplate() {
         localStorage.setItem("template_id", response.data.template_id);
         setSelectedFiles([]);
         setUploadDisabled(true);
-        navigate("/supplier/templatemapping");
+        navigate("/supplier/dashboard");
       } else {
         notification.error({
           message: "Error Uploading Template",

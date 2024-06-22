@@ -11,13 +11,11 @@ const AdminMenuList = () => {
         <Menu.Item key="dashboard" icon={<DashboardOutlined />}>
           <Link to="dashboard" style={{textDecoration:"none"}}>Dashboard</Link>
         </Menu.Item>
-        <Menu.SubMenu key="internal-invoice" title="Internal Format" icon={<ToolOutlined />}>
-          <Menu.Item key="upload-internal-invoice">
-            <Link to="upload-internal-inv" style={{textDecoration:"none"}}>Upload Internal</Link>
+        <Menu.SubMenu key="mapping requests" title="Supplier Templates" icon={<ToolOutlined />}>
+          <Menu.Item key="upload-mapping">
+            <Link to="upload-mapping" style={{textDecoration:"none"}}>Mapping Requests</Link>
           </Menu.Item>
-          <Menu.Item key="view-internal">
-            <Link to="view-internal-inv-format" style={{textDecoration:"none"}}>View Internal</Link>
-          </Menu.Item>
+          
         </Menu.SubMenu>
         
         <Menu.SubMenu key="subscription" title="Subscription" icon={<ToolOutlined />}>

@@ -71,3 +71,20 @@ def get_unmapped_templates(request):
     templates = TemplateSerializer(unmapped_templates, many=True)
     
     return Response({"unmapped_templates": templates.data}, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+def get_supplier_template(request):
+   try:
+        supplier_id = request.query_params.get('supplier_id')
+        if not supplier_id:
+            return Response({'error': 'supplier_id is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        template = Template.objects.filter(supplier=supplier_id)
+        
+        if not template.exists():
+            return Response({'error': 'Template not found for the given supplier_id'}, status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = TemplateSerializer(template, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+   except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

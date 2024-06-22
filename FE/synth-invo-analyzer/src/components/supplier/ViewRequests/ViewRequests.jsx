@@ -5,12 +5,17 @@ import axios from 'axios';
 const ViewRequests = () => {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
-  const user_id = localStorage.getItem('user_id');
+  const supplier_email = localStorage.getItem('email');
+  const supplier_id = localStorage.getItem('supplier_id')
 
   useEffect(() => {
     const fetchRequests = async () => {
       try {
-        const response = await axios.get(`http://127.0.0.1:8000/auth/get-add-requests-by-supplier/${user_id}`);
+        const response = await axios.get(`http://127.0.0.1:8000/auth/supplier/pending-requests/`,{
+          params:{
+            supplier_email : supplier_email,
+          },
+        });
         setRequests(response.data);
       } catch (error) {
         message.error('Failed to fetch requests');
@@ -20,16 +25,17 @@ const ViewRequests = () => {
     };
 
     fetchRequests();
-  }, [user_id]);
+  }, [supplier_email]);
 
   const handleAccept = async (record) => {
     try {
-      await axios.post(`http://127.0.0.1:8000/auth/accept-request/${record.request_id}/`, {
-        user_id: user_id,
-        request_id: record.request_id,
+      await axios.post(`http://127.0.0.1:8000/auth/accept-request/`, {
+        supplier_id: supplier_id,
+        organization_id: record.organization_id,
+        email : supplier_email
       });
-      message.success(`Accepted request for ${record.requested_organization}`);
-      setRequests(requests.filter(req => req.request_id !== record.request_id));
+      message.success(`Accepted request for ${record.organization_name}`);
+      setRequests(requests.filter(req => req.organization_id !== record.organization_id));
     } catch (error) {
       message.error('Failed to accept request');
     }
@@ -38,11 +44,11 @@ const ViewRequests = () => {
   const handleDismiss = async (record) => {
     try {
       await axios.post(`http://127.0.0.1:8000/auth/dismiss-request/${record.request_id}/`, {
-        user_id: user_id,
-        request_id: record.request_id,
+        supplier_id: supplier_id,
+        organization_id: record.id,
       });
-      message.error(`Dismissed request for ${record.requested_organization}`);
-      setRequests(requests.filter(req => req.request_id !== record.request_id));
+      message.error(`Dismissed request for ${record.organization_name}`);
+      setRequests(requests.filter(req => req.organization_id !== record.organization_id));
     } catch (error) {
       message.error('Failed to dismiss request');
     }
@@ -51,17 +57,17 @@ const ViewRequests = () => {
   const columns = [
     {
       title: 'Request ID',
-      dataIndex: 'request_id',
+      dataIndex: 'id',
       key: 'request_id',
     },
     {
       title: 'Requested Organization',
-      dataIndex: 'requested_organization',
+      dataIndex: 'organization_name',
       key: 'requested_organization',
     },
     {
       title: 'Requested Time',
-      dataIndex: 'requested_time',
+      dataIndex: 'created_at',
       key: 'requested_time',
     },
     {

@@ -27,10 +27,6 @@ const ChangePassword = () => {
         new_password,
         confirm_password,
         user_id,
-      }, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
       });
 
       if (response.status === 200) {

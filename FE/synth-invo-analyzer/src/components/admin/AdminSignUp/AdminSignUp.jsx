@@ -35,7 +35,7 @@ const AdminSignUp = () => {
           <img src={OrgSignupImg} alt="Signup" />
         </div>
         <div className="signup-form">
-          <h1>Organization Signup</h1><br />
+          <h1>Admin Signup</h1><br />
           <Form
             name="org_signup"
             onFinish={onFinish}

@@ -92,7 +92,7 @@ class SupplierRequestSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SupplierRequest
-        fields = ['id', 'email', 'name', 'address', 'status', 'created_at', 'updated_at', 'organization_name']
+        fields = ['id', 'email', 'name', 'address', 'status', 'created_at', 'updated_at', 'organization_id','organization_name']
         
         
 class SupplierOrganizationSerializer(serializers.ModelSerializer):

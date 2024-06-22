@@ -35,10 +35,12 @@ function SendInvoice() {
 
     const checkTemplate = async () => {
       try {
-        const response = await axios.get("http://localhost:8000/invoice-template/get-template-by-supplier/", {
-          params: { user_id: localStorage.getItem("supplier_id") },
+        const response = await axios.get("http://localhost:8000/invoice-template/get-supplier-template/", {
+          params: { supplier_id: localStorage.getItem("supplier_id") },
         });
+       
         setTemplateExists(response.data.length > 0);
+        console.log(templateExists)
       } catch (error) {
         console.error("Error checking template:", error);
       } finally {
@@ -90,7 +92,7 @@ function SendInvoice() {
       }
     } catch (error) {
       notification.error({
-        message: "An error occurred. Try Uploading Template.",
+        message: "Your invoice is not acceptable. Please contact admin.",
         duration: 3,
       });
     }
@@ -116,7 +118,7 @@ function SendInvoice() {
 
   return (
     <div className="send-invoice-container">
-      {true ? (
+      {templateExists ? (
         <div className="send-invoice-content">
           <h1 className="send-invoice-title">Send Your Invoices</h1>
           <div

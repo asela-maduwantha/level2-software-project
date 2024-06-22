@@ -21,7 +21,6 @@ import AdminSignUp from './components/admin/AdminSignUp/AdminSignUp'
 import OrganizationSignUp from './components/organization/OrganizationSignUp/OrganizationSignUp'
 import AdminSignIn from './components/admin/AdminSignIn/AdminSignIn'
 import SendInvoice from './components/supplier/SendInvoice/SendInvoice'
-import TemplateMapping from './components/supplier/TemplateMapping/TemplateMapping'
 import UploadTemplate from './components/supplier/UploadTemplate/UploadTemplate'
 import OrganizationSignIn from './components/organization/OrganizationSignIn/OrganizationSignIn'
 import AdminAuthorization from './components/AuthProvider/AdminAuthorization/AdminAuthorization'
@@ -42,10 +41,10 @@ import SearchInvoices from './components/organization/SearchInvoices/SearchInvoi
 import OutgoingSupplierRequests from './components/organization/OutgoingSupplierRequests/OutgoingSupplierRequests'
 import ForgotPassword from './components/common/ForgotPassword/ForgotPassword'
 import AddEmployee from './components/organization/AddEmployee/AddEmployee'
-import UploadInternalInvoice from './components/admin/UploadInternalInvoice/UploadInternalInvoice'
+
 import VerifyOtp from './components/common/VerifyOtp/VerifyOtp'
 import ChangePassword from './components/common/ChangePassword/ChangePassword'
-import SaveMapping from './components/supplier/SaveMapping/SaveMapping'
+
 import MapTemplates from './components/admin/MapTemplates/MapTemplates'
 
 
@@ -123,7 +122,6 @@ const App = () => {
         }
       >
         <Route path="dashboard" element={<UserDashboard />} />
-        <Route path="templatemapping" element={<TemplateMapping/>} />
         <Route path="uploadtemplate" element={<UploadTemplate/>} />
         <Route path="sendinvoice" element={<SendInvoice />} />
         <Route path="viewtemplate" element={<ViewTemplate/>}/>

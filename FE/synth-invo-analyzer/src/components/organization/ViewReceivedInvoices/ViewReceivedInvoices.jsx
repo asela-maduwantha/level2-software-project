@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Modal, Typography } from 'antd';
 import axios from 'axios';
+import InvoiceDetailsModal from '../../common/InvoiceDetailsModel/InvoiceDetailsModel';
 
+const { Title } = Typography;
 
 const ViewReceivedInvoices = () => {
   const [data, setData] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedData, setSelectedData] = useState({});
-  const [displayedInternalFormat, setDisplayedInternalFormat] = useState('');
-  const [displayedSourceFormat, setDisplayedSourceFormat] = useState('');
-  
+  const [selectedData, setSelectedData] = useState(null);
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -18,7 +18,8 @@ const ViewReceivedInvoices = () => {
     try {
       const organization_id = localStorage.getItem('organization_id'); 
       const response = await axios.get(`http://localhost:8000/invoice/get-invoice-by-organization/?orgId=${organization_id}`);
-      setData(response.data);
+      const sortedData = response.data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)); // Sort by datetime
+      setData(sortedData);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
@@ -26,52 +27,50 @@ const ViewReceivedInvoices = () => {
 
   const columns = [
     {
-      title: 'Sender',
-      dataIndex: 'issuer',
-      key: 'sender',
+      title: 'No.',
+      key: 'no',
+      render: (text, record, index) => index + 1,
     },
     {
-      title: 'Receiver',
-      dataIndex: 'recipient',
-      key: 'receiver',
+      title: 'Supplier',
+      dataIndex: 'issuer_name',
+      key: 'supplier',
     },
     {
       title: 'Datetime',
       dataIndex: 'created_at',
-      key: 'datetime',
+      key: 'created_at',
       render: (datetime) => new Date(datetime).toLocaleString(),
+      sorter: (a, b) => new Date(a.created_at) - new Date(b.created_at),
     },
     {
       title: 'Actions',
       key: 'actions',
       render: (text, record) => (
-        <button onClick={() => handleViewDetails(record)}>View Details</button>
+        <button onClick={() => handleViewDetails(record)}>View more</button>
       ),
     },
   ];
 
   const handleViewDetails = (record) => {
-    setSelectedData(record);
-    setDisplayedInternalFormat(record.internal_format);
-    setDisplayedSourceFormat(record.source_format);
-    setModalVisible(true);
+    setSelectedData(record); 
+    setModalVisible(true); 
   };
 
   return (
     <div>
-      <Table dataSource={data} columns={columns} />
-      <Modal
-        title="Invoice Details"
-        visible={modalVisible}
-        onCancel={() => setModalVisible(false)}
-        footer={null}
-      >
-        <p>Sender: {selectedData.issuer}</p>
-        <p>Receiver: {selectedData.recipient}</p>
-        <p>Datetime: {new Date(selectedData.created_at).toLocaleString()}</p>
-        <p>Internal Format: {displayedInternalFormat}</p>
-        <p>Source Format: {displayedSourceFormat}</p>
-      </Modal>
+      <center>
+        <h1>Your Invoices</h1>
+        
+        <Table dataSource={data} columns={columns} rowKey="id" style={{ width: '80%', paddingTop: '2%' }} />
+        {selectedData && (
+          <InvoiceDetailsModal
+            visible={modalVisible}
+            onClose={() => setModalVisible(false)}
+            invoice={JSON.parse(selectedData.internal_format)}
+          />
+        )}
+      </center>
     </div>
   );
 };
