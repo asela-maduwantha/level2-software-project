@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Layout, Input, Button, Table, Modal, message } from "antd"; // Import message for displaying error messages
+import { Layout, Input, Button, Table, Modal, message } from "antd";
 import axios from "axios";
 
 const { Header, Content } = Layout;
@@ -20,30 +20,29 @@ const UserDashboard = () => {
         `http://localhost:8000/search/search-invoices?organization_id=${organization_id}&query=${query}`
       );
 
-      // Check if the response status is OK
       if (response.status === 200) {
-        // Extract the _source objects from each item in the response array
         const extractedInvoices = response.data.map((item) => item._source);
         setInvoices(extractedInvoices);
-        console.log(extractedInvoices); // Logging the extracted invoices
+        console.log(extractedInvoices);
       } else {
-        // Display an error message if response status is not OK
         message.error("Failed to fetch invoices. Please try again.");
+        setInvoices([]); // Clear invoices if there's an error
       }
     } catch (error) {
-      // Handle specific error responses from the backend
       if (error.response) {
         const { status, data } = error.response;
         if (status === 400) {
           message.error(data.error);
         } else if (status === 404) {
           message.error("No invoices found matching the search criteria");
+          setInvoices([]); // Clear invoices if no results found
         } else {
           message.error("Failed to fetch invoices. Please try again.");
+          setInvoices([]); // Clear invoices for any other errors
         }
       } else {
-        // Handle network errors
         message.error("Network error. Please try again.");
+        setInvoices([]); // Clear invoices for network errors
       }
       console.error("Error fetching invoices:", error);
     } finally {
@@ -74,29 +73,29 @@ const UserDashboard = () => {
     },
     {
       title: "Seller",
-      dataIndex: ["seller", "company_name"], // Use array for nested properties
+      dataIndex: ["seller", "company_name"],
       key: "seller",
       render: (text, record) => (
         <>
-          <div>{record.seller?.company_name}</div> 
-          <div>{record.seller?.address?.city}</div> 
+          <div>{record.seller?.company_name}</div>
+          <div>{record.seller?.address?.city}</div>
         </>
       ),
     },
     {
       title: "Buyer",
-      dataIndex: ["buyer", "company_name"], // Use array for nested properties
+      dataIndex: ["buyer", "company_name"],
       key: "buyer",
       render: (text, record) => (
         <>
-          <div>{record.buyer?.company_name}</div> {/* Optional chaining */}
-          <div>{record.buyer?.address?.city}</div> {/* Optional chaining */}
+          <div>{record.buyer?.company_name}</div>
+          <div>{record.buyer?.address?.city}</div>
         </>
       ),
     },
     {
       title: "Total Amount",
-      dataIndex: ["summary", "total_amount"], // Use array for nested properties
+      dataIndex: ["summary", "total_amount"],
       key: "total_amount",
       render: (text) => `£ ${text}`,
     },

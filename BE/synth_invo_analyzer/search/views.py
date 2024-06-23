@@ -8,13 +8,13 @@ def search_invoices(request):
     query_word = request.query_params.get('query')
     organization_id = request.query_params.get('organization_id')
     
-    # Check if both query_word and supplier_id are provided
+   
     if not organization_id or not query_word:
         return Response({"error": "Both organization_id and query parameters are required"}, status=status.HTTP_400_BAD_REQUEST)
     
     es = Elasticsearch(['http://localhost:9200'])
     
-    # Construct the search query
+ 
     search_body = {
         "query": {
             "bool": {
@@ -47,7 +47,7 @@ def search_invoices(request):
         if res['hits']['total']['value'] == 0:
             return Response({"error": "No invoices found matching the search criteria"}, status=status.HTTP_404_NOT_FOUND)
         
-        # Return the hits if found
+    
         return Response(res['hits']['hits'], status=status.HTTP_200_OK)
     
     except Exception as e:
