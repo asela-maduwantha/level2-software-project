@@ -9,5 +9,6 @@ urlpatterns = [
     path('subscription-models/', include('subscription_models.urls')),
     path('subscriptions/',include('subscriptions.urls')),
     path('analysis/',include('invoice_analysis.urls')),
+    path('search/',include('search.urls')),
     
 ]

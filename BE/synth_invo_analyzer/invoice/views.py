@@ -6,6 +6,8 @@ from .models import Invoice
 from .utils import format_invoice
 from .serializers import InvoiceSerializer
 from rest_framework import status
+from search.elasticsearch_utils import async_index_invoices
+import threading
 
 @api_view(['POST'])
 def create_invoice(request):
@@ -13,9 +15,9 @@ def create_invoice(request):
         source_invoice = request.data.get('source_invoice')
         
         if isinstance(source_invoice, str):
-            # Check if the source_invoice string is XML or JSON
+           
             if source_invoice.strip().startswith('<'):
-                # Convert XML string to JSON
+           
                 source_invoice = xmltodict.parse(source_invoice)
             else:
                 source_invoice = json.loads(source_invoice)
@@ -23,7 +25,7 @@ def create_invoice(request):
         elif 'source_invoice' in request.FILES:
             source_invoice_file = request.FILES['source_invoice']
             if source_invoice_file.name.endswith('.xml'):
-                # Read and convert XML file to JSON
+              
                 source_invoice = xmltodict.parse(source_invoice_file.read())
             else:
                 source_invoice = json.load(source_invoice_file)
@@ -43,7 +45,11 @@ def create_invoice(request):
         serializer = InvoiceSerializer(data=invoice_data)
         
         if serializer.is_valid():
-            serializer.save()
+            invoice = serializer.save()
+            
+           
+            threading.Thread(target=async_index_invoices, args=([json.dumps(converted_invoice)], supplier_id, organization_id)).start()
+            
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

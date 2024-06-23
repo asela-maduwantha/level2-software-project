@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'django_cassandra_engine',
+    'django_elasticsearch_dsl',
     'corsheaders',
     'authentication',
     'invoice_template',
@@ -184,6 +185,8 @@ EMAIL_HOST_PASSWORD = 'ohpb xyoh nqrt ojai '
 
 ELASTICSEARCH_DSL = {
     'default': {
-        'hosts': 'localhost:9200'
+        'hosts': 'http://localhost:9200'
     },
 }
+
+
