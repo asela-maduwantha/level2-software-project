@@ -6,14 +6,14 @@ from datetime import datetime
 
 class TemplateSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(default=uuid.uuid4)
-    supplier = serializers.IntegerField()
+    supplier = serializers.UUIDField(default=uuid.uuid4)
     template_name = serializers.CharField()
     template_content = serializers.CharField()
     uploaded_at = serializers.DateTimeField(default=datetime.now)
     mapping = serializers.CharField(allow_null=True, required=False)
     created_at = serializers.DateTimeField(default=datetime.now)
     mapped_status = serializers.BooleanField(default=False)
-    mapped_by = serializers.IntegerField(allow_null = True, required = False)
+    mapped_by = serializers.UUIDField(allow_null = True, required = False)
     mapped_at = serializers.DateTimeField(default=datetime.now)
 
     mapping_dict = serializers.SerializerMethodField()

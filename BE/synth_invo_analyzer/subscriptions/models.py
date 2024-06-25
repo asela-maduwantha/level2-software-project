@@ -1,7 +1,9 @@
+import uuid
 from django.db import models
 from authentication.models import Organization
 
 class Subscription(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(Organization, on_delete=models.CASCADE)
     subscription_id = models.CharField(max_length=100, unique=True)
     plan_id = models.CharField(max_length=100)
@@ -20,6 +22,7 @@ class Subscription(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
 class Payment(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     subscription = models.ForeignKey(Subscription, on_delete=models.CASCADE)
     payment_id = models.CharField(max_length=100)
     payment_date = models.DateTimeField()

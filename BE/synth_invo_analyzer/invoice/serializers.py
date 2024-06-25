@@ -6,8 +6,8 @@ from datetime import datetime
 
 class InvoiceSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(default=uuid.uuid4)
-    issuer = serializers.IntegerField()
-    recipient = serializers.IntegerField()
+    issuer = serializers.UUIDField(default=uuid.uuid4)
+    recipient = serializers.UUIDField(default=uuid.uuid4)
     source_format = serializers.CharField()  
     internal_format = serializers.CharField()  
     created_at = serializers.DateTimeField(default=datetime.now)

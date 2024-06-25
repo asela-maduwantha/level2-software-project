@@ -16,12 +16,14 @@ const ProductAnalysis = () => {
     useEffect(() => {
         const fetchProductAnalysis = async () => {
             try {
-                const response = await axios.post('http://127.0.0.1:8000/analysis/generate-product-analysis/', {
-                    user_id: localStorage.getItem('organization_id')
+                const response = await axios.get('http://127.0.0.1:8000/analysis/generate-product-analysis/', {
+                   params:{
+                    organization_id : localStorage.getItem('organization_id')
+                   }
                 });
 
                 const responseData = response.data;
-
+                console.log(responseData)
                 // Assuming the response data has 'top_selling' and 'price_analysis' sections
                 const topSelling = responseData.top_selling.find(item => item.year === new Date().getFullYear());
                 const priceAnalysis = responseData.price_analysis.find(item => item.year === new Date().getFullYear());

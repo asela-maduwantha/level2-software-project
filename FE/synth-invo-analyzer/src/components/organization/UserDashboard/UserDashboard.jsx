@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { Layout, Input, Button, Table, Modal, message } from "antd";
+import { Layout, Input, Button, Table, Modal, message, DatePicker } from "antd";
 import axios from "axios";
 
-const { Header, Content } = Layout;
+const { Content } = Layout;
+const { RangePicker } = DatePicker;
 
 const UserDashboard = () => {
   const [query, setQuery] = useState("");
@@ -10,15 +11,22 @@ const UserDashboard = () => {
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
 
   const handleSearch = async () => {
     setLoading(true);
 
     try {
       const organization_id = localStorage.getItem("organization_id");
-      const response = await axios.get(
-        `http://localhost:8000/search/search-invoices?organization_id=${organization_id}&query=${query}`
-      );
+      const startDateString = startDate ? startDate.format("YYYY-MM-DD") : "";
+      const endDateString = endDate ? endDate.format("YYYY-MM-DD") : "";
+
+      let url = `http://localhost:8000/search/search-invoices?organization_id=${organization_id}&query=${query}`;
+      if (startDateString) url += `&start_date=${startDateString}`;
+      if (endDateString) url += `&end_date=${endDateString}`;
+
+      const response = await axios.get(url);
 
       if (response.status === 200) {
         const extractedInvoices = response.data.map((item) => item._source);
@@ -97,7 +105,7 @@ const UserDashboard = () => {
       title: "Total Amount",
       dataIndex: ["summary", "total_amount"],
       key: "total_amount",
-      render: (text) => `£ ${text}`,
+      render: (text) => ` ${text}`,
     },
     {
       title: "Action",
@@ -110,18 +118,46 @@ const UserDashboard = () => {
     },
   ];
 
+  const itemColumns = [
+    {
+      title: "Description",
+      dataIndex: "description",
+      key: "description",
+    },
+    {
+      title: "Quantity",
+      dataIndex: "quantity",
+      key: "quantity",
+    },
+    {
+      title: "Unit Price",
+      dataIndex: "unit_price",
+      key: "unit_price",
+    },
+    {
+      title: "Total Price",
+      dataIndex: "total_price",
+      key: "total_price",
+    },
+  ];
+
   return (
     <Layout style={{ minHeight: "100vh" }}>
-      <Header style={{ background: "#001529", textAlign: "center", color: "#fff" }}>
-        <h1>Invoice Search</h1>
-      </Header>
+      <h1>Invoice Search</h1>
       <Content style={{ padding: "20px" }}>
         <div style={{ marginBottom: "20px" }}>
           <Input
-            placeholder="Enter invoice description"
+            placeholder="Enter product name"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             style={{ width: "300px", marginRight: "10px" }}
+          />
+          <RangePicker
+            style={{ marginRight: "10px" }}
+            onChange={(dates) => {
+              setStartDate(dates ? dates[0] : null);
+              setEndDate(dates ? dates[1] : null);
+            }}
           />
           <Button type="primary" onClick={handleSearch} loading={loading}>
             Search
@@ -151,28 +187,41 @@ const UserDashboard = () => {
               </p>
               <p>
                 <strong>Seller:</strong> {selectedInvoice.seller?.company_name}
-              </p>{" "}
-             
+              </p>
               <p>
                 <strong>Seller Address:</strong>{" "}
                 {selectedInvoice.seller?.address?.street},{" "}
                 {selectedInvoice.seller?.address?.city}
-              </p>{" "}
-              
+              </p>
               <p>
                 <strong>Buyer:</strong> {selectedInvoice.buyer?.company_name}
-              </p>{" "}
-              
+              </p>
               <p>
                 <strong>Buyer Address:</strong>{" "}
                 {selectedInvoice.buyer?.address?.street},{" "}
                 {selectedInvoice.buyer?.address?.city}
-              </p>{" "}
-              
+              </p>
+              <Table
+                columns={itemColumns}
+                dataSource={selectedInvoice.items}
+                pagination={false}
+                rowKey="description"
+              />
               <p>
-                <strong>Total Amount:</strong> £ {selectedInvoice.summary?.total_amount}
-              </p>{" "}
-             
+                <strong>Subtotal:</strong> {selectedInvoice.summary?.subtotal}
+              </p>
+              <p>
+                <strong>Tax Rate:</strong> {selectedInvoice.summary?.tax_rate}
+              </p>
+              <p>
+                <strong>Tax Amount:</strong> {selectedInvoice.summary?.tax_amount}
+              </p>
+              <p>
+                <strong>Total Amount:</strong> {selectedInvoice.summary?.total_amount}
+              </p>
+              <p>
+                <strong>Notes:</strong> {selectedInvoice.notes?.note}
+              </p>
             </>
           )}
         </Modal>

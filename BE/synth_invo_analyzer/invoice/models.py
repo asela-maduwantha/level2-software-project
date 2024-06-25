@@ -5,8 +5,8 @@ from datetime import datetime
 
 class Invoice(DjangoCassandraModel):
     id = columns.UUID(primary_key=True, default=uuid.uuid4)
-    issuer = columns.Integer()
-    recipient = columns.Integer()
+    issuer = columns.UUID(default=uuid.uuid4)
+    recipient = columns.UUID(default=uuid.uuid4)
     source_format = columns.Text()  
     internal_format = columns.Text()  #json format and use for search
     created_at = columns.DateTime(default=datetime.now)

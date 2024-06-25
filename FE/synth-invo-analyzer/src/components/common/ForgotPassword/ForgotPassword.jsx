@@ -1,16 +1,25 @@
 // src/components/ForgotPassword.js
 import React, { useState } from 'react';
-import { Form, Input, Button, message, Row, Col } from 'antd';
+import { Form, Input, Button, message, Row, Col, Typography } from 'antd';
 import axios from 'axios';
+import forgotImg from '../../../assets/Forgot-password.svg';
+import Header from '../HeaderInside/HeaderInside';
+import { useNavigate } from 'react-router-dom';
+
+const { Title } = Typography;
 
 const ForgotPassword = ({ onSuccess }) => {
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate()
+
 
   const onFinish = async (values) => {
     setLoading(true);
     try {
+      localStorage.setItem('email', values.email)
       await axios.post('http://127.0.0.1:8000/auth/forgot-password/', { email: values.email });
       message.success('OTP sent to your email.');
+      navigate('/verify-otp')
       onSuccess(values.email);
     } catch (error) {
       message.error(error.response?.data?.message || 'Error sending OTP.');
@@ -19,26 +28,30 @@ const ForgotPassword = ({ onSuccess }) => {
   };
 
   return (
-    <Row>
-      <Col span={12}>
-        <img src="path/to/your/image.jpg" alt="Forgot Password" style={{ width: '100%' }} />
-      </Col>
-      <Col span={12} style={{ padding: '20px' }}>
-        <Form onFinish={onFinish}>
-          <Form.Item
-            name="email"
-            rules={[{ required: true, message: 'Please input your email!', type: 'email' }]}
-          >
-            <Input placeholder="Email" />
-          </Form.Item>
-          <Form.Item>
-            <Button type="primary" htmlType="submit" loading={loading}>
-              Send OTP
-            </Button>
-          </Form.Item>
-        </Form>
-      </Col>
-    </Row>
+    <>
+      <Header />
+      <Row   style={{ height: '90vh' }}>
+        <Col span={12}>
+          <img src={forgotImg} alt="Forgot Password" style={{ width: '100%' }} />
+        </Col>
+        <Col span={6} style={{ padding: '20px', paddingTop:'100px' }}>
+          <Title level={1} >Enter your e-mail</Title><br></br>
+          <Form onFinish={onFinish} >
+            <Form.Item
+              name="email"
+              rules={[{ required: true, message: 'Please input your email!', type: 'email' }]}
+            >
+              <Input placeholder="Email" style={{ height: '40px', fontSize: '16px' }} />
+            </Form.Item>
+            <Form.Item>
+              <Button type="primary" htmlType="submit" loading={loading} style={{ height: '40px', fontSize: '16px' }}>
+                Request OTP
+              </Button>
+            </Form.Item>
+          </Form>
+        </Col>
+      </Row>
+    </>
   );
 };
 

@@ -99,7 +99,7 @@ const OrganizationSignIn = () => {
                 </Form.Item>
 
                 <div style={{ textAlign: 'center' }}>
-                  <a href="http://example.com/forgot-password" style={{ color: '#6760EF' }}>
+                  <a href="/forgot-password" style={{ color: '#6760EF' }}>
                     Forgot password?
                   </a>
                 </div>

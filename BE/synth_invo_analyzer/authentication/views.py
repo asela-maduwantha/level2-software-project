@@ -33,8 +33,8 @@ def organization_signup(request):
             
             if send_otp(request.data.get('email')):
                 organization = serializer.save()
-                token = generate_token(organization.id, 'organization', '')
-                return Response({'user': serializer.data, 'token': token, 'organization_id': organization.id}, status=status.HTTP_201_CREATED)
+                token = generate_token(str(organization.id), 'organization', '')
+                return Response({'user': serializer.data, 'token': token, 'organization_id': str(organization.id)}, status=status.HTTP_201_CREATED)
             print(serializer.errors)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
@@ -52,14 +52,14 @@ def organization_signin(request):
     user = authenticate(request, email=email, password=password)
 
     if user:
-        access_token = generate_token(user.id, 'organization', '')
+        access_token = generate_token(str(user.id), 'organization', '')
         refresh_token = generate_refresh_token(access_token)
         
         if(user.is_verified_email):
             return Response({
                 'access': access_token, 
                 'refresh': refresh_token, 
-                'organization_id': user.organization.id,
+                'organization_id': str(user.organization.id),
             }, status=status.HTTP_200_OK)
         else:
             return Response({'message': 'Not a verified e-mail', 'email': user.email}, status=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION)
@@ -111,13 +111,13 @@ def employee_signin(request):
             
             if employee.temporary_password:
                 return Response({'You must change your Password'}, status = status.HTTP_307_TEMPORARY_REDIRECT )
-            access_token = generate_token(employee.id, 'employee', employee.organization.id)
+            access_token = generate_token(str(employee.id), 'employee', employee.organization.id)
             refresh_token = generate_refresh_token(access_token)
             return Response({
                 'access': access_token, 
                 'refresh': refresh_token, 
-                'employee_id': employee.id,
-                'organization_id': employee.organization.id
+                'employee_id': str(employee.id),
+                'organization_id': str(employee.organization.id)
             }, status=status.HTTP_200_OK)
         except Employee.DoesNotExist:
             return Response({'error': 'User is not an employee'}, status=status.HTTP_401_UNAUTHORIZED)
@@ -196,14 +196,14 @@ def supplier_signin(request):
         try:
             supplier = user.supplier
             
-            access_token = generate_token(supplier.user_id, 'supplier', '')
+            access_token = generate_token(str(supplier.user_id), 'supplier', '')
             refresh_token = generate_refresh_token(access_token)
             if supplier.temporary_password:
                 return Response({'message' : 'You must change your Password', 'supplier' : supplier.user_id, 'token': access_token, 'email': user.email}, status = status.HTTP_307_TEMPORARY_REDIRECT )
             return Response({
                 'access': access_token, 
                 'refresh': refresh_token, 
-                'supplier_id': supplier.id
+                'supplier_id': str(supplier.id)
             }, status=status.HTTP_200_OK)
         except Supplier.DoesNotExist:
             return Response({'error': 'User is not a supplier'}, status=status.HTTP_401_UNAUTHORIZED)
@@ -225,8 +225,8 @@ def admin_signup(request):
     if serializer.is_valid():
         admin = serializer.save()
         user = admin.user
-        token = generate_token(user.id, 'system_admin', '')
-        return Response({'admin': serializer.data, 'token': token, "admin_id": admin.id}, status=status.HTTP_201_CREATED)
+        token = generate_token(str(admin.id), 'system_admin', '')
+        return Response({'admin': serializer.data, 'token': token, "admin_id": str(admin.id)}, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -241,12 +241,12 @@ def admin_signin(request):
     if user:
         try:
             admin = user.systemadmin
-            access_token = generate_token(admin.id, 'system_admin', '')
+            access_token = generate_token(str(admin.id), 'system_admin', '')
             refresh_token = generate_refresh_token(access_token)
             return Response({
                 'access': access_token, 
                 'refresh': refresh_token, 
-                'admin_id': admin.id
+                'admin_id': str(admin.id)
             }, status=status.HTTP_200_OK)
         except SystemAdmin.DoesNotExist:
             return Response({'error': 'User is not a system admin'}, status=status.HTTP_401_UNAUTHORIZED)

@@ -44,7 +44,7 @@ class IsSystemAdmin(permissions.BasePermission):
         user_id = user_info['user_id']
         role = user_info['role']
         if role == 'system_admin':
-            if SystemAdmin.objects.filter(user_id=user_id).exists():
+            if SystemAdmin.objects.filter(id=user_id).exists():
                 return True
         raise PermissionDenied("You do not have permission to access this resource as a system admin")
 

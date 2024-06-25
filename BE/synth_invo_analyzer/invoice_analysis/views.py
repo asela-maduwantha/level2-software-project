@@ -11,10 +11,10 @@ from io import BytesIO
 
 plt.switch_backend('Agg')
 
-@api_view(['POST'])
+@api_view(['GET'])
 def generate_product_analysis(request):
     try:
-        user_id = request.data.get('user_id')
+        user_id = request.query_params.get('organization_id')
         if not user_id:
             return JsonResponse({'error': 'user_id is required'}, status=400)
 
@@ -27,6 +27,8 @@ def generate_product_analysis(request):
             'top_selling': format_product_chart_data(top_selling),
             'price_analysis': format_product_chart_data(price_analysis),
         }
+        
+        print(response_data)
         return JsonResponse(response_data, status=200)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
