@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Modal, Typography, Row, Col, Divider, Table, Button } from 'antd';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import logo from '../../../assets/companylogo.png';  // Assuming the logo is in the assets folder
 
 const { Text, Title } = Typography;
 
@@ -25,17 +26,20 @@ const InvoiceDetailsModal = ({ visible, onClose, invoice }) => {
     if (!invoice || !invoice.Invoice) return;
 
     const doc = new jsPDF();
+    doc.addFont('Helvetica', 'Helvetica', 'normal');
+    doc.setFont('Helvetica');
 
-    // Starting vertical position to place content
-    let yPos = 20;
-
-    // Add Invoice Title
+    // Add logo
+    doc.addImage(logo, 'JPEG', 10, 10, 50, 20);
     doc.setFontSize(20);
-    doc.text('Invoice Details', 105, yPos, { align: 'center' });
-    yPos += 10;
+    doc.setTextColor(40, 40, 40);
+    doc.text('Invoice Details', 105, 20, { align: 'center' });
+
+    let yPos = 40;
 
     // Add Invoice Header
     doc.setFontSize(14);
+    doc.setTextColor(60, 60, 60);
     doc.text(`Invoice Number: ${invoice.Invoice.Header?.InvoiceNumber || 'N/A'}`, 10, yPos);
     doc.text(`Invoice Date: ${invoice.Invoice.Header?.InvoiceDate || 'N/A'}`, 10, yPos + 10);
     doc.text(`Due Date: ${invoice.Invoice.Header?.DueDate || 'N/A'}`, 10, yPos + 20);
@@ -47,7 +51,11 @@ const InvoiceDetailsModal = ({ visible, onClose, invoice }) => {
     yPos += 20;
 
     // Add Seller Information
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(16);
     doc.text(`Seller Information`, 10, yPos);
+    doc.setFontSize(14);
+    doc.setTextColor(60, 60, 60);
     doc.text(`Company Name: ${invoice.Invoice.Seller?.CompanyName || 'N/A'}`, 10, yPos + 10);
     doc.text(`Address: ${invoice.Invoice.Seller?.Address?.Street || 'N/A'}, ${invoice.Invoice.Seller?.Address?.City || 'N/A'}, ${invoice.Invoice.Seller?.Address?.State || 'N/A'}, ${invoice.Invoice.Seller?.Address?.ZipCode || 'N/A'}, ${invoice.Invoice.Seller?.Address?.Country || 'N/A'}`, 10, yPos + 20);
     doc.text(`Contact Name: ${invoice.Invoice.Seller?.Contact?.Name || 'N/A'}`, 10, yPos + 30);
@@ -56,7 +64,11 @@ const InvoiceDetailsModal = ({ visible, onClose, invoice }) => {
     yPos += 60;
 
     // Add Buyer Information
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(16);
     doc.text(`Buyer Information`, 10, yPos);
+    doc.setFontSize(14);
+    doc.setTextColor(60, 60, 60);
     doc.text(`Company Name: ${invoice.Invoice.Buyer?.CompanyName || 'N/A'}`, 10, yPos + 10);
     doc.text(`Address: ${invoice.Invoice.Buyer?.Address?.Street || 'N/A'}, ${invoice.Invoice.Buyer?.Address?.City || 'N/A'}, ${invoice.Invoice.Buyer?.Address?.State || 'N/A'}, ${invoice.Invoice.Buyer?.Address?.ZipCode || 'N/A'}, ${invoice.Invoice.Buyer?.Address?.Country || 'N/A'}`, 10, yPos + 20);
     doc.text(`Contact Name: ${invoice.Invoice.Buyer?.Contact?.Name || 'N/A'}`, 10, yPos + 30);
@@ -65,10 +77,11 @@ const InvoiceDetailsModal = ({ visible, onClose, invoice }) => {
     yPos += 60;
 
     // Add Items
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(16);
     doc.text(`Items`, 10, yPos);
     yPos += 10;
 
-    // Example data for table
     const data = [];
     dataSource.forEach((item, index) => {
       const rowData = [
@@ -85,12 +98,19 @@ const InvoiceDetailsModal = ({ visible, onClose, invoice }) => {
       startY: yPos,
       head: [['Description', 'Quantity', 'Unit Price', 'Total Price']],
       body: data,
+      theme: 'grid',
+      headStyles: { fillColor: [0, 128, 255] },
+      styles: { fontSize: 12 },
     });
     yPos = doc.autoTableEndPosY() + 10;
 
     // Add Summary
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(16);
     doc.text(`Summary`, 10, yPos);
     yPos += 10;
+    doc.setFontSize(14);
+    doc.setTextColor(60, 60, 60);
     doc.text(`Subtotal: $${invoice.Invoice.Summary?.Subtotal || 'N/A'}`, 10, yPos);
     doc.text(`Tax Rate: ${invoice.Invoice.Summary?.TaxRate ? `${invoice.Invoice.Summary?.TaxRate * 100}%` : 'N/A'}`, 10, yPos + 10);
     doc.text(`Tax Amount: $${invoice.Invoice.Summary?.TaxAmount || 'N/A'}`, 10, yPos + 20);
@@ -99,8 +119,12 @@ const InvoiceDetailsModal = ({ visible, onClose, invoice }) => {
     yPos += 50;
 
     // Add Payment Instructions
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(16);
     doc.text(`Payment Instructions`, 10, yPos);
     yPos += 10;
+    doc.setFontSize(14);
+    doc.setTextColor(60, 60, 60);
     doc.text(`Bank Name: ${invoice.Invoice.PaymentInstructions?.BankName || 'N/A'}`, 10, yPos);
     doc.text(`Account Number: ${invoice.Invoice.PaymentInstructions?.AccountNumber || 'N/A'}`, 10, yPos + 10);
     doc.text(`Routing Number: ${invoice.Invoice.PaymentInstructions?.RoutingNumber || 'N/A'}`, 10, yPos + 20);
@@ -108,11 +132,14 @@ const InvoiceDetailsModal = ({ visible, onClose, invoice }) => {
     yPos += 40;
 
     // Add Notes
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(16);
     doc.text(`Notes`, 10, yPos);
     yPos += 10;
+    doc.setFontSize(14);
+    doc.setTextColor(60, 60, 60);
     doc.text(`${invoice.Invoice.Notes?.Note || 'N/A'}`, 10, yPos);
 
-    // Example: Save the PDF
     doc.save('invoice-details.pdf');
   };
 
@@ -152,83 +179,120 @@ const InvoiceDetailsModal = ({ visible, onClose, invoice }) => {
 
   return (
     <Modal
-      title="Invoice Details"
       visible={visible}
       onCancel={onClose}
       footer={[
-        <Button key="pdf" onClick={handleDownloadPDF}>
-          Download as PDF
+        <Button key="download" onClick={handleDownloadPDF}>
+          Download PDF
+        </Button>,
+        <Button key="close" onClick={onClose}>
+          Close
         </Button>,
       ]}
       width={800}
-      bodyStyle={{ maxHeight: '70vh', overflowY: 'scroll' }}
     >
-      <div>
-        {/* Content displayed in the modal is already integrated into PDF */}
-        <Title level={2} style={{ textAlign: 'center' }}>Invoice</Title>
-        <Divider />
-
-        <Row>
-          <Col span={12}>
-            <Title level={4}>Invoice Header</Title>
-            <p><strong>Invoice Number:</strong> {invoice.Invoice.Header?.InvoiceNumber || 'N/A'}</p>
-            <p><strong>Invoice Date:</strong> {invoice.Invoice.Header?.InvoiceDate || 'N/A'}</p>
-            <p><strong>Due Date:</strong> {invoice.Invoice.Header?.DueDate || 'N/A'}</p>
-            <p><strong>Currency:</strong> {invoice.Invoice.Header?.Currency || 'N/A'}</p>
-          </Col>
-          <Col span={12}>
-            <Title level={4}>Project</Title>
-            <p><strong>Project Name:</strong> {invoice.Invoice.Header?.ProjectName || 'N/A'}</p>
-          </Col>
-        </Row>
-        <Divider />
-
-        <Row>
-          <Col span={12}>
-            <Title level={4}>Seller Information</Title>
-            <p><strong>Company Name:</strong> {invoice.Invoice.Seller?.CompanyName || 'N/A'}</p>
-            <p>
-              <strong>Address:</strong> {`${invoice.Invoice.Seller?.Address?.Street || ''}, ${invoice.Invoice.Seller?.Address?.City || ''}, ${invoice.Invoice.Seller?.Address?.State || ''}, ${invoice.Invoice.Seller?.Address?.ZipCode || ''}, ${invoice.Invoice.Seller?.Address?.Country || ''}`}
-            </p>
-            <p><strong>Contact Name:</strong> {invoice.Invoice.Seller?.Contact?.Name || 'N/A'}</p>
-            <p><strong>Contact Phone:</strong> {invoice.Invoice.Seller?.Contact?.Phone || 'N/A'}</p>
-            <p><strong>Contact Email:</strong> {invoice.Invoice.Seller?.Contact?.Email || 'N/A'}</p>
-          </Col>
-          <Col span={12}>
-            <Title level={4}>Buyer Information</Title>
-            <p><strong>Company Name:</strong> {invoice.Invoice.Buyer?.CompanyName || 'N/A'}</p>
-            <p>
-              <strong>Address:</strong> {`${invoice.Invoice.Buyer?.Address?.Street || ''}, ${invoice.Invoice.Buyer?.Address?.City || ''}, ${invoice.Invoice.Buyer?.Address?.State || ''}, ${invoice.Invoice.Buyer?.Address?.ZipCode || ''}, ${invoice.Invoice.Buyer?.Address?.Country || ''}`}
-            </p>
-            <p><strong>Contact Name:</strong> {invoice.Invoice.Buyer?.Contact?.Name || 'N/A'}</p>
-            <p><strong>Contact Phone:</strong> {invoice.Invoice.Buyer?.Contact?.Phone || 'N/A'}</p>
-            <p><strong>Contact Email:</strong> {invoice.Invoice.Buyer?.Contact?.Email || 'N/A'}</p>
-          </Col>
-        </Row>
-        <Divider />
-
-        <Title level={4}>Items</Title>
-        <Table dataSource={dataSource} columns={columns} pagination={false} />
-        <Divider />
-
-        <Title level={4}>Summary</Title>
-        <p><strong>Subtotal:</strong> ${invoice.Invoice.Summary?.Subtotal || 'N/A'}</p>
-        <p><strong>Tax Rate:</strong> {invoice.Invoice.Summary?.TaxRate ? `${invoice.Invoice.Summary?.TaxRate * 100}%` : 'N/A'}</p>
-        <p><strong>Tax Amount:</strong> ${invoice.Invoice.Summary?.TaxAmount || 'N/A'}</p>
-        <p><strong>Total Amount:</strong> ${invoice.Invoice.Summary?.TotalAmount || 'N/A'}</p>
-        <p><strong>Discount:</strong> ${invoice.Invoice.Summary?.Discount || 'N/A'}</p>
-        <Divider />
-
-        <Title level={4}>Payment Instructions</Title>
-        <p><strong>Bank Name:</strong> {invoice.Invoice.PaymentInstructions?.BankName || 'N/A'}</p>
-        <p><strong>Account Number:</strong> {invoice.Invoice.PaymentInstructions?.AccountNumber || 'N/A'}</p>
-        <p><strong>Routing Number:</strong> {invoice.Invoice.PaymentInstructions?.RoutingNumber || 'N/A'}</p>
-        <p><strong>SWIFT:</strong> {invoice.Invoice.PaymentInstructions?.SWIFT || 'N/A'}</p>
-        <Divider />
-
-        <Title level={4}>Notes</Title>
-        <p>{invoice.Invoice.Notes?.Note || 'N/A'}</p>
-      </div>
+      <Title level={2}>Invoice Details</Title>
+      <Row gutter={16}>
+        <Col span={12}>
+          <Text strong>Invoice Number: </Text>
+          <Text>{invoice.Invoice.Header?.InvoiceNumber || 'N/A'}</Text>
+        </Col>
+        <Col span={12}>
+          <Text strong>Invoice Date: </Text>
+          <Text>{invoice.Invoice.Header?.InvoiceDate || 'N/A'}</Text>
+        </Col>
+        <Col span={12}>
+          <Text strong>Due Date: </Text>
+          <Text>{invoice.Invoice.Header?.DueDate || 'N/A'}</Text>
+        </Col>
+        <Col span={12}>
+          <Text strong>Currency: </Text>
+          <Text>{invoice.Invoice.Header?.Currency || 'N/A'}</Text>
+        </Col>
+      </Row>
+      <Divider />
+      <Row gutter={16}>
+        <Col span={12}>
+          <Title level={4}>Seller Information</Title>
+          <Text strong>Company Name: </Text>
+          <Text>{invoice.Invoice.Seller?.CompanyName || 'N/A'}</Text><br />
+          <Text strong>Address: </Text>
+          <Text>{invoice.Invoice.Seller?.Address?.Street || 'N/A'}, {invoice.Invoice.Seller?.Address?.City || 'N/A'}, {invoice.Invoice.Seller?.Address?.State || 'N/A'}, {invoice.Invoice.Seller?.Address?.ZipCode || 'N/A'}, {invoice.Invoice.Seller?.Address?.Country || 'N/A'}</Text><br />
+          <Text strong>Contact Name: </Text>
+          <Text>{invoice.Invoice.Seller?.Contact?.Name || 'N/A'}</Text><br />
+          <Text strong>Contact Phone: </Text>
+          <Text>{invoice.Invoice.Seller?.Contact?.Phone || 'N/A'}</Text><br />
+          <Text strong>Contact Email: </Text>
+          <Text>{invoice.Invoice.Seller?.Contact?.Email || 'N/A'}</Text>
+        </Col>
+        <Col span={12}>
+          <Title level={4}>Buyer Information</Title>
+          <Text strong>Company Name: </Text>
+          <Text>{invoice.Invoice.Buyer?.CompanyName || 'N/A'}</Text><br />
+          <Text strong>Address: </Text>
+          <Text>{invoice.Invoice.Buyer?.Address?.Street || 'N/A'}, {invoice.Invoice.Buyer?.Address?.City || 'N/A'}, {invoice.Invoice.Buyer?.Address?.State || 'N/A'}, {invoice.Invoice.Buyer?.Address?.ZipCode || 'N/A'}, {invoice.Invoice.Buyer?.Address?.Country || 'N/A'}</Text><br />
+          <Text strong>Contact Name: </Text>
+          <Text>{invoice.Invoice.Buyer?.Contact?.Name || 'N/A'}</Text><br />
+          <Text strong>Contact Phone: </Text>
+          <Text>{invoice.Invoice.Buyer?.Contact?.Phone || 'N/A'}</Text><br />
+          <Text strong>Contact Email: </Text>
+          <Text>{invoice.Invoice.Buyer?.Contact?.Email || 'N/A'}</Text>
+        </Col>
+      </Row>
+      <Divider />
+      <Title level={4}>Items</Title>
+      <Table
+        dataSource={dataSource}
+        columns={columns}
+        pagination={false}
+      />
+      <Divider />
+      <Title level={4}>Summary</Title>
+      <Row gutter={16}>
+        <Col span={12}>
+          <Text strong>Subtotal: </Text>
+          <Text>{`$${invoice.Invoice.Summary?.Subtotal || 'N/A'}`}</Text>
+        </Col>
+        <Col span={12}>
+          <Text strong>Tax Rate: </Text>
+          <Text>{`${invoice.Invoice.Summary?.TaxRate ? invoice.Invoice.Summary?.TaxRate * 100 : 'N/A'}%`}</Text>
+        </Col>
+        <Col span={12}>
+          <Text strong>Tax Amount: </Text>
+          <Text>{`$${invoice.Invoice.Summary?.TaxAmount || 'N/A'}`}</Text>
+        </Col>
+        <Col span={12}>
+          <Text strong>Total Amount: </Text>
+          <Text>{`$${invoice.Invoice.Summary?.TotalAmount || 'N/A'}`}</Text>
+        </Col>
+        <Col span={12}>
+          <Text strong>Discount: </Text>
+          <Text>{`$${invoice.Invoice.Summary?.Discount || 'N/A'}`}</Text>
+        </Col>
+      </Row>
+      <Divider />
+      <Title level={4}>Payment Instructions</Title>
+      <Row gutter={16}>
+        <Col span={12}>
+          <Text strong>Bank Name: </Text>
+          <Text>{invoice.Invoice.PaymentInstructions?.BankName || 'N/A'}</Text>
+        </Col>
+        <Col span={12}>
+          <Text strong>Account Number: </Text>
+          <Text>{invoice.Invoice.PaymentInstructions?.AccountNumber || 'N/A'}</Text>
+        </Col>
+        <Col span={12}>
+          <Text strong>Routing Number: </Text>
+          <Text>{invoice.Invoice.PaymentInstructions?.RoutingNumber || 'N/A'}</Text>
+        </Col>
+        <Col span={12}>
+          <Text strong>SWIFT: </Text>
+          <Text>{invoice.Invoice.PaymentInstructions?.SWIFT || 'N/A'}</Text>
+        </Col>
+      </Row>
+      <Divider />
+      <Title level={4}>Notes</Title>
+      <Text>{invoice.Invoice.Notes?.Note || 'N/A'}</Text>
     </Modal>
   );
 };
