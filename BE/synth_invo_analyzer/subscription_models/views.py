@@ -14,14 +14,13 @@ load_dotenv()
 stripe.api_key = os.getenv("STRIPE_KEY")
 
 @api_view(['POST'])
-
-def createSubscriptionModel(request):
+def create_subscription_model(request):
     admin_id = request.data.get('admin_id')
     model_name = request.data.get('model_name')
     unit_amount = request.data.get('unit_amount')
     interval = request.data.get('interval', 'month')  
     currency = request.data.get('currency', 'usd')
-    user = SystemAdmin.objects.get(id = 1 )
+    user = SystemAdmin.objects.get(id = admin_id)
 
 
     if SubscriptionModel.objects.filter(model_name=model_name).exists():
@@ -74,7 +73,7 @@ def createSubscriptionModel(request):
 
 @api_view(["POST"])
 
-def modifyProduct(request):
+def modify_product(request):
     admin_id  = request.data.get('admin_id')
 
     try:
@@ -102,7 +101,7 @@ def modifyProduct(request):
 
 
 @api_view(["POST"])
-def archiveProduct(request):
+def archive_product(request):
     admin_id = request.data.get('admin_id')
 
     try:
@@ -120,7 +119,7 @@ def archiveProduct(request):
 
 
 @api_view(["GET"])
-def getSubscriptionModels(request):
+def get_subscription_models(request):
     try:
         models = SubscriptionModel.objects.all()
         serializer = SubscriptionModelSerializer(models, many=True)
@@ -174,7 +173,7 @@ def get_features(request, model_id):
     except SubscriptionModelFeatures.DoesNotExist:
         return Response(status=404)
 
-@api_view(["POST"])
+@api_view(["PUT"])
 def update_price(request):
     try:
         admin_id = request.data.get('admin_id')
@@ -182,11 +181,11 @@ def update_price(request):
         new_price = request.data['new_price']
         currency = request.data.get('currency', 'usd')
         interval = request.data.get('interval', 'month')
-
+      
         # Create a new price in Stripe
         new_price_obj = stripe.Price.create(
             product=product_id,
-            unit_amount=int(new_price * 100),  # amount in cents
+            unit_amount=int(new_price ),  # amount in cents
             currency=currency,
             recurring={"interval": interval},
         )

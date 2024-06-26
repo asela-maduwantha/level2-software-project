@@ -37,7 +37,7 @@ const UpdatePricingModels = () => {
 
   const handleUpdate = (values) => {
     axios
-      .post('http://127.0.0.1:8000/subscription-models/update_price/', {
+      .put('http://127.0.0.1:8000/subscription-models/update-price/', {
         admin_id : localStorage.getItem('admin_id'),
         product_id: editingModel.stripe_id,
         model_name: values.model_name,
