@@ -26,7 +26,8 @@ def organization_signup(request):
         },
         "name": request.data.get('orgName'),
         "address": request.data.get('address'),
-        "business_registration_number": request.data.get('businessRegNum')
+        "business_registration_number": request.data.get('businessRegNum'),
+        "logo_url" : request.data.get('logoUrl')
     }
         serializer = OrganizationSerializer(data=serializer_data)
         if serializer.is_valid():

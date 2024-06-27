@@ -20,7 +20,7 @@ class OrganizationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Organization
-        fields = ['id', 'name', 'address', 'business_registration_number', 'user']
+        fields = ['id', 'name', 'address', 'logo_url','business_registration_number', 'user']
 
     def create(self, validated_data):
         user_data = validated_data.pop('user')

@@ -111,11 +111,11 @@ const InvoiceDetailsModal = ({ visible, onClose, invoice }) => {
     yPos += 10;
     doc.setFontSize(14);
     doc.setTextColor(60, 60, 60);
-    doc.text(`Subtotal: $${invoice.Invoice.Summary?.Subtotal || 'N/A'}`, 10, yPos);
+    doc.text(`Subtotal: ${invoice.Invoice.Summary?.Subtotal || 'N/A'}`, 10, yPos);
     doc.text(`Tax Rate: ${invoice.Invoice.Summary?.TaxRate ? `${invoice.Invoice.Summary?.TaxRate * 100}%` : 'N/A'}`, 10, yPos + 10);
-    doc.text(`Tax Amount: $${invoice.Invoice.Summary?.TaxAmount || 'N/A'}`, 10, yPos + 20);
-    doc.text(`Total Amount: $${invoice.Invoice.Summary?.TotalAmount || 'N/A'}`, 10, yPos + 30);
-    doc.text(`Discount: $${invoice.Invoice.Summary?.Discount || 'N/A'}`, 10, yPos + 40);
+    doc.text(`Tax Amount: ${invoice.Invoice.Summary?.TaxAmount || 'N/A'}`, 10, yPos + 20);
+    doc.text(`Total Amount:${invoice.Invoice.Summary?.TotalAmount || 'N/A'}`, 10, yPos + 30);
+    doc.text(`Discount: ${invoice.Invoice.Summary?.Discount || 'N/A'}`, 10, yPos + 40);
     yPos += 50;
 
     // Add Payment Instructions
@@ -251,7 +251,7 @@ const InvoiceDetailsModal = ({ visible, onClose, invoice }) => {
       <Row gutter={16}>
         <Col span={12}>
           <Text strong>Subtotal: </Text>
-          <Text>{`$${invoice.Invoice.Summary?.Subtotal || 'N/A'}`}</Text>
+          <Text>{`${invoice.Invoice.Summary?.Subtotal || 'N/A'}`}</Text>
         </Col>
         <Col span={12}>
           <Text strong>Tax Rate: </Text>
@@ -259,15 +259,15 @@ const InvoiceDetailsModal = ({ visible, onClose, invoice }) => {
         </Col>
         <Col span={12}>
           <Text strong>Tax Amount: </Text>
-          <Text>{`$${invoice.Invoice.Summary?.TaxAmount || 'N/A'}`}</Text>
+          <Text>{`${invoice.Invoice.Summary?.TaxAmount || 'N/A'}`}</Text>
         </Col>
         <Col span={12}>
           <Text strong>Total Amount: </Text>
-          <Text>{`$${invoice.Invoice.Summary?.TotalAmount || 'N/A'}`}</Text>
+          <Text>{`${invoice.Invoice.Summary?.TotalAmount || 'N/A'}`}</Text>
         </Col>
         <Col span={12}>
           <Text strong>Discount: </Text>
-          <Text>{`$${invoice.Invoice.Summary?.Discount || 'N/A'}`}</Text>
+          <Text>{`${invoice.Invoice.Summary?.Discount || 'N/A'}`}</Text>
         </Col>
       </Row>
       <Divider />

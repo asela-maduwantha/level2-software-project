@@ -2,57 +2,48 @@
   height: 60px;
   width: 100%;
   display: flex;
-  flex-direction: row;
-  padding: 0 5%;
+  align-items: center; /* Center items vertically */
+  justify-content: space-between; /* Space between logo and buttons */
+  padding: 0 20px;
   background: #6760EF;
 }
 
 .logo img {
-  height: 60px;
+  height: 50px; /* Smaller logo */
 }
 
 .header-btns {
-  flex-grow: 1;
   display: flex;
-  align-items: center;
-  justify-content: flex-end;
+  align-items: center; /* Center buttons vertically */
+  gap: 10px; /* Space between buttons */
 }
 
-.header-btns .btn {
-  height: 40px;
-  width: 120px;
-  border: 2px solid;
+.header-btns .ant-btn {
   border-radius: 25px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  height: 40px;
+  width: 100px; /* Adjusted width */
   font-weight: 500;
-  text-align: center;
-  cursor: pointer; 
-  
 }
 
-.header-btns .login-btn {
-  border-color: #FFF;
+.header-btns .ant-btn-primary {
   background: #6760EF;
-  color: #FFF;
-  padding-top: 2%;
-}
-
-.header-btns .login-btn:hover {
-  background: #FFF;
-  color: #6760EF;
-}
-
-.header-btns .signup-btn {
   border-color: #6760EF;
-  background: #FFF;
-  color: #6760EF;
-  margin-left: 10%; 
-  padding-top: 2%;
 }
 
-.header-btns .signup-btn:hover {
+.header-btns .ant-btn-primary:hover {
+  background: #FFF;
+  color: #6760EF;
+  border-color: #6760EF;
+}
+
+.header-btns .ant-btn-default {
+  background: #FFF;
+  color: #6760EF;
+  border-color: #6760EF;
+}
+
+.header-btns .ant-btn-default:hover {
   background: #6760EF;
   color: #FFF;
+  border-color: #FFF;
 }

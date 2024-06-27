@@ -1,14 +1,33 @@
-import React from 'react';
-import { Form, Input, Button, Checkbox, message } from 'antd';
-import { UserOutlined, MailOutlined, LockOutlined, EyeInvisibleOutlined, EyeTwoTone, HomeOutlined, IdcardOutlined } from '@ant-design/icons';
+import React, { useState } from 'react';
+import { Form, Input, Button, Checkbox, message, Upload } from 'antd';
+import { UserOutlined, MailOutlined, LockOutlined, EyeInvisibleOutlined, EyeTwoTone, HomeOutlined, IdcardOutlined, UploadOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import './OrganizationSignUp.css';
 import OrgSignupImg from '../../../assets/OrgSignup.svg';
 import Header from '../../common/Header/Header';
 import { useNavigate } from 'react-router-dom';
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { initializeApp } from "firebase/app";
+import firebaseConfig from '../../../config/firebaseConfig/firebaseConfig'; 
+
+
+initializeApp(firebaseConfig);
 
 const OrganizationSignUp = () => {
   const navigate = useNavigate();
+  const [logoFile, setLogoFile] = useState(null);
+
+  const onLogoChange = (info) => {
+    setLogoFile(info.file);
+  };
+
+  const uploadLogoToFirebase = async (file) => {
+    const storage = getStorage();
+    const storageRef = ref(storage, `logos/${file.name}`);
+    await uploadBytes(storageRef, file);
+    const url = await getDownloadURL(storageRef);
+    return url;
+  };
 
   const onFinish = async (values) => {
     if (values.password !== values.confirmPassword) {
@@ -16,7 +35,12 @@ const OrganizationSignUp = () => {
       return;
     }
     try {
-      const response = await axios.post('http://127.0.0.1:8000/auth/organization/signup/', values, {
+      let logoUrl = '';
+      if (logoFile) {
+        logoUrl = await uploadLogoToFirebase(logoFile);
+      }
+     
+      const response = await axios.post('http://127.0.0.1:8000/auth/organization/signup/', { ...values, logoUrl }, {
         headers: {
           'Content-Type': 'application/json',
         },
@@ -130,6 +154,19 @@ const OrganizationSignUp = () => {
                 placeholder="Business Registration Number"
                 style={{ height: '40px' }}
               />
+            </Form.Item>
+
+            <Form.Item
+              name="logo"
+        
+            >
+              <Upload
+                listType="picture"
+                beforeUpload={() => false} // Prevent automatic upload
+                onChange={onLogoChange}
+              >
+                <Button icon={<UploadOutlined />}>Upload Your Logo</Button>
+              </Upload>
             </Form.Item>
 
             <Form.Item

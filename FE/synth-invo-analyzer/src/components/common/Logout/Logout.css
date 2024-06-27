@@ -1,0 +1,32 @@
+.logout-btn {
+    height: 35px; /* Smaller button */
+    width: 100px; /* Smaller button */
+    background: #FFFF;
+    border: 2px solid #ffff;
+    border-radius: 25px;
+    display: flex; /* To use align-items and justify-content */
+    align-items: center;
+    justify-content: center;
+    color: #FFFF;
+    text-align: center;
+    font-weight: 500;
+    cursor: pointer; /* Adds a pointer cursor to indicate it's clickable */
+    transition: all 0.3s ease; /* Smooth transition for hover effect */
+  }
+  
+  .logout-btn:hover {
+    background: #FFFF;
+    border-color: #6760EF;
+    color: #fff;
+  }
+  .ant-btn-primary {
+    background: #6760ef;
+    border-color: #6760ef;
+  }
+  
+  .ant-btn-primary:hover {
+    background: #fff;
+    border-color: #6760ef;
+    color: #6760ef;
+  }
+  

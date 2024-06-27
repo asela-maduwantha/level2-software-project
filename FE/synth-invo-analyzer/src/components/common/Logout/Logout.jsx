@@ -1,5 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Button } from 'antd';
+import './Logout.css'; // Add a separate CSS file for the Logout button styles
 
 const Logout = () => {
   const navigate = useNavigate();
@@ -9,26 +11,10 @@ const Logout = () => {
     navigate('/');
   };
 
-  const buttonStyle = {
-    height: '40px',
-    width: '120px',
-    background: '#6760ef',
-    border: '2px solid #ffff',
-    borderRadius: '25px',
-    display: 'flex', // To use align-items and justify-content
-    alignItems: 'center',
-    justifyContent: 'center',
-    color: '#ffff',
-    textAlign: 'center',
-    fontWeight: '500',
-    padding: '1%',
-    cursor: 'pointer' // Adds a pointer cursor to indicate it's clickable
-  };
-
   return (
-    <button style={buttonStyle} onClick={handleLogout}>
+    <Button type="primary" className="logout-btn" onClick={handleLogout}>
       Logout
-    </button>
+    </Button>
   );
 };
 
