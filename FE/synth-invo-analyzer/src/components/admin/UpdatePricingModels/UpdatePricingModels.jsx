@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Button, Modal, Form, Input, message } from 'antd';
+import { Card, Button, Modal, Form, Input, message, Row, Col } from 'antd';
 import axios from 'axios';
 
 const UpdatePricingModels = () => {
@@ -37,8 +37,8 @@ const UpdatePricingModels = () => {
 
   const handleUpdate = (values) => {
     axios
-      .put('http://127.0.0.1:8000/subscription-models/update-price/', {
-        admin_id : localStorage.getItem('admin_id'),
+      .put('http://127.0.0.1:8000/subscription-models/update-subscription-model/', {
+        admin_id: localStorage.getItem('admin_id'),
         product_id: editingModel.stripe_id,
         model_name: values.model_name,
         new_price: values.new_price,
@@ -62,31 +62,26 @@ const UpdatePricingModels = () => {
       });
   };
 
-  const columns = [
-    {
-      title: 'Model Name',
-      dataIndex: 'model_name',
-      key: 'model_name',
-    },
-    {
-      title: 'Price ($)',
-      dataIndex: 'model_price',
-      key: 'model_price',
-    },
-    {
-      title: 'Actions',
-      key: 'actions',
-      render: (text, record) => (
-        <Button type="primary" onClick={() => showEditModal(record)}>
-          Update Model
-        </Button>
-      ),
-    },
-  ];
-
   return (
     <div>
-      <Table dataSource={data} columns={columns} rowKey="model_id" />
+      <Row gutter={16}>
+        {data.map((model) => (
+          <Col span={8} key={model.model_id}>
+            <Card
+              title={model.model_name}
+              extra={
+                <Button type="primary" onClick={() => showEditModal(model)}>
+                  Update Model
+                </Button>
+              }
+            >
+              <p>Price: ${model.model_price}</p>
+              <p>Currency: USD</p>
+              <p>Billing Interval: Month</p>
+            </Card>
+          </Col>
+        ))}
+      </Row>
       <Modal
         title="Update Model"
         visible={isModalVisible}

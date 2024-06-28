@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import Header from '../../components/common/Header/Header';
-import PricingCard from '../../components/common/PricingCard/PricingCard';
 import { useNavigate } from 'react-router-dom';
 
-function PricingPage() {
+const PricingPage = () => {
   const [pricingData, setPricingData] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -20,7 +18,7 @@ function PricingPage() {
           const featuresResponse = await axios.get(`http://127.0.0.1:8000/subscription-models/get-features/${model.model_id}/`);
           return {
             ...model,
-            features: featuresResponse.data.map(featureObj => featureObj.feature), // Extract the feature property
+            features: featuresResponse.data.map(featureObj => featureObj.feature),
           };
         }));
 
@@ -39,45 +37,64 @@ function PricingPage() {
   }, []);
 
   const handleGetAccess = async (priceId) => {
-    localStorage.setItem("priceId", priceId);
-    navigate('/organization/signup');
+    try {
+      const response = await axios.post('http://127.0.0.1:8000/subscriptions/create-subscription/', { priceId });
+      const checkoutUrl = response.data;
+      window.location.replace(checkoutUrl); // Redirect to Stripe Checkout
+    } catch (error) {
+      console.error('Error occurred while creating subscription:', error);
+    }
   };
 
   return (
-    <div className="font-sans">
-      <Header />
-      <div className="flex items-center justify-center min-h-screen bg-white">
-        <div>
-          <div className="text-center">
-            <h1 className="font-semibold text-black text-[52px]">Pricing</h1>
-            <p className="w-full px-8 pt-8 font-medium text-gray-800 text-[20px]">
-              Getting Started to analyze Your Invoices with us.
-              <br />
-              Choose a plan that suits you!
-            </p>
-          </div>
-          <div className="grid grid-cols-3 gap-40 mt-6">
-            {loading ? (
-              <p>Loading...</p>
-            ) : pricingData.length > 0 ? (
-              pricingData.map((pricing, index) => (
-                <PricingCard
-                  key={index}
-                  title={pricing.model_name}
-                  price={`$${pricing.model_price}`}
-                  features={pricing.features}
-                  buttonText="Get Access"
-                  onClick={() => handleGetAccess(pricing.price_id)}
-                />
-              ))
-            ) : (
-              <p>No pricing data available</p>
-            )}
-          </div>
-        </div>
+    <div className="bg-gray-100 p-8 rounded-3xl max-w-5xl mx-auto">
+      <h1 className="text-3xl font-bold mb-2">Choose your plan</h1>
+      <div className="flex items-center mb-6">
+        <svg className="w-5 h-5 text-[#6760EF] mr-2" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"></path>
+        </svg>
+        <span className="text-sm text-gray-600">14 days free Trial</span>
       </div>
+      <p className="text-gray-600 mb-6">Get the right plan for your business. Plans can be upgraded in the future.</p>
+      
+      {loading ? (
+        <p className="text-center">Loading...</p>
+      ) : pricingData.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {pricingData.map((plan, index) => (
+            <div key={index} className="bg-white rounded-xl p-6 shadow-md">
+              <div className={`w-3 h-3 rounded-full bg-[#6760EF] mb-4`}></div>
+              <h2 className="text-xl font-semibold mb-4">{plan.model_name}</h2>
+              <div className="text-4xl font-bold mb-2">
+                ${plan.model_price}
+                <span className="text-sm font-normal text-gray-500">/ month</span>
+              </div>
+              <ul className="mt-6 space-y-4">
+                {plan.features.map((feature, idx) => (
+                  <li key={idx} className="flex items-center">
+                    <svg className="w-5 h-5 text-yellow-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"></path>
+                    </svg>
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+              <button 
+                className={`mt-8 w-full py-3 px-4 rounded-lg ${
+                  index === 1 ? 'bg-[#6760EF] text-white' : 'border border-[#6760EF] text-[#6760EF]'
+                }`}
+                onClick={() => handleGetAccess(plan.price_id)}
+              >
+                Get Plan
+              </button>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="text-center">No pricing data available</p>
+      )}
     </div>
   );
-}
+};
 
 export default PricingPage;

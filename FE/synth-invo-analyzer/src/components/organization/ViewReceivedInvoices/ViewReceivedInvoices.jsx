@@ -68,6 +68,7 @@ const ViewReceivedInvoices = () => {
             visible={modalVisible}
             onClose={() => setModalVisible(false)}
             invoice={JSON.parse(selectedData.internal_format)}
+            supplierLogoUrl = {selectedData.supplier_logo_url}
           />
         )}
       </center>

@@ -70,36 +70,6 @@ def create_subscription_model(request):
         return Response("Internal Server Error: " + error_message, status=500)
 
 
-
-@api_view(["POST"])
-
-def modify_product(request):
-    admin_id  = request.data.get('admin_id')
-
-    try:
-        product_id = request.data['product_id']
-        new_name = request.data['model_name']
-
-        updated_product = stripe.Product.modify(
-            product_id,
-            name=new_name,
-        )
-
-        subscription_models = SubscriptionModel.objects.filter(stripe_id=product_id)
-
-        for subscription_model in subscription_models:
-            subscription_model.model_name = new_name
-            subscription_model.last_modified_by = admin_id
-            subscription_model.save()
-
-        return Response("Product Updated Successfully", status=200)
-    except stripe.error.InvalidRequestError as e:
-        return Response("No such product: {}".format(product_id), status=404)
-    except Exception as e:
-        print(e)
-        return Response("Error Updating Product", status=500)
-
-
 @api_view(["POST"])
 def archive_product(request):
     admin_id = request.data.get('admin_id')
@@ -126,6 +96,60 @@ def get_subscription_models(request):
         return Response(serializer.data, status=200)
     except Exception as e:
         return Response({'error': str(e)}, status=404)
+    
+    
+@api_view(["PUT"])
+def update_subscription_model(request):
+    try:
+        admin_id = request.data.get('admin_id')
+        product_id = request.data['product_id']
+        new_price = request.data.get('new_price')
+        new_name = request.data.get('model_name')
+        currency = request.data.get('currency', 'usd')
+        interval = request.data.get('interval', 'month')
+
+        if new_price:
+            # Create a new price in Stripe
+            new_price_obj = stripe.Price.create(
+                product=product_id,
+                unit_amount=int(new_price),  # amount in cents
+                currency=currency,
+                recurring={"interval": interval},
+            )
+
+            # Update the product with the new default price in Stripe
+            stripe.Product.modify(
+                product_id,
+                default_price=new_price_obj.id,
+            )
+
+        if new_name:
+            # Update the product name in Stripe
+            stripe.Product.modify(
+                product_id,
+                name=new_name,
+            )
+
+        # Update the product in your database
+        subscription_models = SubscriptionModel.objects.filter(stripe_id=product_id)
+        for subscription_model in subscription_models:
+            if new_price:
+                subscription_model.price_id = new_price_obj.id
+                subscription_model.model_price = new_price
+            if new_name:
+                subscription_model.model_name = new_name
+            subscription_model.last_modified_by_id = admin_id  # Assigning admin_id directly to ForeignKey field
+            subscription_model.save()
+
+        return Response("Subscription model updated successfully", status=200)
+    except stripe.error.StripeError as e:
+        error_message = str(e)
+        print("Stripe Error:", error_message)
+        return Response("Stripe Error: " + error_message, status=500)
+    except Exception as e:
+        error_message = "An error occurred while updating the subscription model."
+        print("Error:", error_message, e)
+        return Response("Internal Server Error: " + error_message, status=500)
 
 @api_view(['POST'])
 def create_feature(request):
@@ -172,46 +196,4 @@ def get_features(request, model_id):
         return Response(serializer.data)
     except SubscriptionModelFeatures.DoesNotExist:
         return Response(status=404)
-
-@api_view(["PUT"])
-def update_price(request):
-    try:
-        admin_id = request.data.get('admin_id')
-        product_id = request.data['product_id']
-        new_price = request.data['new_price']
-        currency = request.data.get('currency', 'usd')
-        interval = request.data.get('interval', 'month')
-      
-        # Create a new price in Stripe
-        new_price_obj = stripe.Price.create(
-            product=product_id,
-            unit_amount=int(new_price ),  # amount in cents
-            currency=currency,
-            recurring={"interval": interval},
-        )
-
-        # Update the product with the new default price in Stripe
-        stripe.Product.modify(
-            product_id,
-            default_price=new_price_obj.id,
-        )
-
-        # Update the product with the new price in your database
-        subscription_models = SubscriptionModel.objects.filter(stripe_id=product_id)
-        for subscription_model in subscription_models:
-            subscription_model.price_id = new_price_obj.id
-            subscription_model.model_price = new_price
-            subscription_model.last_modified_by = admin_id
-            subscription_model.save()
-
-        return Response("Price updated successfully", status=200)
-    except stripe.error.StripeError as e:
-        error_message = str(e)
-        print("Stripe Error:", error_message)
-        return Response("Stripe Error: " + error_message, status=500)
-    except Exception as e:
-        error_message = "An error occurred while updating the price."
-        print("Error:", error_message, e)
-        return Response("Internal Server Error: " + error_message, status=500)
-
 

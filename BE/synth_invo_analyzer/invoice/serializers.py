@@ -14,17 +14,26 @@ class InvoiceSerializer(serializers.ModelSerializer):
     
     issuer_name = serializers.SerializerMethodField()
     recipient_name = serializers.SerializerMethodField()
+    supplier_logo_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Invoice
-        fields = ['id', 'issuer', 'issuer_name', 'recipient', 'recipient_name', 'source_format', 'internal_format', 'created_at']
+        fields = ['id', 'issuer', 'issuer_name', 'recipient', 'recipient_name', 'source_format', 'internal_format', 'supplier_logo_url','created_at']
     
     def get_issuer_name(self, obj):
         try:
             supplier = Supplier.objects.get(id=obj.issuer)
-            return supplier.user.username  # or any other attribute you want to use
+            return supplier.user.username  
         except Supplier.DoesNotExist:
             return None
+        
+    def get_supplier_logo_url(self, obj):
+        try:
+            supplier = Supplier.objects.get(id=obj.issuer)
+            return supplier.logo_url
+        except Supplier.DoesNotExist:
+            return None
+            
 
     def get_recipient_name(self, obj):
         try:
@@ -32,3 +41,5 @@ class InvoiceSerializer(serializers.ModelSerializer):
             return organization.name
         except Organization.DoesNotExist:
             return None
+    
+    

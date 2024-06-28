@@ -28,9 +28,10 @@ def generate_product_analysis(request):
             'price_analysis': format_product_chart_data(price_analysis),
         }
         
-        print(response_data)
+     
         return JsonResponse(response_data, status=200)
     except Exception as e:
+        print(e)
         return JsonResponse({'error': str(e)}, status=500)
 
 @api_view(['GET'])

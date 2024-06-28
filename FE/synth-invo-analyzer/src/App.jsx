@@ -48,6 +48,7 @@ import ChangePassword from './components/common/ChangePassword/ChangePassword'
 import MapTemplates from './components/admin/MapTemplates/MapTemplates'
 import SeasonalAnalysis from './components/organization/SeasonalAnalysis/SeasonalAnalysis'
 import RevenueAnalysis from './components/organization/RevenueAnalysis/RevenueAnalysis'
+import Chat from './components/common/Chat/Chat'
 
 
 
@@ -72,6 +73,7 @@ const App = () => {
         <Route path="/select-plan" element={<SelectPlan/>}/>
         <Route path ='/change-password' element={<ChangePassword/>}/>
         <Route path="/forgot-password" element={<ForgotPassword/>}/>
+       
   
       
       
@@ -115,6 +117,7 @@ const App = () => {
         <Route path = "search" element={<SearchInvoices/>}/>
         <Route path = 'supplierrequests' element ={<OutgoingSupplierRequests/>}/>
         <Route path = 'addemployee' element={<AddEmployee/>}/>
+        <Route path="chat" element={<Chat/>}/>
       </Route>
 
       <Route

@@ -1,12 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Layout, Input, Button, Table, Modal, message, DatePicker } from "antd";
 import axios from "axios";
+import moment from "moment";
 
 const { Content } = Layout;
-const { RangePicker } = DatePicker;
 
 const UserDashboard = () => {
   const [query, setQuery] = useState("");
+  const [supplierName, setSupplierName] = useState("");
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
@@ -14,15 +15,40 @@ const UserDashboard = () => {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
 
+  // Function to fetch invoices
+  const fetchInvoices = async () => {
+    setLoading(true);
+    try {
+      const organization_id = localStorage.getItem("organization_id");
+      const url = `http://localhost:8000/search/search-invoices?organization_id=${organization_id}`;
+      const response = await axios.get(url);
+
+      if (response.status === 200) {
+        const extractedInvoices = response.data.map((item) => item._source);
+        setInvoices(extractedInvoices);
+      } else {
+        message.error("Failed to fetch invoices. Please try again.");
+        setInvoices([]);
+      }
+    } catch (error) {
+      message.error("Failed to fetch invoices. Please try again.");
+      setInvoices([]);
+      console.error("Error fetching invoices:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Function to handle search with filters
   const handleSearch = async () => {
     setLoading(true);
-
     try {
       const organization_id = localStorage.getItem("organization_id");
       const startDateString = startDate ? startDate.format("YYYY-MM-DD") : "";
       const endDateString = endDate ? endDate.format("YYYY-MM-DD") : "";
 
       let url = `http://localhost:8000/search/search-invoices?organization_id=${organization_id}&query=${query}`;
+      if (supplierName) url += `&supplier_name=${supplierName}`;
       if (startDateString) url += `&start_date=${startDateString}`;
       if (endDateString) url += `&end_date=${endDateString}`;
 
@@ -31,10 +57,9 @@ const UserDashboard = () => {
       if (response.status === 200) {
         const extractedInvoices = response.data.map((item) => item._source);
         setInvoices(extractedInvoices);
-        console.log(extractedInvoices);
       } else {
         message.error("Failed to fetch invoices. Please try again.");
-        setInvoices([]); // Clear invoices if there's an error
+        setInvoices([]);
       }
     } catch (error) {
       if (error.response) {
@@ -43,14 +68,14 @@ const UserDashboard = () => {
           message.error(data.error);
         } else if (status === 404) {
           message.error("No invoices found matching the search criteria");
-          setInvoices([]); // Clear invoices if no results found
+          setInvoices([]);
         } else {
           message.error("Failed to fetch invoices. Please try again.");
-          setInvoices([]); // Clear invoices for any other errors
+          setInvoices([]);
         }
       } else {
         message.error("Network error. Please try again.");
-        setInvoices([]); // Clear invoices for network errors
+        setInvoices([]);
       }
       console.error("Error fetching invoices:", error);
     } finally {
@@ -58,16 +83,24 @@ const UserDashboard = () => {
     }
   };
 
+  // Effect to fetch invoices on component mount
+  useEffect(() => {
+    fetchInvoices();
+  }, []); // Empty dependency array ensures this runs only once on mount
+
+  // Function to show invoice details modal
   const showModal = (invoice) => {
     setSelectedInvoice(invoice);
     setModalVisible(true);
   };
 
+  // Function to handle modal close
   const handleModalClose = () => {
     setModalVisible(false);
     setSelectedInvoice(null);
   };
 
+  // Columns configuration for Ant Design Table component
   const columns = [
     {
       title: "Invoice Number",
@@ -78,6 +111,7 @@ const UserDashboard = () => {
       title: "Invoice Date",
       dataIndex: "invoice_date",
       key: "invoice_date",
+      render: (text) => moment(text).format("YYYY-MM-DD"),
     },
     {
       title: "Seller",
@@ -105,7 +139,7 @@ const UserDashboard = () => {
       title: "Total Amount",
       dataIndex: ["summary", "total_amount"],
       key: "total_amount",
-      render: (text) => ` ${text}`,
+      render: (text) => `$ ${text}`,
     },
     {
       title: "Action",
@@ -118,7 +152,14 @@ const UserDashboard = () => {
     },
   ];
 
+  // Columns configuration for items table within the modal
   const itemColumns = [
+    {
+      title: "#",
+      dataIndex: "",
+      key: "index",
+      render: (text, record, index) => index + 1,
+    },
     {
       title: "Description",
       dataIndex: "description",
@@ -150,14 +191,23 @@ const UserDashboard = () => {
             placeholder="Enter product name"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            style={{ width: "300px", marginRight: "10px" }}
+            style={{ width: "200px", marginRight: "10px" }}
           />
-          <RangePicker
+          <Input
+            placeholder="Enter supplier name"
+            value={supplierName}
+            onChange={(e) => setSupplierName(e.target.value)}
+            style={{ width: "200px", marginRight: "10px" }}
+          />
+          <DatePicker
+            placeholder="Start Date"
             style={{ marginRight: "10px" }}
-            onChange={(dates) => {
-              setStartDate(dates ? dates[0] : null);
-              setEndDate(dates ? dates[1] : null);
-            }}
+            onChange={(date) => setStartDate(date)}
+          />
+          <DatePicker
+            placeholder="End Date"
+            style={{ marginRight: "10px" }}
+            onChange={(date) => setEndDate(date)}
           />
           <Button type="primary" onClick={handleSearch} loading={loading}>
             Search
@@ -177,10 +227,10 @@ const UserDashboard = () => {
           {selectedInvoice && (
             <>
               <p>
-                <strong>Invoice Date:</strong> {selectedInvoice.invoice_date}
+                <strong>Invoice Date:</strong> {moment(selectedInvoice.invoice_date).format("YYYY-MM-DD")}
               </p>
               <p>
-                <strong>Due Date:</strong> {selectedInvoice.due_date}
+                <strong>Due Date:</strong> {moment(selectedInvoice.due_date).format("YYYY-MM-DD")}
               </p>
               <p>
                 <strong>Currency:</strong> {selectedInvoice.currency}
