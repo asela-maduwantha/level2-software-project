@@ -51,10 +51,6 @@ const MenuList = () => {
         <Menu.Item key="change-plan" icon={<UpCircleOutlined />} >
           <Link to="analytics" style={{textDecoration:"none"}} >Upgrade</Link>
         </Menu.Item>
-        <Menu.Item key="search" icon={<FileSearchOutlined />} >
-          <Link to="search" style={{textDecoration:"none"}} >Search Invoices</Link>
-        </Menu.Item>
-        
         <Menu.Item key="logout" icon={<LogoutOutlined />} >Logout</Menu.Item>
       </Menu>
     </div>

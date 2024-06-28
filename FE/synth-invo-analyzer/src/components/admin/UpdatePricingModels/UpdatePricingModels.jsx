@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Button, Modal, Form, Input, message, Row, Col } from 'antd';
+import { Card, Button, Modal, Form, Input, message, Row, Col, Typography, Select, Layout } from 'antd';
+import { EditOutlined, DollarOutlined, GlobalOutlined, CalendarOutlined } from '@ant-design/icons';
 import axios from 'axios';
+
+const { Title } = Typography;
+const { Content } = Layout;
+const { Option } = Select;
 
 const UpdatePricingModels = () => {
   const [data, setData] = useState([]);
@@ -9,6 +14,10 @@ const UpdatePricingModels = () => {
   const [form] = Form.useForm();
 
   useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = () => {
     axios
       .get('http://127.0.0.1:8000/subscription-models/get_subscription_models/')
       .then((response) => {
@@ -18,7 +27,7 @@ const UpdatePricingModels = () => {
         console.error('Error fetching data:', error);
         message.error('Error fetching data.');
       });
-  }, []);
+  };
 
   const showEditModal = (model) => {
     setEditingModel(model);
@@ -48,13 +57,7 @@ const UpdatePricingModels = () => {
       .then(() => {
         message.success('Model updated successfully!');
         setIsModalVisible(false);
-        setData((prevData) =>
-          prevData.map((item) =>
-            item.stripe_id === editingModel.stripe_id
-              ? { ...item, model_name: values.model_name, model_price: values.new_price }
-              : item
-          )
-        );
+        fetchData(); // Refresh data after update
       })
       .catch((error) => {
         console.error('Error updating model:', error);
@@ -63,63 +66,90 @@ const UpdatePricingModels = () => {
   };
 
   return (
-    <div>
-      <Row gutter={16}>
-        {data.map((model) => (
-          <Col span={8} key={model.model_id}>
-            <Card
-              title={model.model_name}
-              extra={
-                <Button type="primary" onClick={() => showEditModal(model)}>
-                  Update Model
-                </Button>
-              }
+    <Layout style={{ minHeight: '100vh', backgroundColor: '#f0f2f5' }}>
+      <Content style={{ padding: '50px' }}>
+        <Title level={2} style={{ marginBottom: '30px', textAlign: 'center' }}>
+          Update Pricing Models
+        </Title>
+        <Row gutter={[16, 16]}>
+          {data.map((model) => (
+            <Col xs={24} sm={12} md={8} lg={6} key={model.model_id}>
+              <Card
+                hoverable
+                style={{ height: '100%' }}
+                actions={[
+                  <Button 
+                    type="primary" 
+                    icon={<EditOutlined />} 
+                    onClick={() => showEditModal(model)}
+                  >
+                    Update
+                  </Button>
+                ]}
+              >
+                <Card.Meta
+                  title={<Title level={4}>{model.model_name}</Title>}
+                  description={
+                    <>
+                      <p><DollarOutlined /> Price: ${model.model_price}</p>
+                      <p><GlobalOutlined /> Currency: USD</p>
+                      <p><CalendarOutlined /> Billing: Monthly</p>
+                    </>
+                  }
+                />
+              </Card>
+            </Col>
+          ))}
+        </Row>
+        <Modal
+          title="Update Pricing Model"
+          visible={isModalVisible}
+          onCancel={handleCancel}
+          onOk={() => form.submit()}
+          okText="Update"
+          cancelText="Cancel"
+        >
+          <Form form={form} onFinish={handleUpdate} layout="vertical">
+            <Form.Item
+              name="model_name"
+              label="Model Name"
+              rules={[{ required: true, message: 'Please enter the model name.' }]}
             >
-              <p>Price: ${model.model_price}</p>
-              <p>Currency: USD</p>
-              <p>Billing Interval: Month</p>
-            </Card>
-          </Col>
-        ))}
-      </Row>
-      <Modal
-        title="Update Model"
-        visible={isModalVisible}
-        onCancel={handleCancel}
-        onOk={() => form.submit()}
-      >
-        <Form form={form} onFinish={handleUpdate}>
-          <Form.Item
-            name="model_name"
-            label="Model Name"
-            rules={[{ required: true, message: 'Please enter the model name.' }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            name="new_price"
-            label="New Price"
-            rules={[{ required: true, message: 'Please enter the new price.' }]}
-          >
-            <Input type="number" />
-          </Form.Item>
-          <Form.Item
-            name="currency"
-            label="Currency"
-            initialValue="usd"
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            name="interval"
-            label="Billing Interval"
-            initialValue="month"
-          >
-            <Input />
-          </Form.Item>
-        </Form>
-      </Modal>
-    </div>
+              <Input prefix={<EditOutlined />} />
+            </Form.Item>
+            <Form.Item
+              name="new_price"
+              label="New Price"
+              rules={[{ required: true, message: 'Please enter the new price.' }]}
+            >
+              <Input prefix={<DollarOutlined />} type="number" />
+            </Form.Item>
+            <Form.Item
+              name="currency"
+              label="Currency"
+              initialValue="usd"
+            >
+              <Select>
+                <Option value="usd">USD</Option>
+                <Option value="eur">EUR</Option>
+                <Option value="gbp">GBP</Option>
+              </Select>
+            </Form.Item>
+            <Form.Item
+              name="interval"
+              label="Billing Interval"
+              initialValue="month"
+            >
+              <Select>
+                <Option value="month">Monthly</Option>
+                <Option value="year">Yearly</Option>
+                <Option value="week">Weekly</Option>
+              </Select>
+            </Form.Item>
+          </Form>
+        </Modal>
+      </Content>
+    </Layout>
   );
 };
 

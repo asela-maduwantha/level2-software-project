@@ -22,6 +22,7 @@ const UserDashboard = () => {
       const organization_id = localStorage.getItem("organization_id");
       const url = `http://localhost:8000/search/search-invoices?organization_id=${organization_id}`;
       const response = await axios.get(url);
+      console.log(response.data.length)
 
       if (response.status === 200) {
         const extractedInvoices = response.data.map((item) => item._source);
@@ -102,6 +103,12 @@ const UserDashboard = () => {
 
   // Columns configuration for Ant Design Table component
   const columns = [
+    {
+      title: "#",
+      dataIndex: "",
+      key: "index",
+      render: (text, record, index) => index + 1,
+    },
     {
       title: "Invoice Number",
       dataIndex: "invoice_number",
@@ -184,8 +191,8 @@ const UserDashboard = () => {
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
-      <h1>Invoice Search</h1>
       <Content style={{ padding: "20px" }}>
+        <h1>Invoice Search</h1>
         <div style={{ marginBottom: "20px" }}>
           <Input
             placeholder="Enter product name"
@@ -213,7 +220,7 @@ const UserDashboard = () => {
             Search
           </Button>
         </div>
-        <Table columns={columns} dataSource={invoices} rowKey="_id" />
+        <Table columns={columns} dataSource={invoices} rowKey="_id" loading={loading} />
         <Modal
           title={`Invoice Details - ${selectedInvoice ? selectedInvoice.invoice_number : ""}`}
           visible={modalVisible}
@@ -227,10 +234,12 @@ const UserDashboard = () => {
           {selectedInvoice && (
             <>
               <p>
-                <strong>Invoice Date:</strong> {moment(selectedInvoice.invoice_date).format("YYYY-MM-DD")}
+                <strong>Invoice Date:</strong>{" "}
+                {moment(selectedInvoice.invoice_date).format("YYYY-MM-DD")}
               </p>
               <p>
-                <strong>Due Date:</strong> {moment(selectedInvoice.due_date).format("YYYY-MM-DD")}
+                <strong>Due Date:</strong>{" "}
+                {moment(selectedInvoice.due_date).format("YYYY-MM-DD")}
               </p>
               <p>
                 <strong>Currency:</strong> {selectedInvoice.currency}
@@ -264,10 +273,12 @@ const UserDashboard = () => {
                 <strong>Tax Rate:</strong> {selectedInvoice.summary?.tax_rate}
               </p>
               <p>
-                <strong>Tax Amount:</strong> {selectedInvoice.summary?.tax_amount}
+                <strong>Tax Amount:</strong>{" "}
+                {selectedInvoice.summary?.tax_amount}
               </p>
               <p>
-                <strong>Total Amount:</strong> {selectedInvoice.summary?.total_amount}
+                <strong>Total Amount:</strong>{" "}
+                {selectedInvoice.summary?.total_amount}
               </p>
               <p>
                 <strong>Notes:</strong> {selectedInvoice.notes?.note}

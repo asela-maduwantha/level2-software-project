@@ -49,6 +49,8 @@ import MapTemplates from './components/admin/MapTemplates/MapTemplates'
 import SeasonalAnalysis from './components/organization/SeasonalAnalysis/SeasonalAnalysis'
 import RevenueAnalysis from './components/organization/RevenueAnalysis/RevenueAnalysis'
 import Chat from './components/common/Chat/Chat'
+import SubscriptionForm from './components/common/SubscriptionForm/SubscriptionForm'
+import SubscriptionPage from './pages/SubscriptionPage/SubscriptionPage'
 
 
 
@@ -75,8 +77,8 @@ const App = () => {
         <Route path="/forgot-password" element={<ForgotPassword/>}/>
        
   
-      
-      
+
+        <Route path="/subscribe" element={<SubscriptionPage />} />
         
 
         <Route

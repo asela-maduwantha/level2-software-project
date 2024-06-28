@@ -1,13 +1,14 @@
 import React from 'react';
-import { Form, Input, Select, Button, Card, Space, notification } from 'antd';
+import { Form, Input, Select, Button, Card, Space, notification, Typography } from 'antd';
+import { DollarOutlined, CalendarOutlined } from '@ant-design/icons';
 import axios from 'axios';
 
 const { Option } = Select;
+const { Title } = Typography;
 
 function PricingModel() {
   const [form] = Form.useForm();
 
-  // This function displays notifications
   const openNotificationWithIcon = (type, message, description = '') => {
     notification[type]({
       message: message,
@@ -34,34 +35,50 @@ function PricingModel() {
         }
       });
 
-      openNotificationWithIcon(
-        'success',
-        'Success!',
-        'The product was created successfully.'
-      );
+      openNotificationWithIcon('success', 'Success!', 'The subscription model was created successfully.');
       form.resetFields();
     } catch (error) {
       let errorMessage = 'An unexpected error occurred. Please try again later.';
-
-
       openNotificationWithIcon('error', 'Error', errorMessage);
     }
   };
 
   return (
-    <div className="flex justify-center items-center h-screen">
-      <Card className="w-full max-w-md">
+    <div style={{ 
+      display: 'flex', 
+      justifyContent: 'center', 
+      alignItems: 'center', 
+      minHeight: '100vh',
+      backgroundColor: '#f0f2f5', 
+      padding: '20px'
+    }}>
+      <Card 
+        style={{ 
+          width: '100%', 
+          maxWidth: '500px',
+          boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+          borderRadius: '8px'
+        }}
+      >
+        <Title level={2} style={{ textAlign: 'center', marginBottom: '24px' }}>
+          Create Subscription Model
+        </Title>
         <Form
           form={form}
           onFinish={handleCreateProduct}
           layout="vertical"
         >
           <Form.Item
-            label="Product Name"
+            label="Subscription Model Name"
             name="name"
-            rules={[{ required: true, message: 'Please enter a product name!' }]}
+            rules={[{ required: true, message: 'Please select a subscription model name!' }]}
           >
-            <Input placeholder="Enter the product name" />
+            <Select placeholder="Select the subscription model">
+              <Option value="Free">Free</Option>
+              <Option value="Basic">Basic</Option>
+              <Option value="Standard">Standard</Option>
+              <Option value="Premium">Premium</Option>
+            </Select>
           </Form.Item>
 
           <Form.Item
@@ -70,12 +87,15 @@ function PricingModel() {
             rules={[
               { required: true, message: 'Please enter a price!' },
               {
-                pattern: /^[0-9]+$/, // Validates only whole numbers
+                pattern: /^[0-9]+$/,
                 message: 'Price must be a non-negative integer.',
               },
             ]}
           >
-            <Input placeholder="Enter the price" />
+            <Input 
+              prefix={<DollarOutlined />} 
+              placeholder="Enter the price" 
+            />
           </Form.Item>
 
           <Form.Item
@@ -83,7 +103,7 @@ function PricingModel() {
             name="currency"
             rules={[{ required: true, message: 'Please select a currency!' }]}
           >
-            <Select>
+            <Select placeholder="Select currency">
               <Option value="usd">USD</Option>
               <Option value="mkd">MKD</Option>
               <Option value="mdl">MDL</Option>
@@ -95,7 +115,10 @@ function PricingModel() {
             name="billingPeriod"
             rules={[{ required: true, message: 'Please select a billing period!' }]}
           >
-            <Select>
+            <Select 
+              placeholder="Select billing period"
+              suffixIcon={<CalendarOutlined />}
+            >
               <Option value="week">Weekly</Option>
               <Option value="month">Monthly</Option>
               <Option value="year">Yearly</Option>
@@ -103,11 +126,14 @@ function PricingModel() {
           </Form.Item>
 
           <Form.Item>
-            <Space>
-              <Button type="primary" htmlType="submit">
-                Create Model
-              </Button>
-            </Space>
+            <Button 
+              type="primary" 
+              htmlType="submit"
+              size="large"
+              block
+            >
+              Create Model
+            </Button>
           </Form.Item>
         </Form>
       </Card>

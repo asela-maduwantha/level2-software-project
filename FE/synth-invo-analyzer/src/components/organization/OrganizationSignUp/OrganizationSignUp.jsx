@@ -5,7 +5,7 @@ import axios from 'axios';
 import './OrganizationSignUp.css';
 import OrgSignupImg from '../../../assets/OrgSignup.svg';
 import Header from '../../common/Header/Header';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { initializeApp } from "firebase/app";
 import firebaseConfig from '../../../config/firebaseConfig/firebaseConfig'; 
@@ -15,6 +15,8 @@ initializeApp(firebaseConfig);
 
 const OrganizationSignUp = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { state } = location || {};
   const [logoFile, setLogoFile] = useState(null);
 
   const onLogoChange = (info) => {
@@ -49,7 +51,7 @@ const OrganizationSignUp = () => {
       localStorage.setItem('email', values.email);
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('organization_id', response.data.organization_id);
-      navigate('/verify-otp');
+      navigate('/verify-otp', { state: { fromPricing: state?.fromPricing, plan: state?.plan } });
     } catch (error) {
       message.error('Failed to sign up organization');
     }

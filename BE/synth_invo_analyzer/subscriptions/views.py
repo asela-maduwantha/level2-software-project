@@ -1,5 +1,5 @@
 from django.shortcuts import redirect
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from rest_framework.decorators import api_view
 import stripe
 import os
@@ -12,27 +12,31 @@ load_dotenv()
 @api_view(['POST'])
 def createSubscription(request):
     price_id = request.data['priceId']
-    print(price_id)
+    payment_method_id = request.data['paymentMethodId']
+    email = request.data['email']
     
     stripe.api_key = os.getenv("STRIPE_KEY")
 
     try:
-        session = stripe.checkout.Session.create(
-            success_url='http://localhost:3000/organization?session_id={CHECKOUT_SESSION_ID}',
-            cancel_url='http://localhost:3000/pricing',
-            mode='subscription',
-            line_items=[{
-                'price': price_id,
-                'quantity': 1
-            }],
+        customer = stripe.Customer.create(
+            email=email,
+            payment_method=payment_method_id,
+            invoice_settings={
+                'default_payment_method': payment_method_id,
+            },
         )
 
-        return HttpResponse(session.url, status=200)
+        subscription = stripe.Subscription.create(
+            customer=customer.id,
+            items=[{'price': price_id}],
+            expand=['latest_invoice.payment_intent'],
+        )
+
+        return JsonResponse({'status': 'success', 'subscriptionId': subscription.id}, status=200)
     except Exception as e:
         print(e)
-        return HttpResponse(str(e), status=500)
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
     
-
 
 @api_view(['POST'])
 def stripe_webhook(request):
@@ -166,6 +170,3 @@ def handle_payment_failed(event_json):
     except Exception as e:
         print(f"Error saving payment failed record: {e}")
         raise
-
-
-           

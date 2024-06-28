@@ -112,7 +112,7 @@ def update_subscription_model(request):
             # Create a new price in Stripe
             new_price_obj = stripe.Price.create(
                 product=product_id,
-                unit_amount=int(new_price),  # amount in cents
+                unit_amount=int(new_price) * 100,  
                 currency=currency,
                 recurring={"interval": interval},
             )

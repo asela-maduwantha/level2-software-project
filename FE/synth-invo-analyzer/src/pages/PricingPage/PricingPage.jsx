@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import Header from '../../components/common/Header/Header';
 
 const PricingPage = () => {
   const [pricingData, setPricingData] = useState([]);
@@ -13,7 +14,7 @@ const PricingPage = () => {
         const response = await axios.get('http://127.0.0.1:8000/subscription-models/get_subscription_models/');
         const models = response.data;
 
-        // Fetch features for each model
+ 
         const modelsWithFeatures = await Promise.all(models.map(async (model) => {
           const featuresResponse = await axios.get(`http://127.0.0.1:8000/subscription-models/get-features/${model.model_id}/`);
           return {
@@ -22,7 +23,7 @@ const PricingPage = () => {
           };
         }));
 
-        // Sort models by price in ascending order
+        
         modelsWithFeatures.sort((a, b) => a.model_price - b.model_price);
 
         setPricingData(modelsWithFeatures);
@@ -36,24 +37,23 @@ const PricingPage = () => {
     fetchData();
   }, []);
 
-  const handleGetAccess = async (priceId) => {
-    try {
-      const response = await axios.post('http://127.0.0.1:8000/subscriptions/create-subscription/', { priceId });
-      const checkoutUrl = response.data;
-      window.location.replace(checkoutUrl); // Redirect to Stripe Checkout
-    } catch (error) {
-      console.error('Error occurred while creating subscription:', error);
+  const handleGetAccess = (plan) => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/organization/signup', { state: { fromPricing: true, plan } });
+    } else {
+      navigate('/subscribe', { state: { plan } });
     }
   };
 
   return (
+   <>
+   <Header/>
     <div className="bg-gray-100 p-8 rounded-3xl max-w-5xl mx-auto">
       <h1 className="text-3xl font-bold mb-2">Choose your plan</h1>
       <div className="flex items-center mb-6">
-        <svg className="w-5 h-5 text-[#6760EF] mr-2" fill="currentColor" viewBox="0 0 20 20">
-          <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"></path>
-        </svg>
-        <span className="text-sm text-gray-600">14 days free Trial</span>
+       
+  
       </div>
       <p className="text-gray-600 mb-6">Get the right plan for your business. Plans can be upgraded in the future.</p>
       
@@ -83,7 +83,7 @@ const PricingPage = () => {
                 className={`mt-8 w-full py-3 px-4 rounded-lg ${
                   index === 1 ? 'bg-[#6760EF] text-white' : 'border border-[#6760EF] text-[#6760EF]'
                 }`}
-                onClick={() => handleGetAccess(plan.price_id)}
+                onClick={() => handleGetAccess(plan)}
               >
                 Get Plan
               </button>
@@ -94,6 +94,7 @@ const PricingPage = () => {
         <p className="text-center">No pricing data available</p>
       )}
     </div>
+   </>
   );
 };
 
