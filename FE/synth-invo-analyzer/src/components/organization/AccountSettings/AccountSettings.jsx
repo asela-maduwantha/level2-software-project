@@ -1,55 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Form, Input, Button, Modal, message, Typography, Avatar, Space, Tooltip } from 'antd';
-import { EditOutlined, LockOutlined } from '@ant-design/icons';
+import { Card, Form, Input, Button, Modal, message, Typography, Space, Tooltip } from 'antd';
+import { EditOutlined, LockOutlined, SaveOutlined } from '@ant-design/icons';
 import axios from 'axios';
-import styled from 'styled-components';
+import './AccountSettings.css'; 
 
 const { Title, Text } = Typography;
-
-const StyledCard = styled(Card)`
-  width: 100%;
-  max-width: 800px;
-  margin: 2rem auto;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-`;
-
-const LogoContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  margin-bottom: 2rem;
-`;
-
-const StyledAvatar = styled(Avatar)`
-  width: 120px;
-  height: 120px;
-  /* Remove border-radius to avoid rounded view */
-  border-radius: 0; /* Optional: Ensure no rounded corners */
-`;
-
-const WelcomeMessage = styled(Title)`
-  text-align: center;
-  margin-bottom: 2rem !important;
-`;
-
-const FieldContainer = styled.div`
-  display: flex;
-  align-items: center;
-  margin-bottom: 1rem;
-`;
-
-const FieldLabel = styled(Text)`
-  font-weight: bold;
-  margin-right: 1rem;
-  min-width: 200px;
-`;
-
-const FieldValue = styled(Input)`
-  flex-grow: 1;
-`;
-
-const EditButton = styled(Button)`
-  margin-left: 1rem;
-`;
 
 const AccountSettings = () => {
   const [form] = Form.useForm();
@@ -68,18 +23,18 @@ const AccountSettings = () => {
       setProfile(response.data);
       form.setFieldsValue(response.data);
     } catch (error) {
-      message.error('Failed to fetch profile data');
+      message.error('Failed to fetch profile data. Please try again later.');
     }
   };
 
   const onFinish = async (values) => {
     try {
       await axios.put(`http://127.0.0.1:8000/auth/organization/profile/${profile.id}`, values);
-      message.success('Profile updated successfully');
+      message.success('Profile updated successfully!');
       fetchProfile();
       setEditingField(null);
     } catch (error) {
-      message.error('Failed to update profile');
+      message.error('Failed to update profile. Please check your input and try again.');
     }
   };
 
@@ -90,25 +45,25 @@ const AccountSettings = () => {
   const handlePasswordChange = async (values) => {
     try {
       await axios.post(`http://127.0.0.1:8000/auth/change-password`, values);
-      message.success('Password changed successfully');
+      message.success('Password changed successfully!');
       setIsPasswordModalVisible(false);
     } catch (error) {
-      message.error('Failed to change password');
+      message.error('Failed to change password. Please check your input and try again.');
     }
   };
 
-  if (!profile) return <div>Loading...</div>;
+  if (!profile) return <Card className="styled-card"><Title level={3}>Loading your profile...</Title></Card>;
 
   const renderField = (name, label, editable = true) => (
-    <FieldContainer>
-      <FieldLabel>{label}:</FieldLabel>
+    <div className="field-container">
+      <Text strong className="field-label">{label}:</Text>
       <Form.Item name={name} style={{ marginBottom: 0, flexGrow: 1 }}>
-        <FieldValue readOnly={editingField !== name} />
+        <Input readOnly={editingField !== name} className="field-value" />
       </Form.Item>
       {editable && (
         <Tooltip title={editingField === name ? "Save" : "Edit"}>
-          <EditButton
-            icon={<EditOutlined />}
+          <Button
+            icon={editingField === name ? <SaveOutlined /> : <EditOutlined />}
             onClick={() => {
               if (editingField === name) {
                 form.submit();
@@ -116,34 +71,37 @@ const AccountSettings = () => {
                 setEditingField(name);
               }
             }}
-          />
+            className={`action-button ${editingField === name ? 'save-button' : 'edit-button'}`}
+          >
+            {editingField === name ? 'Save' : 'Edit'}
+          </Button>
         </Tooltip>
       )}
-    </FieldContainer>
+    </div>
   );
 
   return (
-    <StyledCard>
+    <Card className="styled-card">
       <Form form={form} onFinish={onFinish}>
-        <LogoContainer>
-          <img src={profile.logo_url} alt={profile.name} width='400px' height='200px'/>
-        </LogoContainer>
-        <WelcomeMessage level={2}>Welcome, {profile.name}!</WelcomeMessage>
+        <div className="logo-container">
+          <img src={profile.logo_url} alt={profile.name} className="styled-logo" />
+        </div>
+        <Title level={2} className="welcome-message">Welcome, {profile.name}!</Title>
         
         {renderField('name', 'Organization Name')}
         {renderField('address', 'Address')}
         {renderField('business_registration_number', 'Business Registration Number')}
         {renderField(['user', 'username'], 'Username')}
-        <FieldContainer>
-          <FieldLabel>Email:</FieldLabel>
+        <div className="field-container">
+          <Text strong className="field-label">Email:</Text>
           <Text>{profile.user.email}</Text>
-        </FieldContainer>
+        </div>
 
         <Space style={{ marginTop: '2rem', display: 'flex', justifyContent: 'center' }}>
-          <Button type="primary" onClick={() => form.submit()}>
+          <Button type="primary" onClick={() => form.submit()} icon={<SaveOutlined />} className="action-button">
             Save All Changes
           </Button>
-          <Button icon={<LockOutlined />} onClick={showPasswordModal}>
+          <Button icon={<LockOutlined />} onClick={showPasswordModal} className="action-button">
             Change Password
           </Button>
         </Space>
@@ -156,10 +114,26 @@ const AccountSettings = () => {
         footer={null}
       >
         <Form onFinish={handlePasswordChange} layout="vertical">
-          <Form.Item name="current_password" label="Current Password" rules={[{ required: true }]}>
+          <Form.Item name="current_password" label="Current Password" rules={[{ required: true, message: 'Please enter your current password' }]}>
             <Input.Password />
           </Form.Item>
-          <Form.Item name="new_password" label="New Password" rules={[{ required: true }]}>
+          <Form.Item name="new_password" label="New Password" rules={[
+            { required: true, message: 'Please enter your new password' },
+            { min: 8, message: 'Password must be at least 8 characters long' }
+          ]}>
+            <Input.Password />
+          </Form.Item>
+          <Form.Item name="confirm_password" label="Confirm New Password" rules={[
+            { required: true, message: 'Please confirm your new password' },
+            ({ getFieldValue }) => ({
+              validator(_, value) {
+                if (!value || getFieldValue('new_password') === value) {
+                  return Promise.resolve();
+                }
+                return Promise.reject(new Error('The two passwords do not match'));
+              },
+            }),
+          ]}>
             <Input.Password />
           </Form.Item>
           <Form.Item>
@@ -169,7 +143,7 @@ const AccountSettings = () => {
           </Form.Item>
         </Form>
       </Modal>
-    </StyledCard>
+    </Card>
   );
 };
 

@@ -1,0 +1,70 @@
+.styled-card {
+    width: 100%;
+    max-width: 800px;
+    margin: 2rem auto;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+  
+  .logo-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2rem;
+  }
+  
+  .styled-logo {
+    max-width: 200px;
+    height: auto;
+  }
+  
+  .welcome-message {
+    text-align: center;
+    margin-bottom: 2rem !important;
+  }
+  
+  .field-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+  
+  .field-label {
+    font-weight: bold;
+    margin-right: 1rem;
+    min-width: 200px;
+  }
+  
+  .field-value {
+    flex-grow: 1;
+  }
+  
+  .action-button {
+    margin-left: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+  }
+  
+  .action-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  
+  .edit-button {
+    background-color: #1890ff;
+    color: white;
+  }
+  
+  .edit-button:hover {
+    background-color: #40a9ff;
+  }
+  
+  .save-button {
+    background-color: #52c41a;
+    color: white;
+  }
+  
+  .save-button:hover {
+    background-color: #73d13d;
+  }
