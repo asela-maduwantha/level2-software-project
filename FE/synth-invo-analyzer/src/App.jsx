@@ -52,6 +52,7 @@ import Chat from './components/common/Chat/Chat'
 import SubscriptionForm from './components/common/SubscriptionForm/SubscriptionForm'
 import SubscriptionPage from './pages/SubscriptionPage/SubscriptionPage'
 import SupplierAnalysis from './components/organization/SupplierAnalysis/SupplierAnalysis'
+import ForgotPasswordVerifyOTP from './components/common/ForgotPasswordVerifyOTP/ForgotPasswordVerifyOTP'
 
 
 
@@ -76,6 +77,7 @@ const App = () => {
         <Route path="/select-plan" element={<SelectPlan/>}/>
         <Route path ='/change-password' element={<ChangePassword/>}/>
         <Route path="/forgot-password" element={<ForgotPassword/>}/>
+        <Route path="/forgot-password-otp-verify" element={<ForgotPasswordVerifyOTP/>}/>
        
   
 

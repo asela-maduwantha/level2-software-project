@@ -153,6 +153,7 @@ def update_subscription_model(request):
 
 @api_view(['POST'])
 def create_feature(request):
+    print(request.data)
     model_id = request.data.get('model')
     feature_name = request.data.get('feature')
     
@@ -170,14 +171,15 @@ def create_feature(request):
 def modify_feature(request, pk):
     try:
         feature = SubscriptionModelFeatures.objects.get(pk=pk)
+        admin_id = request.data.get('userId')
+        user = SystemAdmin.objects.get(id = admin_id)
         feature.feature = request.data.get('feature')
+        feature.modified_by = user
         feature.save()
         return Response(status=204)
     except SubscriptionModelFeatures.DoesNotExist:
         return Response(status=404)
     
-    
-
 @api_view(['DELETE'])
 def remove_feature(request, pk):
     try:

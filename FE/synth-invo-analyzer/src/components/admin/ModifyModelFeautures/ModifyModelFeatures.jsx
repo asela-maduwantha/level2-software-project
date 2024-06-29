@@ -36,7 +36,8 @@ const ModifyModelFeatures = () => {
 
   const handleModifyFeatureSubmit = (featureId) => {
     axios.put(`http://127.0.0.1:8000/subscription-models/modify-feature/${featureId}/`, {
-      feature: newFeatureName
+      feature: newFeatureName,
+      userId : localStorage.getItem('admin_id')
     })
     .then(() => {
       message.success('Feature modified successfully');

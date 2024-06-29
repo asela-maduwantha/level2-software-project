@@ -8,19 +8,17 @@ import { useNavigate } from 'react-router-dom';
 
 const { Title } = Typography;
 
-const ForgotPassword = ({ onSuccess }) => {
+const ForgotPassword = () => {
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate()
-
+  const navigate = useNavigate();
 
   const onFinish = async (values) => {
     setLoading(true);
     try {
-      localStorage.setItem('email', values.email)
+      localStorage.setItem('email', values.email);
       await axios.post('http://127.0.0.1:8000/auth/forgot-password/', { email: values.email });
       message.success('OTP sent to your email.');
-      navigate('/verify-otp')
-      onSuccess(values.email);
+      navigate('/forgot-password-otp-verify');
     } catch (error) {
       message.error(error.response?.data?.message || 'Error sending OTP.');
     }
@@ -30,13 +28,14 @@ const ForgotPassword = ({ onSuccess }) => {
   return (
     <>
       <Header />
-      <Row   style={{ height: '90vh' }}>
+      <Row style={{ height: '90vh' }}>
         <Col span={12}>
           <img src={forgotImg} alt="Forgot Password" style={{ width: '100%' }} />
         </Col>
-        <Col span={6} style={{ padding: '20px', paddingTop:'100px' }}>
-          <Title level={1} >Enter your e-mail</Title><br></br>
-          <Form onFinish={onFinish} >
+        <Col span={6} style={{ padding: '20px', paddingTop: '100px' }}>
+          <Title level={1}>Enter your e-mail</Title>
+          <br />
+          <Form onFinish={onFinish}>
             <Form.Item
               name="email"
               rules={[{ required: true, message: 'Please input your email!', type: 'email' }]}

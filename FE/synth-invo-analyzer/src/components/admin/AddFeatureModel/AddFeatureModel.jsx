@@ -49,7 +49,7 @@ const AddFeatureModel = () => {
       return;
     }
 
-    const userId = localStorage.getItem('user_id');
+    const userId = localStorage.getItem('admin_id');
     axios.post('http://127.0.0.1:8000/subscription-models/create-feature/', {
       created_by: userId,
       model: selectedModel,
