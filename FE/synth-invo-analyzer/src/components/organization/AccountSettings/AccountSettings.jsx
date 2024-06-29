@@ -126,7 +126,7 @@ const AccountSettings = () => {
     <StyledCard>
       <Form form={form} onFinish={onFinish}>
         <LogoContainer>
-          <StyledAvatar src={profile.logo_url} alt={profile.name} />
+          <img src={profile.logo_url} alt={profile.name} width='400px' height='200px'/>
         </LogoContainer>
         <WelcomeMessage level={2}>Welcome, {profile.name}!</WelcomeMessage>
         
