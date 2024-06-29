@@ -92,7 +92,7 @@ def get_monthly_sales(request):
         data = load_data_from_db(invoices)
         
         data = format_invoice_date(data)
-        #data = data.dropna()
+       
        
         monthly_sales = monthly_sales_analysis(data)
        

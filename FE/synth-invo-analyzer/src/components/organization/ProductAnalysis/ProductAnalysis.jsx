@@ -1,141 +1,179 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Card, Button, Typography, message, Row, Col } from 'antd';
-import { Bar, Pie } from 'react-chartjs-2';
-import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement } from 'chart.js';
+import { Card, Typography, message, Row, Col, Select, Button, Table, Switch } from 'antd';
+import { Line } from 'react-chartjs-2';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement } from 'chart.js';
 
-ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
+ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement);
 
 const { Title } = Typography;
+const { Option } = Select;
 
 const ProductAnalysis = () => {
-    const [pdfUrl, setPdfUrl] = useState(null);
-    const [topSellingData, setTopSellingData] = useState(null);
-    const [priceAnalysisData, setPriceAnalysisData] = useState(null);
+    const [products, setProducts] = useState([]);
+    const [selectedProduct, setSelectedProduct] = useState(null);
+    const [selectedYear, setSelectedYear] = useState(null);
+    const [priceDeviationData, setPriceDeviationData] = useState(null);
+    const [isChartView, setIsChartView] = useState(true);
+
+    const years = [2021, 2022, 2023, 2024];
 
     useEffect(() => {
-        const fetchProductAnalysis = async () => {
+        const fetchProducts = async () => {
             try {
-                const response = await axios.get('http://127.0.0.1:8000/analysis/generate-product-analysis/', {
-                   params:{
-                    organization_id : localStorage.getItem('organization_id')
-                   }
+                const response = await axios.get('http://localhost:8000/search/get-prod-by-org/', {
+                    params: { organization_id: localStorage.getItem('organization_id') }
                 });
-
-                const responseData = response.data;
-                console.log(responseData)
-                // Assuming the response data has 'top_selling' and 'price_analysis' sections
-                const topSelling = responseData.top_selling.find(item => item.year === new Date().getFullYear());
-                const priceAnalysis = responseData.price_analysis.find(item => item.year === new Date().getFullYear());
-
-                if (topSelling && priceAnalysis) {
-                    setTopSellingData({
-                        labels: topSelling.labels,
-                        data: topSelling.data,
-                        backgroundColor: [
-                            "#FF6384",
-                            "#36A2EB",
-                            "#FFCE56",
-                            "#4BC0C0",
-                            "#9966FF",
-                            "#FF9F40",
-                            "#FFCD56",
-                            "#C9CBCF",
-                            "#36A3EB",
-                            "#FF6384"
-                        ] // Adjust the colors if needed
-                    });
-
-                    setPriceAnalysisData({
-                        labels: priceAnalysis.labels,
-                        data: priceAnalysis.data,
-                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        borderColor: 'rgba(75, 192, 192, 1)'
-                    });
-                }
-
-                message.success('Product analysis data fetched successfully.');
+                setProducts(response.data);
             } catch (error) {
-                console.error('Error fetching product analysis report:', error);
-                message.error('Failed to fetch product analysis data.');
+                console.error('Error fetching products:', error);
+                message.error('Failed to fetch product list.');
             }
         };
 
-        fetchProductAnalysis();
+        fetchProducts();
     }, []);
 
-    const downloadChart = (url, filename) => {
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = filename;
-        link.click();
+    useEffect(() => {
+        const fetchPriceDeviations = async () => {
+            if (selectedProduct && selectedYear) {
+                try {
+                    const response = await axios.get('http://localhost:8000/search/product_price_deviations/', {
+                        params: { year: selectedYear, product_name: selectedProduct }
+                    });
+                    setPriceDeviationData(response.data);
+                    message.success('Price deviation data fetched successfully.');
+                } catch (error) {
+                    console.error('Error fetching price deviation data:', error);
+                    setPriceDeviationData(null);
+                    message.error('Failed to fetch price deviation data.');
+                }
+            }
+        };
+
+        fetchPriceDeviations();
+    }, [selectedProduct, selectedYear]);
+
+    const handleProductChange = (value) => {
+        setSelectedProduct(value);
+        setPriceDeviationData(null);
     };
 
-    const pieData = {
-        labels: topSellingData ? topSellingData.labels : [],
-        datasets: [
-            {
-                label: 'Top Selling Products/Services',
-                data: topSellingData ? topSellingData.data : [],
-                backgroundColor: topSellingData ? topSellingData.backgroundColor : [],
-                borderWidth: 1,
-            },
-        ],
+    const handleYearChange = (value) => {
+        setSelectedYear(value);
+        setPriceDeviationData(null);
     };
 
-    const barData = {
-        labels: priceAnalysisData ? priceAnalysisData.labels : [],
+    const lineData = {
+        labels: priceDeviationData ? priceDeviationData.map(item => {
+            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            return monthNames[item.month - 1];
+        }) : [],
         datasets: [
             {
-                label: 'Pricing Analysis',
-                data: priceAnalysisData ? priceAnalysisData.data : [],
-                backgroundColor: priceAnalysisData ? priceAnalysisData.backgroundColor : [],
-                borderColor: priceAnalysisData ? priceAnalysisData.borderColor : [],
-                borderWidth: 1,
+                label: `${selectedProduct} Price`,
+                data: priceDeviationData ? priceDeviationData.map(item => item.price) : [],
+                borderColor: 'rgba(75, 192, 192, 1)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                fill: false,
+                tension: 0.1
             },
-        ],
+            {
+                label: 'Overall Average Price',
+                data: priceDeviationData ? priceDeviationData.map(item => item.overall_avg_price) : [],
+                borderColor: 'rgba(255, 99, 132, 1)',
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                fill: false,
+                tension: 0.1
+            }
+        ]
     };
+
+    const columns = [
+        {
+            title: 'Month',
+            dataIndex: 'month',
+            key: 'month',
+            render: (month) => {
+                const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                return monthNames[month - 1];
+            }
+        },
+        {
+            title: `${selectedProduct} Price`,
+            dataIndex: 'price',
+            key: 'price',
+        },
+        {
+            title: 'Overall Average Price',
+            dataIndex: 'overall_avg_price',
+            key: 'overall_avg_price',
+        },
+    ];
 
     return (
-        <div style={{ padding: '20px' }}>
-            <Title level={2}>Product Analysis</Title>
-            {pdfUrl && (
-                <Card title="Product Analysis Report" style={{ marginBottom: '20px' }}>
-                    <a href={pdfUrl} target="_blank" rel="noopener noreferrer">
-                        Download PDF Report
-                    </a>
-                </Card>
-            )}
-            <Row gutter={16}>
-                <Col span={12}>
-                    {topSellingData && (
-                        <Card title="Top Selling Products/Services" style={{width:"500px", height:"auto"}}>
-                            <Pie data={pieData} style={{width:"400px", height:"400px"}} />
-                            <Button
-                                type="primary"
-                                style={{ marginTop: '20px' }}
-                                onClick={() => downloadChart(`http://127.0.0.1:8000/static/charts/product_pie_chart_${new Date().getFullYear()}.png`, 'pie_chart.png')}
-                            >
-                                Download Pie Chart
-                            </Button>
-                        </Card>
-                    )}
+        <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
+            <Title level={2} style={{ marginBottom: '20px', textAlign: 'center' }}>Product Analysis</Title>
+            <Row gutter={[16, 16]} justify="end" align="middle">
+                <Col xs={24} md={8}>
+                    <Select
+                        style={{ width: '100%' }}
+                        placeholder="Select a product"
+                        onChange={handleProductChange}
+                    >
+                        {products.map((product, index) => (
+                            <Option key={index} value={product}>{product}</Option>
+                        ))}
+                    </Select>
                 </Col>
-                <Col span={12}>
-                    {priceAnalysisData && (
-                        <Card title="Pricing Analysis">
-                            <Bar data={barData} />
-                            <Button
-                                type="primary"
-                                style={{ marginTop: '20px' }}
-                                onClick={() => downloadChart(`http://127.0.0.1:8000/static/charts/product_bar_chart_${new Date().getFullYear()}.png`, 'bar_chart.png')}
-                            >
-                                Download Bar Chart
-                            </Button>
-                        </Card>
-                    )}
+                <Col xs={24} md={8}>
+                    <Select
+                        style={{ width: '100%' }}
+                        placeholder="Select a year"
+                        onChange={handleYearChange}
+                    >
+                        {years.map(year => (
+                            <Option key={year} value={year}>{year}</Option>
+                        ))}
+                    </Select>
+                </Col>
+                <Col xs={24} md={8}>
+                    <Switch
+                        checkedChildren="Chart"
+                        unCheckedChildren="Table"
+                        checked={isChartView}
+                        onChange={setIsChartView}
+                    />
                 </Col>
             </Row>
+            {priceDeviationData && priceDeviationData.length > 0 && (
+                <Card title="Price Deviation Analysis" style={{ marginTop: '20px' }}>
+                    {isChartView ? (
+                        <div style={{ height: '400px' }}>
+                            <Line 
+                                data={lineData} 
+                                options={{ 
+                                    responsive: true, 
+                                    maintainAspectRatio: false,
+                                    plugins: {
+                                        legend: { position: 'top' },
+                                        title: {
+                                            display: true,
+                                            text: 'Price Deviation Over Time'
+                                        }
+                                    }
+                                }} 
+                            />
+                        </div>
+                    ) : (
+                        <Table 
+                            dataSource={priceDeviationData} 
+                            columns={columns} 
+                            pagination={false}
+                        />
+                    )}
+                </Card>
+            )}
         </div>
     );
 };

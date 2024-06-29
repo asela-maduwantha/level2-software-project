@@ -1,21 +1,23 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Form, Input, Button, message, Row, Col } from 'antd';
+import { Form, Input, Button, message, Row, Col, Typography, Card, Space } from 'antd';
 import { MailOutlined, UserOutlined, HomeOutlined } from '@ant-design/icons';
-import AddSupImg from '../../../assets/addsupplier.svg'
-import './AddSupplier.css'; 
+import AddSupImg from '../../../assets/addsupplier.svg';
+import './AddSupplier.css';
 
+const { Title } = Typography;
 
-const AddSupplier = ({ organizationId }) => {
+const AddSupplier = () => {
   const [form] = Form.useForm();
   const [isRegistered, setIsRegistered] = useState(false);
-  const orgId = localStorage.getItem('organization_id')
+  const [loading, setLoading] = useState(false);
+  const orgId = localStorage.getItem('organization_id');
 
   const handleEmailChange = async (e) => {
     const email = e.target.value;
-
     if (email) {
       try {
+        setLoading(true);
         const response = await axios.get(`http://127.0.0.1:8000/auth/supplier/check/?email=${email}`);
         if (response.data.exists) {
           form.setFieldsValue({
@@ -29,12 +31,16 @@ const AddSupplier = ({ organizationId }) => {
         }
       } catch (error) {
         console.error('Error checking supplier:', error);
+        message.error('Failed to check supplier information');
+      } finally {
+        setLoading(false);
       }
     }
   };
 
   const handleAddSupplier = async (values) => {
     try {
+      setLoading(true);
       const data = { ...values, organization_id: orgId };
       const response = await axios.post('http://127.0.0.1:8000/auth/supplier/add/', data);
       message.success(response.data.message);
@@ -47,72 +53,85 @@ const AddSupplier = ({ organizationId }) => {
       } else {
         message.error('Failed to add supplier request.');
       }
+    } finally {
+      setLoading(false);
     }
   };
-  
 
   return (
     <div className="add-supplier-container">
-      <Row gutter={16} align="middle" style={{ minHeight: '70vh' }}>
+      <Row gutter={32} align="middle" justify="center" style={{ minHeight: '80vh' }}>
         <Col xs={24} md={12}>
           <img
-            src={AddSupImg} 
-            alt="Supplier"
-            style={{ width: '100%', height: 'auto' }}
+            src={AddSupImg}
+            alt="Add Supplier"
+            style={{ width: '100%', maxWidth: '500px', height: 'auto', display: 'block', margin: 'auto' }}
           />
         </Col>
         <Col xs={24} md={12}>
-        
-          <Form
-            form={form}
-            layout="vertical"
-            onFinish={handleAddSupplier}
-            className="add-supplier-form"
-          >
-            <h1>Add Your Suppliers</h1><br></br>
-            <Form.Item
-              label="Supplier Email"
-              name="email"
-              rules={[{ required: true, message: 'Please enter supplier email' }]}
+          <Card className="add-supplier-card" bordered={false}>
+            <Title level={2} className="add-supplier-title">Add Your Suppliers</Title>
+            <Form
+              form={form}
+              layout="vertical"
+              onFinish={handleAddSupplier}
+              className="add-supplier-form"
             >
-              <Input
-                type="email"
-                placeholder="Enter supplier email"
-                prefix={<MailOutlined />}
-                onChange={handleEmailChange}
-                className="custom-input"
-              />
-            </Form.Item>
-            <Form.Item
-              label="Supplier Name"
-              name="name"
-              rules={[{ required: true, message: 'Please enter supplier name' }]}
-            >
-              <Input
-                placeholder="Enter supplier name"
-                prefix={<UserOutlined />}
-                disabled={isRegistered}
-                className="custom-input"
-              />
-            </Form.Item>
-            <Form.Item
-              label="Supplier Address"
-              name="address"
-              rules={[{ required: true, message: 'Please enter supplier address' }]}
-            >
-              <Input
-                placeholder="Enter supplier address"
-                prefix={<HomeOutlined />}
-                disabled={isRegistered}
-                className="custom-input"
-              />
-            </Form.Item>
-            <Form.Item>
-              <Button type="primary" htmlType="submit" className="custom-button">
-                Add Supplier
-              </Button>
-            </Form.Item>
-          </Form>
+              <Space direction="vertical" size="large" style={{ width: '100%' }}>
+                <Form.Item
+                  name="email"
+                  rules={[
+                    { required: true, message: 'Please enter supplier email' },
+                    { type: 'email', message: 'Please enter a valid email' }
+                  ]}
+                >
+                  <Input
+                    size="large"
+                    placeholder="Supplier Email"
+                    prefix={<MailOutlined className="site-form-item-icon" />}
+                    onChange={handleEmailChange}
+                    className="custom-input"
+                  />
+                </Form.Item>
+                <Form.Item
+                  name="name"
+                  rules={[{ required: true, message: 'Please enter supplier name' }]}
+                >
+                  <Input
+                    size="large"
+                    placeholder="Supplier Name"
+                    prefix={<UserOutlined className="site-form-item-icon" />}
+                    disabled={isRegistered}
+                    className="custom-input"
+                  />
+                </Form.Item>
+                <Form.Item
+                  name="address"
+                  rules={[{ required: true, message: 'Please enter supplier address' }]}
+                >
+                  <Input
+                    size="large"
+                    placeholder="Supplier Address"
+                    prefix={<HomeOutlined className="site-form-item-icon" />}
+                    disabled={isRegistered}
+                    className="custom-input"
+                  />
+                </Form.Item>
+                <Form.Item>
+                  <Button 
+                    type="primary" 
+                    htmlType="submit" 
+                    className="custom-button"
+                    loading={loading}
+                    block
+                    size="large"
+                  >
+                    Add Supplier
+                  </Button>
+                </Form.Item>
+              </Space>
+            </Form>
+          </Card>
         </Col>
       </Row>
     </div>
