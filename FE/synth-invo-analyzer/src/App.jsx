@@ -51,6 +51,7 @@ import RevenueAnalysis from './components/organization/RevenueAnalysis/RevenueAn
 import Chat from './components/common/Chat/Chat'
 import SubscriptionForm from './components/common/SubscriptionForm/SubscriptionForm'
 import SubscriptionPage from './pages/SubscriptionPage/SubscriptionPage'
+import SupplierAnalysis from './components/organization/SupplierAnalysis/SupplierAnalysis'
 
 
 
@@ -116,6 +117,7 @@ const App = () => {
         <Route path = "productanalysis" element={<ProductAnalysis/>}/>
         <Route path = "seasonalanalysis" element={<SeasonalAnalysis/>}/>
         <Route path = "revenueanalysis" element={<RevenueAnalysis/>}/>
+        <Route path = "supplieranalysis" element={<SupplierAnalysis/>}/>
         <Route path = "search" element={<SearchInvoices/>}/>
         <Route path = 'supplierrequests' element ={<OutgoingSupplierRequests/>}/>
         <Route path = 'addemployee' element={<AddEmployee/>}/>

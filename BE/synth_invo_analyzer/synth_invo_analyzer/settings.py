@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'daphne',
     'django.contrib.staticfiles',
     'rest_framework',
     'channels',
@@ -85,6 +86,16 @@ TEMPLATES = [
 WSGI_APPLICATION = 'synth_invo_analyzer.wsgi.application'
 
 ASGI_APPLICATION = 'synth_invo_analyzer.asgi.application'
+
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
+}
+
+
+
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
@@ -159,11 +170,6 @@ REST_FRAMEWORK = {
 }
 
 
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels.layers.InMemoryChannelLayer',
-    },
-}
 
 
 

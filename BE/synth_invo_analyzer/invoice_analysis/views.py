@@ -1,201 +1,62 @@
+from datetime import datetime
 from django.shortcuts import render
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
 import json
-from django.http import JsonResponse
+from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from invoice.models import Invoice
-from .utils import load_data_from_db, format_invoice_date, product_analysis, monthly_sales_analysis,seasonal_sales_analysis,revenue_analysis
-from io import BytesIO
+from .utils import get_invoice_data, calculate_price_deviations, calculate_supplier_expenditures
+from elasticsearch_dsl import Q, Search, A
+from rest_framework import status
+from elasticsearch import Elasticsearch
 
 plt.switch_backend('Agg')
 
-@api_view(['GET'])
-def generate_product_analysis(request):
-    try:
-        user_id = request.query_params.get('organization_id')
-        if not user_id:
-            return JsonResponse({'error': 'user_id is required'}, status=400)
-
-        invoices = Invoice.objects.filter(recipient=user_id)
-        data = load_data_from_db(invoices)
-        data = format_invoice_date(data)
-        top_selling, price_analysis = product_analysis(data)
-
-        response_data = {
-            'top_selling': format_product_chart_data(top_selling),
-            'price_analysis': format_product_chart_data(price_analysis),
-        }
-        
-     
-        return JsonResponse(response_data, status=200)
-    except Exception as e:
-        print(e)
-        return JsonResponse({'error': str(e)}, status=500)
+es = Elasticsearch(['http://localhost:9200'])
 
 @api_view(['GET'])
-def get_product_pie_chart(request, year):
+def product_price_deviations(request):
     try:
-        file_name = f'static/charts/product_pie_chart_{year}.png'
-        if not os.path.exists(file_name):
-            return JsonResponse({'error': 'Pie chart image not found for the specified year'}, status=404)
+        year = request.query_params.get('year')
+        product_name = request.query_params.get('product_name')
 
-        top_selling, _ = product_analysis(load_data_from_db(Invoice.objects.all()))  # Load data to get actual values
-        top_selling_year = top_selling.get(year)
+        if not year or not product_name:
+            return Response({"error": "Both 'year' and 'product_name' parameters are required"}, status=status.HTTP_400_BAD_REQUEST)
 
-        response_data = {
-            "labels": list(top_selling_year.index) if top_selling_year else [],
-            "data": list(top_selling_year.values) if top_selling_year else [],
-            "backgroundColor": ["#FF6384", "#36A2EB", "#FFCE56"],
-            "downloadUrl": request.build_absolute_uri(file_name),
-        }
-        return JsonResponse(response_data)
+        data = get_invoice_data(year, product_name, es)
+
+        if not data:
+            return Response({"error": "No data found for the given product and year"}, status=status.HTTP_404_NOT_FOUND)
+
+        deviations = calculate_price_deviations(data, year)
+        result = deviations[['month', 'price', 'overall_avg_price']].to_dict(orient='records')
+
+        return Response(result, status=status.HTTP_200_OK)
+
+    except ValueError as e:
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
     except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
-
-@api_view(['GET'])
-def get_product_bar_chart(request, year):
-    try:
-        file_name = f'static/charts/product_bar_chart_{year}.png'
-        if not os.path.exists(file_name):
-            return JsonResponse({'error': 'Bar chart image not found for the specified year'}, status=404)
-
-        _, price_analysis = product_analysis(load_data_from_db(Invoice.objects.all()))  # Load data to get actual values
-        price_analysis_year = price_analysis.get(year)
-
-        response_data = {
-            "labels": list(price_analysis_year.index) if price_analysis_year else [],
-            "data": list(price_analysis_year.values) if price_analysis_year else [],
-            "downloadUrl": request.build_absolute_uri(file_name),
-        }
-        return JsonResponse(response_data)
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
-
-def format_product_chart_data(chart_data):
-    response = []
-    for year, data in chart_data.items():
-        formatted_data = {
-            'year': int(year),
-            'labels': list(data.index),
-            'data': [int(value) for value in data.values],
-        }
-        response.append(formatted_data)
-    return response
-
-
-@api_view(['GET'])
-def get_monthly_sales(request):
-    try:
-        invoices = Invoice.objects.all()
-        data = load_data_from_db(invoices)
-        
-        data = format_invoice_date(data)
-       
-       
-        monthly_sales = monthly_sales_analysis(data)
-       
-
-        response_data = monthly_sales.to_json(date_format='iso')
-        return JsonResponse(json.loads(response_data), safe=False)
-    except Exception as e:
-        print(f"Error in get_monthly_sales: {str(e)}")
-        return JsonResponse({'error': str(e)}, status=500)
-
-@api_view(['GET'])
-def get_seasonal_sales(request):
-    try:
-        invoices = Invoice.objects.all()
-        data = load_data_from_db(invoices)
-        data = format_invoice_date(data)
-        seasonal_sales = seasonal_sales_analysis(data)
-        
-        response_data = seasonal_sales.to_json()
-        return JsonResponse(json.loads(response_data), safe=False)
-    except Exception as e:
-        print(f"Error in get_seasonal_sales: {str(e)}")
-        return JsonResponse({'error': str(e)}, status=500)
-
-
-@api_view(['POST'])
-def generate_revenue_analysis(request):
-    try:
-        user_id = request.data.get('user_id')
-     
-        if not user_id:
-            return JsonResponse({'error': 'user_id is required'}, status=400)
-
-        invoices = Invoice.objects.filter(recipient=user_id)
-        data = load_data_from_db(invoices)
-        data = format_invoice_date(data)
-        monthly_revenue, yearly_revenue = revenue_analysis(data)
-
-        response_data = {
-            'monthly_revenue': format_chart_data(monthly_revenue),
-            'yearly_revenue': format_yearly_chart_data(yearly_revenue),
-        }
-
-        return JsonResponse(response_data, status=200)
-    except Exception as e:
-        print(f"Error in generate_revenue_analysis: {str(e)}")
-        return JsonResponse({'error': str(e)}, status=500)
-
-@api_view(['GET'])
-def get_revenue_pie_chart(request, year):
-    try:
-        file_name = f'static/charts/revenue_pie_chart_{year}.png'
-        if not os.path.exists(file_name):
-            return JsonResponse({'error': 'Pie chart image not found for the specified year'}, status=404)
-
-        return JsonResponse({'downloadUrl': request.build_absolute_uri(file_name)}, status=200)
-    except Exception as e:
-        print(f"Error in get_revenue_pie_chart: {str(e)}")
-        return JsonResponse({'error': str(e)}, status=500)
-
-@api_view(['GET'])
-def get_revenue_bar_chart(request, year):
-    try:
-        file_name = f'static/charts/revenue_bar_chart_{year}.png'
-        if not os.path.exists(file_name):
-            return JsonResponse({'error': 'Bar chart image not found for the specified year'}, status=404)
-
-        return JsonResponse({'downloadUrl': request.build_absolute_uri(file_name)}, status=200)
-    except Exception as e:
-        print(f"Error in get_revenue_bar_chart: {str(e)}")
-        return JsonResponse({'error': str(e)}, status=500)
-
-@api_view(['GET'])
-def get_revenue_doughnut_chart(request, year):
-    try:
-        file_name = f'static/charts/revenue_doughnut_chart_{year}.png'
-        if not os.path.exists(file_name):
-            return JsonResponse({'error': 'Doughnut chart image not found for the specified year'}, status=404)
-
-        return JsonResponse({'downloadUrl': request.build_absolute_uri(file_name)}, status=200)
-    except Exception as e:
-        print(f"Error in get_revenue_doughnut_chart: {str(e)}")
-        return JsonResponse({'error': str(e)}, status=500)
-
-def format_chart_data(chart_data):
-    formatted_data = []
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
-    for (year, month), revenue in chart_data.items():
-        formatted_data.append({
-            'year': int(year),
-            'month': int(month),
-            'revenue': float(revenue)
-        })
 
-    return formatted_data
 
-def format_yearly_chart_data(chart_data):
-    formatted_data = []
-    
-    for year, revenue in chart_data.items():
-        formatted_data.append({
-            'year': int(year),
-            'revenue': float(revenue)
-        })
 
-    return formatted_data
+@api_view(['GET'])
+def organization_supplier_expenditures(request):
+    organization_id = request.query_params.get('organization_id')
+    year = request.query_params.get('year')
+
+    if not organization_id or not year:
+        return Response({"error": "Both organization_id and year parameters are required"}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        suppliers_expenditures = calculate_supplier_expenditures(organization_id, year)
+
+        return Response(suppliers_expenditures, status=status.HTTP_200_OK)
+
+    except ValueError as ve:
+        return Response({"error": str(ve)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

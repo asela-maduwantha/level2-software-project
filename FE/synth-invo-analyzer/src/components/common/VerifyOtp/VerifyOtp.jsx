@@ -3,6 +3,8 @@ import { Button, Input, message, Progress } from 'antd';
 import { LockOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import { useNavigate, useLocation } from 'react-router-dom';
+import Header from '../../common/Header/Header'
+
 
 const VerifyOtp = () => {
   const [otp, setOtp] = useState(Array(6).fill(''));
@@ -88,7 +90,9 @@ const VerifyOtp = () => {
   };
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#f0f2f5' }}>
+    <>
+   <Header/>
+     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#f0f2f5' }}>
       <div style={{ padding: '40px', maxWidth: '400px', width: '100%', textAlign: 'center', backgroundColor: 'white', borderRadius: '15px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)' }}>
         <LockOutlined style={{ fontSize: '48px', color: '#1890ff', marginBottom: '20px' }} />
         <h2 style={{ fontSize: '28px', marginBottom: '30px', color: '#333' }}>Enter OTP</h2>
@@ -119,6 +123,8 @@ const VerifyOtp = () => {
         </div>
       </div>
     </div>
+    </>
+   
   );
 };
 

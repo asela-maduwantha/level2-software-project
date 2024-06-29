@@ -1,0 +1,132 @@
+
+
+.chat-layout {
+    height: 100vh;
+    background: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.chat-content {
+    width: 100%;
+    max-width: 600px;
+    padding: 20px;
+}
+
+.chat-card {
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1), 0 6px 6px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.messages-container {
+    height: 400px;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.message {
+    margin-bottom: 10px;
+    max-width: 70%;
+}
+
+.message-content {
+    background-color: #6760EF;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 18px;
+    font-size: 14px;
+    word-break: break-word;
+    box-shadow: 0 2px 4px rgba(103, 96, 239, 0.3);
+}
+
+.input-area {
+    display: flex;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-top: 1px solid #e8e8e8;
+}
+
+.chat-input {
+    flex-grow: 1;
+    margin-right: 10px;
+    border-radius: 20px;
+}
+
+.send-button {
+    background-color: #6760EF !important;
+    border-color: #6760EF !important;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.send-button:hover, .send-button:focus {
+    background-color: #5550C7 !important;
+    border-color: #5550C7 !important;
+}
+
+/* Custom scrollbar for WebKit browsers */
+.messages-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.messages-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.messages-container::-webkit-scrollbar-thumb {
+    background: #6760EF;
+    border-radius: 3px;
+}
+
+.messages-container::-webkit-scrollbar-thumb:hover {
+    background: #5550C7;
+}
+
+
+.messages-container {
+    /* ... existing styles ... */
+    align-items: stretch; /* Change from flex-end to stretch */
+}
+
+.message {
+    margin-bottom: 10px;
+    max-width: 70%;
+    align-self: flex-end; /* Add this line */
+}
+
+.message.sent {
+    align-self: flex-end;
+}
+
+.message.received {
+    align-self: flex-start;
+}
+
+.message-content {
+    /* ... existing styles ... */
+    display: inline-block; /* Add this line */
+}
+
+.message.sent .message-content {
+    background-color: #6760EF;
+    color: white;
+}
+
+.message.received .message-content {
+    background-color: #E8E8E8;
+    color: black;
+}
+
+.timestamp {
+    font-size: 0.8em;
+    color: #888;
+    margin-left: 10px;
+}

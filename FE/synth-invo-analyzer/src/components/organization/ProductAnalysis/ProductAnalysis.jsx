@@ -39,7 +39,7 @@ const ProductAnalysis = () => {
         const fetchPriceDeviations = async () => {
             if (selectedProduct && selectedYear) {
                 try {
-                    const response = await axios.get('http://localhost:8000/search/product_price_deviations/', {
+                    const response = await axios.get('http://localhost:8000/analysis/product_price_deviations/', {
                         params: { year: selectedYear, product_name: selectedProduct }
                     });
                     setPriceDeviationData(response.data);
