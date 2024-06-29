@@ -15,6 +15,7 @@ const ProductAnalysis = () => {
     const [selectedYear, setSelectedYear] = useState(null);
     const [priceDeviationData, setPriceDeviationData] = useState(null);
     const [isChartView, setIsChartView] = useState(true);
+    const [selectedProductCurrency, setSelectedProductCurrency] = useState(null);
 
     const years = [2021, 2022, 2023, 2024];
 
@@ -55,7 +56,9 @@ const ProductAnalysis = () => {
     }, [selectedProduct, selectedYear]);
 
     const handleProductChange = (value) => {
+        const product = products.find(p => p.description === value);
         setSelectedProduct(value);
+        setSelectedProductCurrency(product.currency);
         setPriceDeviationData(null);
     };
 
@@ -91,6 +94,12 @@ const ProductAnalysis = () => {
 
     const columns = [
         {
+            title: '#',
+            dataIndex: 'key',
+            key: 'key',
+            render: (text, record, index) => index + 1
+        },
+        {
             title: 'Month',
             dataIndex: 'month',
             key: 'month',
@@ -100,20 +109,22 @@ const ProductAnalysis = () => {
             }
         },
         {
-            title: `${selectedProduct} Price`,
+            title: `${selectedProduct} Price (${selectedProductCurrency})`,
             dataIndex: 'price',
             key: 'price',
+            render: (price) => price.toFixed(2)
         },
         {
-            title: 'Overall Average Price',
+            title: `Overall Average Price (${selectedProductCurrency})`,
             dataIndex: 'overall_avg_price',
             key: 'overall_avg_price',
+            render: (price) => price.toFixed(2)
         },
     ];
 
     return (
-        <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
-            <Title level={2} style={{ marginBottom: '20px', textAlign: 'center' }}>Product Analysis</Title>
+        <div style={{ padding: '20px', maxWidth: '800px', margin: '0 0' }}>
+            <Title level={2} style={{ marginBottom: '20px', textAlign: 'center' }}>Product Price Analysis</Title>
             <Row gutter={[16, 16]} justify="end" align="middle">
                 <Col xs={24} md={8}>
                     <Select
@@ -122,7 +133,7 @@ const ProductAnalysis = () => {
                         onChange={handleProductChange}
                     >
                         {products.map((product, index) => (
-                            <Option key={index} value={product}>{product}</Option>
+                            <Option key={index} value={product.description}>{product.description}</Option>
                         ))}
                     </Select>
                 </Col>
@@ -146,6 +157,11 @@ const ProductAnalysis = () => {
                     />
                 </Col>
             </Row>
+            {selectedProduct && selectedProductCurrency && (
+                <div style={{ marginTop: '10px', textAlign: 'center' }}>
+                    <strong>Selected Product Currency: {selectedProductCurrency}</strong>
+                </div>
+            )}
             {priceDeviationData && priceDeviationData.length > 0 && (
                 <Card title="Price Deviation Analysis" style={{ marginTop: '20px' }}>
                     {isChartView ? (
@@ -167,7 +183,7 @@ const ProductAnalysis = () => {
                         </div>
                     ) : (
                         <Table 
-                            dataSource={priceDeviationData} 
+                            dataSource={priceDeviationData.map((item, index) => ({ ...item, key: index }))}
                             columns={columns} 
                             pagination={false}
                         />

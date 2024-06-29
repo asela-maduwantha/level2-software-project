@@ -101,17 +101,21 @@ def organization_products(request):
 
         response = search.execute()
 
-        products = set()
+        products = {}
         for hit in response.hits:
+            currency = hit.currency if hasattr(hit, 'currency') else None
             for item in hit.items:
-                products.add(item['description'])
+                description = item['description']
+                if description not in products:
+                    products[description] = currency
 
-        product_list = list(products)
+        product_list = [{"description": desc, "currency": curr} for desc, curr in products.items()]
 
         return Response(product_list, status=status.HTTP_200_OK)
 
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 
 
