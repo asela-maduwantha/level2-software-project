@@ -22,7 +22,7 @@ const UserDashboard = () => {
       const organization_id = localStorage.getItem("organization_id");
       const url = `http://localhost:8000/search/search-invoices?organization_id=${organization_id}`;
       const response = await axios.get(url);
-      console.log(response.data.length)
+      console.log(response.data);
 
       if (response.status === 200) {
         const extractedInvoices = response.data.map((item) => item._source);
@@ -58,6 +58,7 @@ const UserDashboard = () => {
       if (response.status === 200) {
         const extractedInvoices = response.data.map((item) => item._source);
         setInvoices(extractedInvoices);
+        console.log(invoices)
       } else {
         message.error("Failed to fetch invoices. Please try again.");
         setInvoices([]);
@@ -132,21 +133,15 @@ const UserDashboard = () => {
       ),
     },
     {
-      title: "Buyer",
-      dataIndex: ["buyer", "company_name"],
-      key: "buyer",
-      render: (text, record) => (
-        <>
-          <div>{record.buyer?.company_name}</div>
-          <div>{record.buyer?.address?.city}</div>
-        </>
-      ),
+      title: "Currency",
+      dataIndex: "currency",
+      key: "currency",
     },
     {
       title: "Total Amount",
       dataIndex: ["summary", "total_amount"],
       key: "total_amount",
-      render: (text) => `$ ${text}`,
+      render: (text) => `${text}`,
     },
     {
       title: "Action",
@@ -251,14 +246,6 @@ const UserDashboard = () => {
                 <strong>Seller Address:</strong>{" "}
                 {selectedInvoice.seller?.address?.street},{" "}
                 {selectedInvoice.seller?.address?.city}
-              </p>
-              <p>
-                <strong>Buyer:</strong> {selectedInvoice.buyer?.company_name}
-              </p>
-              <p>
-                <strong>Buyer Address:</strong>{" "}
-                {selectedInvoice.buyer?.address?.street},{" "}
-                {selectedInvoice.buyer?.address?.city}
               </p>
               <Table
                 columns={itemColumns}

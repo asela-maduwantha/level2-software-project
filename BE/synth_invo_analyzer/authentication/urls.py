@@ -26,6 +26,8 @@ urlpatterns = [
     path('reset-password/', views.reset_password, name='reset-password'),
     path('change-password/', views.change_password, name='change-password'),
     path('get-org-by-sup/', views.get_org_by_supplier, name='get-org-by-sup'),
+    path('organization/profile/<uuid:organization_id>/', views.organization_profile, name='organization-profile'),
+
 ]
 
 

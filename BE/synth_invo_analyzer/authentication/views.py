@@ -456,6 +456,17 @@ def change_password(request):
             return Response({"error": "Passwords do not match."}, status=status.HTTP_400_BAD_REQUEST)
     else:
         return Response({"error": "New password and confirmation are required."}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+@api_view(['GET'])
+def organization_profile(request, organization_id):
+    try:
+        organization = Organization.objects.get(id=organization_id)
+        serializer = OrganizationSerializer(organization)
+        return Response(serializer.data)
+    except Organization.DoesNotExist:
+        return Response({'error': 'Organization not found'}, status=status.HTTP_404_NOT_FOUND)
     
     
 @api_view(['GET'])
