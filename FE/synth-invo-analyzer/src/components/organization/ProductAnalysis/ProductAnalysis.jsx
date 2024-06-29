@@ -16,6 +16,7 @@ const ProductAnalysis = () => {
     const [priceDeviationData, setPriceDeviationData] = useState(null);
     const [isChartView, setIsChartView] = useState(true);
     const [selectedProductCurrency, setSelectedProductCurrency] = useState(null);
+    const organization_id = localStorage.getItem('organization_id');
 
     const years = [2021, 2022, 2023, 2024];
 
@@ -23,7 +24,7 @@ const ProductAnalysis = () => {
         const fetchProducts = async () => {
             try {
                 const response = await axios.get('http://localhost:8000/search/get-prod-by-org/', {
-                    params: { organization_id: localStorage.getItem('organization_id') }
+                    params: { organization_id: organization_id }
                 });
                 setProducts(response.data);
             } catch (error) {
@@ -40,7 +41,7 @@ const ProductAnalysis = () => {
             if (selectedProduct && selectedYear) {
                 try {
                     const response = await axios.get('http://localhost:8000/analysis/product_price_deviations/', {
-                        params: { year: selectedYear, product_name: selectedProduct }
+                        params: { year: selectedYear, product_name: selectedProduct, organization_id: organization_id }
                     });
                     setPriceDeviationData(response.data);
                     message.success('Price deviation data fetched successfully.');
@@ -123,7 +124,7 @@ const ProductAnalysis = () => {
     ];
 
     return (
-        <div style={{ padding: '20px', maxWidth: '800px', margin: '0 0' }}>
+        <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
             <Title level={2} style={{ marginBottom: '20px', textAlign: 'center' }}>Product Price Analysis</Title>
             <Row gutter={[16, 16]} justify="end" align="middle">
                 <Col xs={24} md={8}>
@@ -153,7 +154,7 @@ const ProductAnalysis = () => {
                         checkedChildren="Chart"
                         unCheckedChildren="Table"
                         checked={isChartView}
-                        onChange={setIsChartView}
+                        onChange={() => setIsChartView(!isChartView)}
                     />
                 </Col>
             </Row>
@@ -166,10 +167,10 @@ const ProductAnalysis = () => {
                 <Card title="Price Deviation Analysis" style={{ marginTop: '20px' }}>
                     {isChartView ? (
                         <div style={{ height: '400px' }}>
-                            <Line 
-                                data={lineData} 
-                                options={{ 
-                                    responsive: true, 
+                            <Line
+                                data={lineData}
+                                options={{
+                                    responsive: true,
                                     maintainAspectRatio: false,
                                     plugins: {
                                         legend: { position: 'top' },
@@ -178,13 +179,13 @@ const ProductAnalysis = () => {
                                             text: 'Price Deviation Over Time'
                                         }
                                     }
-                                }} 
+                                }}
                             />
                         </div>
                     ) : (
-                        <Table 
+                        <Table
                             dataSource={priceDeviationData.map((item, index) => ({ ...item, key: index }))}
-                            columns={columns} 
+                            columns={columns}
                             pagination={false}
                         />
                     )}

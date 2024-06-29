@@ -50,11 +50,6 @@ const MenuList = () => {
             <Link to="supplierrequests" style={{textDecoration:"none"}}>Outgoing Requests</Link>
           </Menu.Item>
         </Menu.SubMenu>
-        <Menu.SubMenu key="employee-manage" icon={<UserOutlined />} title="Employee Management">
-          <Menu.Item key="add-employee">
-            <Link to="addemployee" style={{textDecoration:"none"}}>Add Employee</Link>
-          </Menu.Item>
-        </Menu.SubMenu>
         <Menu.SubMenu key="analysis" icon={<LineChartOutlined />} title="Analysis">
           <Menu.Item key="product-analysis">
             <Link to="productanalysis" style={{textDecoration:"none"}}>Product Analysis</Link>
@@ -62,8 +57,8 @@ const MenuList = () => {
           <Menu.Item key="seasonal-analysis">
             <Link to="seasonalanalysis" style={{textDecoration:"none"}}>Seasonal Analysis</Link>
           </Menu.Item>
-          <Menu.Item key="revenue-analysis">
-            <Link to="revenueanalysis" style={{textDecoration:"none"}}>Revenue Analysis</Link>
+          <Menu.Item key="expenditure-analysis">
+            <Link to="revenueanalysis" style={{textDecoration:"none"}}>Expenditure Analysis</Link>
           </Menu.Item>
         </Menu.SubMenu>
         <Menu.SubMenu key="account" icon={<UserOutlined />} title="Account">

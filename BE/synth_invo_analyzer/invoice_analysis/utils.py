@@ -13,7 +13,7 @@ from elasticsearch import Elasticsearch
 es = Elasticsearch(['http://localhost:9200'])
 
 
-def get_invoice_data(year, product_name, es, index="invoices"):
+def get_invoice_data(year, product_name, organization_id, es, index="invoices"):
     try:
         year = int(year)
         if year < 1000 or year > 9999:
@@ -23,6 +23,7 @@ def get_invoice_data(year, product_name, es, index="invoices"):
 
     search = Search(using=es, index=index)
     search = search.filter('range', invoice_date={'gte': f'{year}-01-01', 'lte': f'{year}-12-31'})
+    search = search.filter('term', recipient = organization_id)
     search = search.query('nested', path='items', query=Q('match', items__description=product_name))
 
     response = search.execute()
@@ -55,7 +56,6 @@ def calculate_price_deviations(data, year):
     deviations['deviation'] = deviations['price'] - deviations['overall_avg_price']
 
     return deviations
-
 
 def calculate_supplier_expenditures(organization_id, year):
     start_date = datetime(int(year), 1, 1).isoformat()
@@ -97,8 +97,28 @@ def calculate_supplier_expenditures(organization_id, year):
 
 
 
+def calculate_monthly_expenditures(hits):
+    data = []
+    for hit in hits:
+        invoice_date = datetime.strptime(hit.invoice_date, '%Y-%m-%dT%H:%M:%S')
+        total_amount = hit.summary.total_amount
+        data.append((invoice_date, total_amount))
 
+    if not data:
+        return []
 
+    df = pd.DataFrame(data, columns=['invoice_date', 'total_amount'])
+    df.set_index('invoice_date', inplace=True)
+    monthly_expenditures = df.resample('M').sum()
+
+    expenditures = []
+    for date, row in monthly_expenditures.iterrows():
+        expenditures.append({
+            "month": date.strftime('%Y-%m'),
+            "total_expenditure": row['total_amount']
+        })
+
+    return expenditures
 
 
 
