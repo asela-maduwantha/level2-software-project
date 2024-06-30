@@ -1,11 +1,15 @@
 from django.shortcuts import redirect
 from django.http import HttpResponse, JsonResponse
+from rest_framework.response import Response
 from rest_framework.decorators import api_view
 import stripe
 import os
 from dotenv import load_dotenv
 from .models import Subscription, Payment
 from datetime import datetime
+from .serializers import SubscriptionSerializer
+from subscription_models.models import SubscriptionModel, SubscriptionModelFeatures
+from subscription_models.serializers import SubscriptionModelFeaturesSerializer,SubscriptionModelSerializer
 
 load_dotenv()
 
@@ -170,3 +174,41 @@ def handle_payment_failed(event_json):
     except Exception as e:
         print(f"Error saving payment failed record: {e}")
         raise
+
+
+@api_view(['GET'])
+def get_current_subscription(request, user_id):
+    try:
+        subscription = Subscription.objects.get(user_id=user_id)
+        serializer = SubscriptionSerializer(subscription)
+        return Response(serializer.data, status=200)
+    except Subscription.DoesNotExist:
+        return Response({"error": "Subscription not found"}, status=404)
+
+@api_view(['GET'])
+def get_available_plans(request):
+    plans = SubscriptionModel.objects.all()
+    serializer = SubscriptionModelSerializer(plans, many=True)
+    return Response(serializer.data, status=200)
+
+@api_view(['POST'])
+def change_plan(request):
+    user_id = request.data['userId']
+    new_price_id = request.data['priceId']
+
+    try:
+        subscription = Subscription.objects.get(user_id=user_id)
+        stripe.Subscription.modify(
+            subscription.subscription_id,
+            items=[{
+                'id': subscription.plan_id,
+                'price': new_price_id,
+            }]
+        )
+        subscription.plan_id = new_price_id
+        subscription.save()
+        return Response({"status": "success", "message": "Subscription updated successfully"}, status=200)
+    except Subscription.DoesNotExist:
+        return Response({"error": "Subscription not found"}, status=404)
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)

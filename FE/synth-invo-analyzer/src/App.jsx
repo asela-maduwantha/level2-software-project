@@ -53,6 +53,8 @@ import SubscriptionForm from './components/common/SubscriptionForm/SubscriptionF
 import SubscriptionPage from './pages/SubscriptionPage/SubscriptionPage'
 import SupplierAnalysis from './components/organization/SupplierAnalysis/SupplierAnalysis'
 import ForgotPasswordVerifyOTP from './components/common/ForgotPasswordVerifyOTP/ForgotPasswordVerifyOTP'
+import ResetForgotPassword from './components/common/ResetForgotPassword/ResetForgotPassword'
+import SubscriptionManagement from './components/organization/SubscriptionManagement/SubscriptionManagement'
 
 
 
@@ -78,6 +80,7 @@ const App = () => {
         <Route path ='/change-password' element={<ChangePassword/>}/>
         <Route path="/forgot-password" element={<ForgotPassword/>}/>
         <Route path="/forgot-password-otp-verify" element={<ForgotPasswordVerifyOTP/>}/>
+        <Route path="/forgot-password-reset" element={<ResetForgotPassword/>}/>
        
   
 
@@ -124,6 +127,7 @@ const App = () => {
         <Route path = 'supplierrequests' element ={<OutgoingSupplierRequests/>}/>
         <Route path = 'addemployee' element={<AddEmployee/>}/>
         <Route path="chat" element={<Chat/>}/>
+        <Route path="changeplan" element={<SubscriptionManagement/>}/>
       </Route>
 
       <Route

@@ -3,11 +3,11 @@ import { Form, Input, Button, Alert, Typography, Row, Col } from 'antd';
 import { LockOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import { useNavigate, useLocation } from 'react-router-dom';
-import Header from '../../common/Header/Header';
+import Header from '../Header/Header';
 
 const { Title } = Typography;
 
-const ForgotPasswordNewPassword = () => {
+const ResetForgotPassword = () => {
   const [form] = Form.useForm();
   const [changeError, setChangeError] = useState('');
   const navigate = useNavigate();
@@ -23,7 +23,6 @@ const ForgotPasswordNewPassword = () => {
     try {
       const response = await axios.post('http://127.0.0.1:8000/auth/reset-password/', {
         email,
-        otp,
         new_password,
       });
 
@@ -44,7 +43,7 @@ const ForgotPasswordNewPassword = () => {
           <Col xs={24} sm={24} md={12} lg={12} xl={12} style={{ padding: '20px' }}>
             <div className="change-password-form-container" style={{ maxWidth: '400px', margin: 'auto' }}>
               <Title level={1} className="change-password-title" style={{ textAlign: 'center', color: '#6760EF' }}>
-                Change Password
+                Reset Password
               </Title>
 
               <Form form={form} name="change_password" onFinish={onFinish} layout="vertical">
@@ -82,4 +81,4 @@ const ForgotPasswordNewPassword = () => {
   );
 };
 
-export default ForgotPasswordNewPassword;
+export default ResetForgotPassword;

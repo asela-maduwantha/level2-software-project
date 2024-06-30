@@ -67,7 +67,7 @@ const MenuList = () => {
           </Menu.Item>
         </Menu.SubMenu>
         <Menu.Item key="change-plan" icon={<UpCircleOutlined />}>
-          <Link to="analytics" style={{textDecoration:"none"}}>Upgrade</Link>
+          <Link to="changeplan" style={{textDecoration:"none"}}>Upgrade</Link>
         </Menu.Item>
         <Menu.Item key="logout" icon={<LogoutOutlined />}>Logout</Menu.Item>
       </Menu>

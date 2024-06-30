@@ -406,6 +406,8 @@ def forgot_password(requet):
     user_email = requet.data.get('email')
     try:
         user = User.objects.get(email=user_email)
+        user.is_verified_email = False
+        user.save()
         if send_otp(user_email):
             return Response({"message": "OTP sent to your email."}, status=status.HTTP_200_OK)
         else:
@@ -418,13 +420,9 @@ def forgot_password(requet):
 @api_view(['POST'])
 def reset_password(request):
     email = request.data.get('email')
-    otp = request.data.get('otp')
+  
     new_password = request.data.get('new_password')
-        
-    is_valid, message = verify_otp(email, otp)
-    if not is_valid:
-        return Response({"message": message}, status=status.HTTP_400_BAD_REQUEST)
-        
+ 
     try:
         user = User.objects.get(email=email)
         user.password = make_password(new_password)

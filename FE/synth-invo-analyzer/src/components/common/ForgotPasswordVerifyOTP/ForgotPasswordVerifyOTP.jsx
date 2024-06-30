@@ -54,7 +54,7 @@ const ForgotPasswordVerifyOTP = () => {
       });
       setIsLoading(false);
       message.success('OTP verified successfully.');
-      navigate('/change-password');
+      navigate('/forgot-password-reset');
     } catch (error) {
       setIsLoading(false);
       if (error.response && error.response.status === 400) {
