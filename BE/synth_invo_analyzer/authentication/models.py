@@ -5,6 +5,7 @@ from django.utils import timezone
 
 class User(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    email = models.EmailField(unique=True)
     last_login = models.DateTimeField(default=timezone.now)
     is_verified_email = models.BooleanField(default=False)
 
