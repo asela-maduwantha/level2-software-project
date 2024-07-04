@@ -36,9 +36,10 @@ def organization_signup(request):
                 organization = serializer.save()
                 token = generate_token(str(organization.id), 'organization', '')
                 return Response({'user': serializer.data, 'token': token, 'organization_id': str(organization.id)}, status=status.HTTP_201_CREATED)
-            print(serializer.errors)
+            
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
+            print(serializer.errors)
             return Response({'error': 'Failed to send OTP'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     except Exception as e:
         print(e)

@@ -1,10 +1,14 @@
-import uuid
+# models.py
+
 from django.db import models
-from authentication.models import Organization
+from django.utils import timezone
+from decimal import Decimal
+from authentication.models import Organization  
+import uuid
 
 class Subscription(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(Organization, on_delete=models.CASCADE)
+    organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
     subscription_id = models.CharField(max_length=100, unique=True)
     plan_id = models.CharField(max_length=100)
     status = models.CharField(max_length=20)
@@ -21,6 +25,19 @@ class Subscription(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def is_current_period_paid(self):
+        """
+        Check if the current billing period is paid.
+        """
+        if self.next_billing_date and self.next_billing_date > timezone.now():
+            # Check if there's a payment for this subscription and period
+            latest_payment = self.payment_set.filter(payment_date__gte=self.start_date, payment_date__lte=self.next_billing_date).last()
+            if latest_payment and latest_payment.status == 'succeeded':
+                # Compare amount paid with subscription amount
+                if latest_payment.amount_paid >= self.amount:
+                    return True
+        return False
+
 class Payment(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     subscription = models.ForeignKey(Subscription, on_delete=models.CASCADE)
@@ -28,6 +45,6 @@ class Payment(models.Model):
     payment_date = models.DateTimeField()
     status = models.CharField(max_length=20)
     amount_paid = models.DecimalField(max_digits=10, decimal_places=2)
-    invoice_id = models.CharField(max_length=100)
+    invoice_id = models.CharField(max_length=100, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

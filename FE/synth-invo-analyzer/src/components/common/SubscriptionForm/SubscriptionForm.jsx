@@ -53,6 +53,7 @@ const SubscriptionForm = () => {
         priceId: plan.price_id,
         paymentMethodId: paymentMethod.id,
         email: values.email,
+        organizationId : localStorage.getItem('organization_id')
       });
 
       if (response.data.status === 'success') {

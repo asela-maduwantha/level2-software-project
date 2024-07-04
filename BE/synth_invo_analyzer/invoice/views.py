@@ -3,11 +3,13 @@ from rest_framework.decorators import api_view
 import json
 import xmltodict
 from .models import Invoice
-from .utils import format_invoice
+from .utils import format_invoice, map_csv_row_to_invoice
 from .serializers import InvoiceSerializer
 from rest_framework import status
 from search.elasticsearch_utils import async_index_invoices
 import threading
+import csv
+import io
 
 @api_view(['POST'])
 def create_invoice(request):
@@ -62,7 +64,36 @@ def create_invoice(request):
 
 
 
+@api_view(['POST'])
+def bulk_upload_invoices(request):
+    try:
+        supplier_id = request.data.get("supplier_id")
+        organization_id = request.data.get("organization_id")
+        csv_file = request.FILES.get('file')
+        if not csv_file.name.endswith('.csv'):
+            return Response({'error': 'Invalid file format. Please upload a CSV file.'}, status=status.HTTP_400_BAD_REQUEST)
 
+        csv_data = csv_file.read().decode('utf-8')
+        reader = csv.DictReader(io.StringIO(csv_data))
+
+        invoices = []
+        for row in reader:
+            invoice_data = map_csv_row_to_invoice(row, organization_id, supplier_id)
+            serializer = InvoiceSerializer(data=invoice_data)
+            if serializer.is_valid():
+                invoice = serializer.save()
+                invoices.append(invoice)
+                threading.Thread(target=async_index_invoices, args=([(invoice_data['internal_format'])], invoice.issuer, invoice.recipient)).start()
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({'success': f'{len(invoices)} invoices uploaded successfully.'}, status=status.HTTP_201_CREATED)
+
+    except Exception as e:
+        print(e)
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    
+    
 
 @api_view(['GET'])
 def supplier_invoice_view(request):

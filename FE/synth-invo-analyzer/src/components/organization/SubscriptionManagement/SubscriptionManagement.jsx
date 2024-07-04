@@ -11,7 +11,7 @@ const SubscriptionManagement = () => {
   useEffect(() => {
     const fetchCurrentSubscription = async () => {
       try {
-        const response = await axios.get(`http://127.0.0.1:8000/subscriptions/get-current-plan/?user_id=${organizationId}`);
+        const response = await axios.get(`http://127.0.0.1:8000/subscriptions/get-current-plan/${organizationId}/`);
         setCurrentSubscription(response.data);
       } catch (error) {
         console.error('Error fetching current subscription:', error);
