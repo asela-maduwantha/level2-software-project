@@ -1,14 +1,14 @@
-# models.py
-
 from django.db import models
 from django.utils import timezone
 from decimal import Decimal
 from authentication.models import Organization  
+from subscription_models.models import SubscriptionModel
 import uuid
 
 class Subscription(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
+    subscription_model = models.ForeignKey(SubscriptionModel, on_delete=models.CASCADE)
     subscription_id = models.CharField(max_length=100, unique=True)
     plan_id = models.CharField(max_length=100)
     status = models.CharField(max_length=20)
@@ -31,7 +31,7 @@ class Subscription(models.Model):
         """
         if self.next_billing_date and self.next_billing_date > timezone.now():
             # Check if there's a payment for this subscription and period
-            latest_payment = self.payment_set.filter(payment_date__gte=self.start_date, payment_date__lte=self.next_billing_date).last()
+            latest_payment = self.payments.filter(payment_date__gte=self.start_date, payment_date__lte=self.next_billing_date).last()
             if latest_payment and latest_payment.status == 'succeeded':
                 # Compare amount paid with subscription amount
                 if latest_payment.amount_paid >= self.amount:
@@ -40,7 +40,7 @@ class Subscription(models.Model):
 
 class Payment(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    subscription = models.ForeignKey(Subscription, on_delete=models.CASCADE)
+    subscription = models.ForeignKey(Subscription, on_delete=models.CASCADE, related_name='payments')
     payment_id = models.CharField(max_length=100)
     payment_date = models.DateTimeField()
     status = models.CharField(max_length=20)
