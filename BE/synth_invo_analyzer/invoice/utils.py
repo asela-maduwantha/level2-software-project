@@ -1,94 +1,34 @@
 from invoice_template.models import Template
-from .serializers import InvoiceSerializer
 import json
 from datetime import datetime
 import logging
-from typing import Union, Dict, Any, List
-from uuid import UUID
-from search.elasticsearch_utils import async_index_invoices
-import xmltodict
-from django.core.files.uploadedfile import InMemoryUploadedFile
-from celery import shared_task
-
 
 logger = logging.getLogger(__name__)
 
 def clean_number_string(number_str: str) -> str:
     return number_str.replace('$', '').replace(',', '').strip()
 
-def map_field(data: Dict[str, Any], mapping: Union[str, float, int], data_type: str = None) -> Union[str, int, float]:
-    if isinstance(mapping, (float, int)):
+def map_field(data, mapping, data_type=None):
+    if isinstance(mapping, float) or isinstance(mapping, int):
         return mapping
     keys = mapping.split('.')
     current_value = data
     for key in keys:
         current_value = current_value.get(key, '')
     
+  
     if isinstance(current_value, str):
         current_value = clean_number_string(current_value)
     
-    try:
-        if data_type == 'int':
-            return int(current_value) if current_value else 0
-        elif data_type == 'float':
-            return float(current_value) if current_value else 0.0
-        return current_value
-    except ValueError:
-        logger.warning(f"Failed to convert {current_value} to {data_type}")
-        return 0 if data_type in ('int', 'float') else ''
-    
+    if data_type == 'int':
+        return int(current_value) if current_value else 0
+    elif data_type == 'float':
+        return float(current_value) if current_value else 0.0
+    return current_value
 
-def convert_date_format(date_str: str) -> str:
-    date_formats = ["%m/%d/%Y", "%Y-%m-%d", "%d-%m-%Y", "%Y/%m/%d"]
-    for fmt in date_formats:
-        try:
-            return datetime.strptime(date_str, fmt).strftime("%Y-%m-%d")
-        except ValueError:
-            continue
-    logger.warning(f"Unable to parse date: {date_str}")
-    return 'N/A'
-
-
-def parse_invoice_input(request):
-    source_invoice = request.data.get('source_invoice')
-    
-    if isinstance(source_invoice, str):
-        if source_invoice.strip().startswith('<'):
-            return xmltodict.parse(source_invoice)
-        else:
-            return json.loads(source_invoice)
-    elif isinstance(source_invoice, InMemoryUploadedFile):
-        if source_invoice.name.endswith('.xml'):
-            return xmltodict.parse(source_invoice.read().decode('utf-8'))
-        else:
-            return json.load(source_invoice)
-    else:
-        raise ValueError("Invalid invoice input format")
-    
-@shared_task
-def process_csv_chunk(chunk, organization_id: str, supplier_id: str):
-    organization_id = UUID(organization_id)
-    supplier_id = UUID(supplier_id)
-    invoices = []
-    for row in chunk:
-        invoice_data = map_csv_row_to_invoice(row, organization_id, supplier_id)
-        serializer = InvoiceSerializer(data=invoice_data)
-        if serializer.is_valid():
-            invoice = serializer.save()
-            invoices.append(invoice)
-            async_index_invoices([invoice_data['internal_format']], invoice.issuer, invoice.recipient)
-        else:
-            logger.error(f"Invalid invoice data: {serializer.errors}")
-    return len(invoices)
-
-
-def format_invoice(invoice: Dict[str, Any], supplier_id: UUID) -> Dict[str, Any]:
-    try:
-        template_mapping = Template.objects.get(supplier=supplier_id)
-        mapping = json.loads(template_mapping.mapping)
-    except Template.DoesNotExist:
-        logger.error(f"No template found for supplier_id: {supplier_id}")
-        raise ValueError(f"No template found for supplier_id: {supplier_id}")
+def format_invoice(invoice, supplier_id):
+    template_mapping = Template.objects.get(supplier=supplier_id)
+    mapping = json.loads(template_mapping.mapping)
     
     formatted_invoice = {
         "Invoice": {
@@ -158,7 +98,7 @@ def format_invoice(invoice: Dict[str, Any], supplier_id: UUID) -> Dict[str, Any]
     return formatted_invoice
 
 
-def map_csv_row_to_invoice(row: Dict[str, str], organization_id: UUID, supplier_id: UUID) -> Dict[str, Any]:
+def map_csv_row_to_invoice(row, organization_id, supplier_id):
     converted_invoice = {
         "Invoice": {
             "Header": {
@@ -233,3 +173,8 @@ def map_csv_row_to_invoice(row: Dict[str, str], organization_id: UUID, supplier_
     print(converted_invoice)
     return invoice_data
 
+def convert_date_format(date_str):
+        try:
+            return datetime.strptime(date_str, "%m/%d/%Y").strftime("%Y-%m-%d")
+        except ValueError:
+            return 'N/A'
