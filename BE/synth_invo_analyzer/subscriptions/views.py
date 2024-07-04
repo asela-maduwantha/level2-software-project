@@ -186,30 +186,39 @@ def get_available_plans(request):
     return Response(serializer.data, status=200)
 
 
-@api_view(['POST'])
+@api_view(['PUT'])
 def change_plan(request):
     user_id = request.data.get('userId')
     new_price_id = request.data.get('priceId')
 
     try:
-        # Retrieve the current subscription from the database
+      
         subscription = Subscription.objects.get(organization__id=user_id)
         
-        # Modify the subscription in Stripe
+     
+        stripe_subscription = stripe.Subscription.retrieve(subscription.subscription_id)
+        
+       
+        subscription_item_id = stripe_subscription['items']['data'][0]['id']
+        
+        
         updated_subscription = stripe.Subscription.modify(
             subscription.subscription_id,
-            items=[{'price': new_price_id}]
+            items=[{
+                'id': subscription_item_id,
+                'price': new_price_id,
+            }]
         )
         
-        # Retrieve the new plan details from Stripe
+
         new_price = stripe.Price.retrieve(new_price_id)
-        new_amount = new_price.unit_amount / 100  # Convert from cents to dollars
-        new_product_id = new_price.product  # Retrieve the associated product ID
+        new_amount = new_price.unit_amount / 100  
+        new_product_id = new_price.product  
         
-        # Retrieve the new subscription model from the database
+      
         subscription_model = SubscriptionModel.objects.get(stripe_id=new_product_id)
 
-        # Update the subscription details in the database
+   
         subscription.plan_id = new_price_id
         subscription.amount = new_amount
         subscription.subscription_model = subscription_model

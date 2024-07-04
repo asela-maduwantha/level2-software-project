@@ -48,7 +48,7 @@ const SubscriptionManagement = () => {
   const handleModalOk = async () => {
     if (selectedPlan) {
       try {
-        await axios.post('http://127.0.0.1:8000/subscriptions/change-plan/', {
+        await axios.put('http://127.0.0.1:8000/subscriptions/change-plan/', {
           userId: organizationId,
           priceId: selectedPlan.price_id,
         });
