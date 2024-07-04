@@ -67,7 +67,7 @@ const PricingPage = () => {
               <h2 className="text-xl font-semibold mb-4">{plan.model_name}</h2>
               <div className="text-4xl font-bold mb-2">
                 ${plan.model_price}
-                <span className="text-sm font-normal text-gray-500">/ month</span>
+                <span className="text-sm font-normal text-gray-500">/ {plan.billing_period}</span>
               </div>
               <ul className="mt-6 space-y-4">
                 {plan.features.map((feature, idx) => (

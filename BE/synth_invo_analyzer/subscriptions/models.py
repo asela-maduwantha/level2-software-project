@@ -1,7 +1,7 @@
 from django.db import models
-from django.utils import timezone
+from datetime import datetime
 from decimal import Decimal
-from authentication.models import Organization  
+from authentication.models import Organization
 from subscription_models.models import SubscriptionModel
 import uuid
 
@@ -29,7 +29,7 @@ class Subscription(models.Model):
         """
         Check if the current billing period is paid.
         """
-        if self.next_billing_date and self.next_billing_date > timezone.now():
+        if self.next_billing_date and self.next_billing_date > datetime.now():
             # Check if there's a payment for this subscription and period
             latest_payment = self.payments.filter(payment_date__gte=self.start_date, payment_date__lte=self.next_billing_date).last()
             if latest_payment and latest_payment.status == 'succeeded':

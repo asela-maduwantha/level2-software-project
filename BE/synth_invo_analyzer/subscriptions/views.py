@@ -11,6 +11,8 @@ from .serializers import SubscriptionSerializer
 from subscription_models.models import SubscriptionModel
 from subscription_models.serializers import SubscriptionModelSerializer
 from django.utils.timezone import make_aware
+from django.db.models import Count, Sum
+from django.db.models.functions import TruncMonth
 
 load_dotenv()
 
@@ -125,23 +127,31 @@ def handle_payment_succeeded(event_json):
         subscription_obj = Subscription.objects.get(subscription_id=subscription_id)
         payment_date = make_aware(datetime.fromtimestamp(payment_data['created']))
 
+        if 'total' in payment_data:
+            amount_paid = payment_data['total'] 
+        elif 'amount_due' in payment_data:
+            amount_paid = payment_data['amount_due'] 
+        else:
+            raise KeyError("Could not determine amount_paid from event data")
+
         payment_obj = Payment.objects.create(
             subscription=subscription_obj,
             payment_id=payment_data['id'],
             payment_date=payment_date,
             status=payment_data['status'],
-            amount_paid=payment_data['amount_paid'] / 100,  # Convert from cents to dollars
+            amount_paid=amount_paid,
             invoice_id=payment_data.get('invoice', "N/A"),
         )
-        payment_obj.save()
         print(f"Payment succeeded: {payment_obj}")
     
     except Subscription.DoesNotExist:
         print(f"Subscription with id {subscription_id} does not exist")
+    except KeyError as e:
+        print(f"Error accessing payment data: {e}")
+        raise
     except Exception as e:
         print(f"Error saving payment: {e}")
         raise
-
 
 def handle_payment_failed(event_json):
     try:
@@ -151,15 +161,16 @@ def handle_payment_failed(event_json):
         subscription_obj = Subscription.objects.get(subscription_id=subscription_id)
         payment_date = make_aware(datetime.fromtimestamp(payment_data['created']))
 
+        amount_paid = payment_data.get('amount_paid', 0) / 100.0  
+
         payment_obj = Payment.objects.create(
             subscription=subscription_obj,
             payment_id=payment_data['id'],
             payment_date=payment_date,
             status=payment_data['status'],
-            amount_paid=payment_data.get('amount_paid', 0) / 100,  # Convert from cents to dollars
+            amount_paid=amount_paid,
             invoice_id=payment_data.get('invoice', "N/A"),
         )
-        payment_obj.save()
         print(f"Payment failed: {payment_obj}")
     
     except Subscription.DoesNotExist:
@@ -239,3 +250,42 @@ def change_plan(request):
     except Exception as e:
         print(f"Error: {str(e)}")
         return Response({"error": str(e)}, status=500)
+
+
+
+from django.db.models.functions import TruncMonth
+from django.utils import timezone
+
+@api_view(['GET'])
+def monthly_subscriptions(request):
+    monthly_data = Subscription.objects.annotate(
+        month=TruncMonth('created_at', tzinfo=timezone.utc)
+    ).values('month').annotate(count=Count('id')).order_by('month')
+    data = [{'month': item['month'].strftime('%Y-%m'), 'count': item['count']} for item in monthly_data]
+    return Response(data)
+
+
+@api_view(['GET'])
+def subscription_model_users(request):
+    model_data = SubscriptionModel.objects.annotate(user_count=Count('subscription')).values('model_name', 'user_count')
+    data = list(model_data)
+    return Response(data)
+
+
+
+@api_view(['GET'])
+def monthly_revenue(request):
+    revenue_data = Payment.objects.filter(status='paid').annotate(
+        month=TruncMonth('payment_date', tzinfo=timezone.utc)
+    ).values('month').annotate(revenue=Sum('amount_paid')).order_by('month')
+    
+    data = [
+        {
+            'month': item['month'].strftime('%Y-%m'),
+            'revenue': float(item['revenue']) if item['revenue'] is not None else 0
+        } 
+        for item in revenue_data
+    ]
+    return Response(data)
+
+

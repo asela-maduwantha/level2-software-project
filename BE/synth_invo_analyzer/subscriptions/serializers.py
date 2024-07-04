@@ -1,5 +1,3 @@
-# serializers.py
-
 from rest_framework import serializers
 from subscription_models.serializers import SubscriptionModelSerializer
 from .models import Subscription, Payment
@@ -8,8 +6,6 @@ class PaymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment
         fields = '__all__'
-from rest_framework import serializers
-from .models import Subscription
 
 class SubscriptionSerializer(serializers.ModelSerializer):
     is_current_period_paid = serializers.SerializerMethodField()
