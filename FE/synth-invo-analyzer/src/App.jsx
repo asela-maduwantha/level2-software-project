@@ -55,6 +55,7 @@ import SupplierAnalysis from './components/organization/SupplierAnalysis/Supplie
 import ForgotPasswordVerifyOTP from './components/common/ForgotPasswordVerifyOTP/ForgotPasswordVerifyOTP'
 import ResetForgotPassword from './components/common/ResetForgotPassword/ResetForgotPassword'
 import SubscriptionManagement from './components/organization/SubscriptionManagement/SubscriptionManagement'
+import AdvancedSearch from './components/admin/AdvancedSearch/AdvancedSearch'
 
 
 
@@ -104,6 +105,7 @@ const App = () => {
         <Route path='add-feature' element={<AddFeatureModel/>}/>
         <Route path='modify-feature' element={<ModifyModelFeatures/>}/>
         <Route path='upload-mapping' element={<MapTemplates/>}/>
+        <Route path='advanced-search' element={<AdvancedSearch/>}/>
       </Route>
 
       <Route

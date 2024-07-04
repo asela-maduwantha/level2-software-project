@@ -130,3 +130,52 @@ def organization_products(request):
 
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    
+    
+@api_view(['POST'])
+def build_query(request):
+    try:
+        params = request.data.get('params', {})
+        query = build_search_query(params).to_dict()
+        return Response({"query": query}, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['POST'])
+def execute_search(request):
+    query_params = request.data
+    size = query_params.get('size', 1000)
+    search_query = query_params.get('query', {})
+
+    search_body = {
+        "query": search_query,
+        "size": size
+    }
+
+    try:
+        res = es.search(index="invoices", body=search_body)
+
+        hits = res['hits']['hits']
+        total_hits = res['hits']['total']['value']
+
+        if total_hits == 0:
+            return Response({"error": "No invoices found matching the search criteria"}, status=status.HTTP_404_NOT_FOUND)
+
+        # Extract only necessary data from each hit
+        formatted_hits = []
+        for hit in hits:
+            formatted_hit = {
+                "_id": hit['_id'],
+                "invoice_number": hit['_source']['invoice_number'],
+                "supplier": hit['_source']['seller']['company_name'],
+                "buyer": hit['_source']['buyer']['company_name'],
+                "date": hit['_source']['invoice_date'],
+                "total_amount": hit['_source']['summary']['total_amount'],
+            }
+            formatted_hits.append(formatted_hit)
+
+        return Response(formatted_hits, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
