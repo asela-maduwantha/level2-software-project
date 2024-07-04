@@ -13,12 +13,11 @@ const ProductAnalysis = () => {
     const [products, setProducts] = useState([]);
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [selectedYear, setSelectedYear] = useState(null);
+    const [availableYears, setAvailableYears] = useState([]);
     const [priceDeviationData, setPriceDeviationData] = useState(null);
     const [isChartView, setIsChartView] = useState(true);
     const [selectedProductCurrency, setSelectedProductCurrency] = useState(null);
     const organization_id = localStorage.getItem('organization_id');
-
-    const years = [2021, 2022, 2023, 2024];
 
     useEffect(() => {
         const fetchProducts = async () => {
@@ -60,6 +59,7 @@ const ProductAnalysis = () => {
         const product = products.find(p => p.description === value);
         setSelectedProduct(value);
         setSelectedProductCurrency(product.currency);
+        setAvailableYears(product.years);
         setPriceDeviationData(null);
     };
 
@@ -143,8 +143,10 @@ const ProductAnalysis = () => {
                         style={{ width: '100%' }}
                         placeholder="Select a year"
                         onChange={handleYearChange}
+                        value={selectedYear}
+                        disabled={!selectedProduct}
                     >
-                        {years.map(year => (
+                        {availableYears.map(year => (
                             <Option key={year} value={year}>{year}</Option>
                         ))}
                     </Select>

@@ -34,7 +34,7 @@ def build_search_query(params):
             date_range["lte"] = end_date
         filter_clauses.append(Q("range", invoice_date=date_range))
 
-    # Additional fields based on the `InvoiceDocument` schema
+   
     invoice_number = params.get('invoice_number')
     if invoice_number:
         must_clauses.append(Q("term", invoice_number=invoice_number))
@@ -97,35 +97,36 @@ def organization_products(request):
         return Response({"error": "organization_id parameter is required"}, status=status.HTTP_400_BAD_REQUEST)
 
     try:
-        search_body = {
-            "query": build_search_query(request.query_params).to_dict()
-        }
-        
+    
         search = Search(using=es, index="invoices")
         search = search.filter('term', recipient=organization_id)
+
+        
+        search_body = {
+            "query": build_search_query(request.query_params).to_dict(),
+            "size": 1000  
+        }
         search.update_from_dict(search_body)
 
+   
         response = search.execute()
-
         products = {}
         for hit in response.hits:
-            currency = hit.currency if hasattr(hit, 'currency') else None
+            invoice_year = datetime.strptime(hit.invoice_date, "%Y-%m-%dT%H:%M:%S").year
             for item in hit.items:
                 description = item['description']
+                currency = hit.currency if hasattr(hit, 'currency') else None
                 if description not in products:
-                    products[description] = currency
+                    products[description] = {"currency": currency, "years": set()}
+                products[description]["years"].add(invoice_year)
 
-        product_list = [{"description": desc, "currency": curr} for desc, curr in products.items()]
-
+       
+        product_list = [
+            {"description": desc, "currency": details["currency"], "years": sorted(details["years"])}
+            for desc, details in products.items()
+        ]
+       
         return Response(product_list, status=status.HTTP_200_OK)
 
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-
-
-
-
-
-
