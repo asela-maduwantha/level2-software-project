@@ -109,13 +109,12 @@ def organization_products(request):
             "query": build_search_query(request.query_params).to_dict(),
             "size": 1000  
         }
-        search.update_from_dict(search_body)
+        # search.update_from_dict(search_body)
 
    
         response = search.execute()
         products = {}
         for hit in response.hits:
-            print(hit.items)
             invoice_year = datetime.strptime(hit.invoice_date, "%Y-%m-%dT%H:%M:%S").year
             for item in hit.items:
                 description = item['description']
