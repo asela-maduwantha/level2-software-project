@@ -22,7 +22,7 @@ const SupplierSignIn = () => {
       return Promise.resolve();
     } else {
       setLoginError('Please enter a valid email address');
-      return Promise.reject(new Error(''));
+      return Promise.reject(new Error('Please enter a valid email address'));
     }
   };
 
@@ -44,13 +44,16 @@ const SupplierSignIn = () => {
         navigate('/supplier/dashboard');
       }
     } catch (error) {
-      if (error.response && error.response.status === 307) {
-        const { supplier } = error.response.data;
-        localStorage.setItem('token', error.response.data.token)
-        navigate('/change-password', { state: { supplier_id: supplier } });
+      if (error.response) {
+        if (error.response.status === 307) {
+          const { supplier, token } = error.response.data;
+          localStorage.setItem('token', token);
+          navigate('/change-password', { state: { supplier_id: supplier } });
+        } else {
+          setLoginError('Invalid email or password');
+        }
       } else {
-        setLoginError('Invalid email or password');
-        console.error('Error:', error);
+        setLoginError('Cannot connect to the server');
       }
     }
   };
@@ -76,7 +79,7 @@ const SupplierSignIn = () => {
                   label="Email"
                   name="email"
                   rules={[
-                    { required: true, message: '' },
+                    { required: true, message: 'Email is required' },
                     { validator: validateEmail },
                   ]}
                 >
@@ -86,7 +89,7 @@ const SupplierSignIn = () => {
                 <Form.Item
                   label="Password"
                   name="password"
-                  rules={[{ required: true, message: '' }]}
+                  rules={[{ required: true, message: 'Password is required' }]}
                 >
                   <Input.Password prefix={<LockOutlined />} placeholder="Password" size="large" />
                 </Form.Item>

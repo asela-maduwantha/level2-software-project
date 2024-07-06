@@ -193,6 +193,7 @@ def supplier_signin(request):
     password = request.data.get('password')
 
     user = authenticate(request, email=email, password=password)
+    
 
     if user:
         try:
