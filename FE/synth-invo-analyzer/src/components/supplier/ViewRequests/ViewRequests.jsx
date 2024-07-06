@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Table, Button, Card, message } from 'antd';
-import axios from 'axios';
+import HTTPService from '../../../Service/HTTPService';
 
 const ViewRequests = () => {
   const [requests, setRequests] = useState([]);
@@ -11,7 +11,7 @@ const ViewRequests = () => {
   useEffect(() => {
     const fetchRequests = async () => {
       try {
-        const response = await axios.get(`http://127.0.0.1:8000/auth/supplier/pending-requests/`,{
+        const response = await HTTPService.get(`auth/supplier/pending-requests/`,{
           params:{
             supplier_email : supplier_email,
           },
@@ -29,7 +29,7 @@ const ViewRequests = () => {
 
   const handleAccept = async (record) => {
     try {
-      await axios.post(`http://127.0.0.1:8000/auth/accept-request/`, {
+      await HTTPService.post(`auth/accept-request/`, {
         supplier_id: supplier_id,
         organization_id: record.organization_id,
         email : supplier_email
@@ -43,7 +43,7 @@ const ViewRequests = () => {
 
   const handleDismiss = async (record) => {
     try {
-      await axios.post(`http://127.0.0.1:8000/auth/dismiss-request/${record.request_id}/`, {
+      await HTTPService.post(`auth/dismiss-request/${record.request_id}/`, {
         supplier_id: supplier_id,
         organization_id: record.id,
       });

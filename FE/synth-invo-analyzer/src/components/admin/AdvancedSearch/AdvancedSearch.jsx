@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import HTTPService from '../../../Service/HTTPService';
 import { Card, Row, Col, Select, Input, Button, Table, message, DatePicker } from 'antd';
 import moment from 'moment';
 
@@ -15,7 +15,7 @@ const AdvancedSearch = () => {
     const handleSearch = async () => {
         setLoading(true);
         try {
-            const response = await axios.post('http://localhost:8000/search/execute-search/', { query: JSON.parse(builtQuery) });
+            const response = await HTTPService.post('search/execute-search/', { query: JSON.parse(builtQuery) });
             setSearchResults(response.data);
             message.success('Search results fetched successfully.');
         } catch (error) {
@@ -37,7 +37,7 @@ const AdvancedSearch = () => {
     useEffect(() => {
         const buildQuery = async () => {
             try {
-                const response = await axios.post('http://localhost:8000/search/build-query/', { params: query });
+                const response = await HTTPService.post('search/build-query/', { params: query });
                 setBuiltQuery(JSON.stringify(response.data.query, null, 2));
             } catch (error) {
                 console.error('Error building query:', error);

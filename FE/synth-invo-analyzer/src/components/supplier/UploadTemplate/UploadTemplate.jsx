@@ -1,8 +1,8 @@
 import React, { useState, useRef } from "react";
-import axios from "axios";
+import HTTPService from '../../../Service/HTTPService';
 import { Button, Upload as AntUpload, notification } from "antd";
 import { InboxOutlined } from "@ant-design/icons";
-import HeaderInside from "../../common/HeaderInside/HeaderInside";
+
 import { useNavigate } from "react-router-dom";
 import "./UploadTemplate.css"; // Import the CSS file
 
@@ -31,7 +31,7 @@ function UploadTemplate() {
     formData.append("supplier_id", uploaded_user);
 
     try {
-      const response = await axios.post(`http://127.0.0.1:8000/invoice-template/save-invoice-template/`, formData, {
+      const response = await HTTPService.post(`invoice-template/save-invoice-template/`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

@@ -5,7 +5,7 @@ import json
 import threading
 
 # Elasticsearch client
-es = Elasticsearch(['http://localhost:9200'])
+es = Elasticsearch(['http://43.204.122.107:9200'])
 
 class AddressDocument(InnerDoc):
     street = Text()

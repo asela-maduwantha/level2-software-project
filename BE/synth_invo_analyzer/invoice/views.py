@@ -1,5 +1,5 @@
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 import json
 import xmltodict
 from .models import Invoice
@@ -10,8 +10,10 @@ from search.elasticsearch_utils import async_index_invoices
 import threading
 import csv
 import io
+from authentication.permissions import IsOrganization, IsSystemAdmin, IsSupplier
 
 @api_view(['POST'])
+@permission_classes([IsSupplier])
 def create_invoice(request):
     try:
         source_invoice = request.data.get('source_invoice')
@@ -65,6 +67,7 @@ def create_invoice(request):
 
 
 @api_view(['POST'])
+@permission_classes([IsSupplier])
 def bulk_upload_invoices(request):
     try:
         supplier_id = request.data.get("supplier_id")
@@ -96,6 +99,7 @@ def bulk_upload_invoices(request):
     
 
 @api_view(['GET'])
+@permission_classes([IsSupplier])
 def supplier_invoice_view(request):
     try:
         supplier_id = request.query_params.get('supplier_id')
@@ -108,7 +112,9 @@ def supplier_invoice_view(request):
         print(e)
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+
 @api_view(['GET'])
+@permission_classes([IsOrganization])
 def organization_invoice_view(request):
     try:
         organization_id = request.query_params.get('orgId')

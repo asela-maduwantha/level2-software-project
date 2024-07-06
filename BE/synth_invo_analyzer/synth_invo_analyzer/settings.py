@@ -104,7 +104,7 @@ DATABASES = {
          'ENGINE': 'django_cassandra_engine',
          'NAME': 'synth_invo_analyzer',
          'TEST_NAME': '',
-         'HOST': '127.17.0.1',
+         'HOST': '13.127.0.98',
          'OPTIONS': {
              'replication': {
                  'strategy_class': 'SimpleStrategy',
@@ -187,6 +187,12 @@ AUTHENTICATION_BACKENDS = [
 CSRF_COOKIE_SECURE = False
 CSRF_COOKIE_HTTPONLY = False
 CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_HEADERS = [
+    'authorization',
+    'content-type',
+    'Access-Control-Allow-Origin',
+]
+
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
@@ -199,7 +205,7 @@ EMAIL_HOST_PASSWORD = 'ohpb xyoh nqrt ojai '
 
 ELASTICSEARCH_DSL = {
     'default': {
-        'hosts': 'http://localhost:9200'
+        'hosts': 'http://43.204.122.107:9200'
     },
 }
 

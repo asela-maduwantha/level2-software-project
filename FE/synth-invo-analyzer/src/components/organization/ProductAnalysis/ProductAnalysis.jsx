@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import HTTPService from '../../../Service/HTTPService';
 import { Card, Typography, message, Row, Col, Select, Button, Table, Switch } from 'antd';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement } from 'chart.js';
@@ -22,7 +22,7 @@ const ProductAnalysis = () => {
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const response = await axios.get('http://localhost:8000/search/get-prod-by-org/', {
+                const response = await HTTPService.get('search/get-prod-by-org/', {
                     params: { organization_id: organization_id }
                 });
                 setProducts(response.data);
@@ -39,7 +39,7 @@ const ProductAnalysis = () => {
         const fetchPriceDeviations = async () => {
             if (selectedProduct && selectedYear) {
                 try {
-                    const response = await axios.get('http://localhost:8000/analysis/product_price_deviations/', {
+                    const response = await HTTPService.get('analysis/product_price_deviations/', {
                         params: { year: selectedYear, product_name: selectedProduct, organization_id: organization_id }
                     });
                     setPriceDeviationData(response.data);

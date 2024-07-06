@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import HTTPService from '../../../Service/HTTPService';
 import { Card, Button, Typography, Row, Col, Spin, Alert, Tag, Descriptions, Statistic, Modal, message } from 'antd';
 import { CheckCircleOutlined, ClockCircleOutlined } from '@ant-design/icons';
 
@@ -18,8 +18,8 @@ const SubscriptionManagement = () => {
     const fetchData = async () => {
       try {
         const [subscriptionResponse, plansResponse] = await Promise.all([
-          axios.get(`http://127.0.0.1:8000/subscriptions/get-current-plan/${organizationId}/`),
-          axios.get('http://127.0.0.1:8000/subscriptions/get-available-plans/')
+          HTTPService.get(`subscriptions/get-current-plan/${organizationId}/`),
+          HTTPService.get('subscriptions/get-available-plans/')
         ]);
         setCurrentSubscription(subscriptionResponse.data);
         setAvailablePlans(plansResponse.data);
@@ -48,7 +48,7 @@ const SubscriptionManagement = () => {
   const handleModalOk = async () => {
     if (selectedPlan) {
       try {
-        await axios.put('http://127.0.0.1:8000/subscriptions/change-plan/', {
+        await HTTPService.put('subscriptions/change-plan/', {
           userId: organizationId,
           priceId: selectedPlan.price_id,
         });
@@ -60,7 +60,7 @@ const SubscriptionManagement = () => {
           },
         });
         // Refresh current subscription after changing
-        const response = await axios.get(`http://127.0.0.1:8000/subscriptions/get-current-plan/${organizationId}/`);
+        const response = await HTTPService.get(`subscriptions/get-current-plan/${organizationId}/`);
         setCurrentSubscription(response.data);
       } catch (error) {
         console.error('Error changing subscription plan:', error);

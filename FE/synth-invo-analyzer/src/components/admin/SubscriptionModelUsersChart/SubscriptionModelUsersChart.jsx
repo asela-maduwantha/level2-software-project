@@ -2,13 +2,13 @@
 
 import React, { useEffect, useState } from 'react';
 import { Doughnut } from 'react-chartjs-2';
-import axios from 'axios';
+import HTTPService from '../../../Service/HTTPService';
 
 const SubscriptionModelUsersChart = () => {
   const [modelData, setModelData] = useState([]);
 
   useEffect(() => {
-    axios.get('http://127.0.0.1:8000/subscriptions/subscription-model-users/')
+    HTTPService.get('subscriptions/subscription-model-users/')
       .then(response => {
         setModelData(response.data);
       })

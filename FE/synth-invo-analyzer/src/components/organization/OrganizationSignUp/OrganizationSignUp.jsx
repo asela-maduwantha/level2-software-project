@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Form, Input, Button, Checkbox, message, Upload } from 'antd';
 import { UserOutlined, MailOutlined, LockOutlined, EyeInvisibleOutlined, EyeTwoTone, HomeOutlined, IdcardOutlined, UploadOutlined } from '@ant-design/icons';
-import axios from 'axios';
+import HTTPService from '../../../Service/HTTPService';
 import './OrganizationSignUp.css';
 import OrgSignupImg from '../../../assets/OrgSignup.svg';
 import Header from '../../common/Header/Header';
@@ -42,7 +42,7 @@ const OrganizationSignUp = () => {
         logoUrl = await uploadLogoToFirebase(logoFile);
       }
      
-      const response = await axios.post('http://127.0.0.1:8000/auth/organization/signup/', { ...values, logoUrl }, {
+      const response = await HTTPService.post('auth/organization/signup/', { ...values, logoUrl }, {
         headers: {
           'Content-Type': 'application/json',
         },

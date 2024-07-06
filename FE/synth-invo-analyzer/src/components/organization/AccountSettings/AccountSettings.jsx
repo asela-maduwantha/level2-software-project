@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Form, Input, Button, Modal, message, Typography, Space, Tooltip } from 'antd';
 import { EditOutlined, LockOutlined, SaveOutlined } from '@ant-design/icons';
-import axios from 'axios';
+import HTTPService from '../../../Service/HTTPService';
 import './AccountSettings.css'; 
 
 const { Title, Text } = Typography;
@@ -19,7 +19,7 @@ const AccountSettings = () => {
   const fetchProfile = async () => {
     const organizationId = localStorage.getItem('organization_id');
     try {
-      const response = await axios.get(`http://127.0.0.1:8000/auth/organization/profile/${organizationId}`);
+      const response = await HTTPService.get(`auth/organization/profile/${organizationId}`);
       setProfile(response.data);
       form.setFieldsValue(response.data);
     } catch (error) {
@@ -29,7 +29,7 @@ const AccountSettings = () => {
 
   const onFinish = async (values) => {
     try {
-      await axios.put(`http://127.0.0.1:8000/auth/organization/profile/${profile.id}`, values);
+      await HTTPService.put(`auth/organization/profile/${profile.id}`, values);
       message.success('Profile updated successfully!');
       fetchProfile();
       setEditingField(null);
@@ -44,7 +44,7 @@ const AccountSettings = () => {
 
   const handlePasswordChange = async (values) => {
     try {
-      await axios.post(`http://127.0.0.1:8000/auth/change-password`, values);
+      await HTTPService.post(`auth/change-password`, values);
       message.success('Password changed successfully!');
       setIsPasswordModalVisible(false);
     } catch (error) {

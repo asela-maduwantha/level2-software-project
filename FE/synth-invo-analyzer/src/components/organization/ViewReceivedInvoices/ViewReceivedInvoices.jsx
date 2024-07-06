@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Modal, Typography } from 'antd';
-import axios from 'axios';
+import HTTPService from '../../../Service/HTTPService';
 import InvoiceDetailsModal from '../../common/InvoiceDetailsModel/InvoiceDetailsModel';
 
 const { Title } = Typography;
@@ -17,7 +17,7 @@ const ViewReceivedInvoices = () => {
   const fetchData = async () => {
     try {
       const organization_id = localStorage.getItem('organization_id'); 
-      const response = await axios.get(`http://localhost:8000/invoice/get-invoice-by-organization/?orgId=${organization_id}`);
+      const response = await HTTPService.get(`invoice/get-invoice-by-organization/?orgId=${organization_id}`);
       const sortedData = response.data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)); // Sort by datetime
       setData(sortedData);
     } catch (error) {

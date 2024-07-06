@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Table, Button, Modal, notification } from 'antd';
-import axios from 'axios';
+import HTTPService from '../../../Service/HTTPService';
 
 const MapTemplates = () => {
   const [data, setData] = useState([]);
@@ -8,7 +8,7 @@ const MapTemplates = () => {
   const [templateContent, setTemplateContent] = useState('');
 
   useEffect(() => {
-    axios.get('http://127.0.0.1:8000/invoice-template/get-unmapped-templates/')
+    HTTPService.get('invoice-template/get-unmapped-templates/')
       .then(response => {
         setData(response.data.unmapped_templates);
       })
@@ -83,7 +83,7 @@ const MapTemplates = () => {
       formData.append('mapping', file);
       formData.append('admin_id', localStorage.getItem('admin_id'));
 
-      axios.put('http://127.0.0.1:8000/invoice-template/update-mapping/', formData)
+      HTTPService.put('invoice-template/update-mapping/', formData)
         .then(response => {
           notification.success({
             message: 'Mapping Uploaded',

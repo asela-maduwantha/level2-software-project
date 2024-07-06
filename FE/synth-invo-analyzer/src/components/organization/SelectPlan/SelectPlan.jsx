@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Button } from 'antd';
-import axios from 'axios';
+import HTTPService from '../../../Service/HTTPService';
 
 const SelectPlan = () => {
   const [subscriptionModels, setSubscriptionModels] = useState([]);
@@ -8,7 +8,7 @@ const SelectPlan = () => {
   useEffect(() => {
     const fetchSubscriptionModels = async () => {
       try {
-        const response = await axios.get('http://127.0.0.1:8000/subscription-models/get_subscription_models/');
+        const response = await HTTPService.get('subscription-models/get_subscription_models/');
         setSubscriptionModels(response.data);
       } catch (error) {
         console.error('Error occurred while fetching subscription models:', error);
@@ -20,8 +20,8 @@ const SelectPlan = () => {
 
   const handleSelectPlan = async (priceId) => {
     try {
-      const response = await axios.post(
-        'http://127.0.0.1:8000/subscriptions/create-subscription/',
+      const response = await HTTPService.post(
+        'subscriptions/create-subscription/',
         {
           priceId: priceId,
         }

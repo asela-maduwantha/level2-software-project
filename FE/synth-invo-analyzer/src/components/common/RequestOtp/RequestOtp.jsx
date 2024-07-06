@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button, message, Spin } from 'antd';
 import { MailOutlined } from '@ant-design/icons';
-import axios from 'axios';
+import HTTPService from '../../../Service/HTTPService';
 import { useNavigate } from 'react-router-dom';
 
 const RequestOtp = () => {
@@ -13,7 +13,7 @@ const RequestOtp = () => {
   const handleSendOtp = async () => {
     try {
       setIsLoading(true);
-      const response = await axios.post('http://127.0.0.1:8000/auth/otp/resend-otp/', { email });
+      const response = await HTTPService.post('auth/otp/resend-otp/', { email });
       setIsLoading(false);
       message.success(response.data.message);
       navigate('/verify-otp');

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Table, Button, Modal, message } from "antd";
-import axios from "axios";
+import HTTPService from "../../../Service/HTTPService";
 
 const ArchivePricingModel = () => {
   const [products, setProducts] = useState([]);
@@ -13,7 +13,7 @@ const ArchivePricingModel = () => {
 
   const fetchSubscriptionProducts = async () => {
     try {
-      const response = await axios.get("http://127.0.0.1:8000/subscription-models/get_subscription_models/");
+      const response = await HTTPService.get("subscription-models/get_subscription_models/");
       setProducts(response.data);
     } catch (error) {
       console.error("Failed to fetch products", error);
@@ -27,7 +27,7 @@ const ArchivePricingModel = () => {
 
   const confirmArchive = async () => {
     try {
-      await axios.post("http://127.0.0.1:8000/subscription-models/archive_product/", {
+      await HTTPService.post("subscription-models/archive_product/", {
         product_id: selectedProduct.stripe_id,
       });
       message.success("Product archived successfully.");

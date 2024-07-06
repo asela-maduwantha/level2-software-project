@@ -1,7 +1,7 @@
 // src/components/ForgotPassword.js
 import React, { useState } from 'react';
 import { Form, Input, Button, message, Row, Col, Typography } from 'antd';
-import axios from 'axios';
+import HTTPService from '../../../Service/HTTPService';
 import forgotImg from '../../../assets/Forgot-password.svg';
 import Header from '../HeaderInside/HeaderInside';
 import { useNavigate } from 'react-router-dom';
@@ -16,7 +16,7 @@ const ForgotPassword = () => {
     setLoading(true);
     try {
       localStorage.setItem('email', values.email);
-      await axios.post('http://127.0.0.1:8000/auth/forgot-password/', { email: values.email });
+      await HTTPService.post('auth/forgot-password/', { email: values.email });
       message.success('OTP sent to your email.');
       navigate('/forgot-password-otp-verify');
     } catch (error) {

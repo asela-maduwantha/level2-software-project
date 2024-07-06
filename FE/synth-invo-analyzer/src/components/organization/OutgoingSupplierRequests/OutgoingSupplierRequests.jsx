@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import HTTPService from '../../../Service/HTTPService';
 import { Table, message } from 'antd';
 import './OutgoingSupplierRequests.css'
 
@@ -11,7 +11,7 @@ const OutgoingSupplierRequests = () => {
     const fetchRequests = async () => {
       try {
         const orgId = localStorage.getItem('organization_id');
-        const response = await axios.get(`http://127.0.0.1:8000/auth/organization/pending-requests/?orgId=${orgId}`);
+        const response = await HTTPService.get(`auth/organization/pending-requests/?orgId=${orgId}`);
         setData(response.data);
         setLoading(false);
       } catch (error) {

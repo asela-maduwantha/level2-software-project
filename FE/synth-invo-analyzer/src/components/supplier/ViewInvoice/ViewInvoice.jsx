@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Table } from 'antd';
-import axios from 'axios';
+import HTTPService from '../../../Service/HTTPService';
 import InvoiceDetailsModal from '../../common/InvoiceDetailsModel/InvoiceDetailsModel';
 
 const ViewInvoice = () => {
@@ -15,7 +15,7 @@ const ViewInvoice = () => {
   const fetchData = async () => {
     try {
       const supplier_id = localStorage.getItem('supplier_id'); 
-      const response = await axios.get(`http://localhost:8000/invoice/get-invoice-by-supplier/?supplier_id=${supplier_id}`);
+      const response = await HTTPService.get(`invoice/get-invoice-by-supplier/?supplier_id=${supplier_id}`);
       setData(response.data.invoices);
     } catch (error) {
       console.error('Error fetching data:', error);

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Form, Input, Select, Button, Card, Space, notification, Typography } from 'antd';
 import { DollarOutlined, CalendarOutlined } from '@ant-design/icons';
-import axios from 'axios';
+import HTTPService from '../../../Service/HTTPService';
 
 const { Option } = Select;
 const { Title } = Typography;
@@ -23,7 +23,7 @@ function PricingModel() {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.post('http://127.0.0.1:8000/subscription-models/create_subscription/', {
+      const response = await HTTPService.post('subscription-models/create_subscription/', {
         model_name: name,
         unit_amount: parseFloat(price),
         interval: billingPeriod,

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
+import HTTPService from '../../../Service/HTTPService';
 import { Card } from 'antd';
 import Chart from 'chart.js/auto';
 
@@ -29,7 +29,7 @@ const SeasonalAnalysis = () => {
 
   const fetchMonthlySales = async () => {
     try {
-      const response = await axios.get('http://127.0.0.1:8000/analysis/get_monthly_sales/');
+      const response = await HTTPService.get('analysis/get_monthly_sales/');
       setMonthlySalesData(response.data);
     } catch (error) {
       console.error('Error fetching monthly sales data:', error);
@@ -38,7 +38,7 @@ const SeasonalAnalysis = () => {
 
   const fetchSeasonalSales = async () => {
     try {
-      const response = await axios.get('http://127.0.0.1:8000/analysis/get_seasonal_sales/', {
+      const response = await HTTPService.get('analysis/get_seasonal_sales/', {
         headers: {
           'Cookie': 'csrftoken=eVzK5Xpc3Jak1adzWfVt96iZROVDZ70z',
         },

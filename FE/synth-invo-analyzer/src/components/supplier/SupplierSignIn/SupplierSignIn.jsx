@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Form, Input, Button, Alert, Typography, Row, Col, Divider } from 'antd';
 import { LockOutlined, MailOutlined } from '@ant-design/icons';
 import { GoogleLogin } from '@react-oauth/google';
-import axios from 'axios';
+import HTTPService from '../../../Service/HTTPService';
 import { useNavigate } from 'react-router-dom';
 import './SupplierSignIn.css';
 import Header from '../../common/Header/Header';
@@ -30,7 +30,7 @@ const SupplierSignIn = () => {
     const { email, password } = values;
 
     try {
-      const response = await axios.post("http://127.0.0.1:8000/auth/supplier/signin/", {
+      const response = await HTTPService.post("auth/supplier/signin/", {
         email,
         password,
       });

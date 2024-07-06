@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Form, Input, Button, Row, Col, Card, message, Typography } from 'antd';
 import { UserOutlined, MailOutlined } from '@ant-design/icons';
-import axios from 'axios';
+import HTTPService from '../../../Service/HTTPService';
 import './AddEmployee.css';
 //import employeeImage from './assets/employee_image.png'; // Import the local image
 
@@ -12,7 +12,7 @@ const AddEmployee = () => {
 
   const onFinish = async (values) => {
     try {
-      const response = await axios.post('http://127.0.0.1:8000/auth/employee/add/', {
+      const response = await HTTPService.post('auth/employee/add/', {
         user: {
           username: values.username,
           email: values.email,

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import HTTPService from '../../Service/HTTPService';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../components/common/Header/Header';
 
@@ -11,12 +11,12 @@ const PricingPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://127.0.0.1:8000/subscription-models/get_subscription_models/');
+        const response = await HTTPService.get('subscription-models/get_subscription_models/');
         const models = response.data;
 
  
         const modelsWithFeatures = await Promise.all(models.map(async (model) => {
-          const featuresResponse = await axios.get(`http://127.0.0.1:8000/subscription-models/get-features/${model.model_id}/`);
+          const featuresResponse = await HTTPService.get(`subscription-models/get-features/${model.model_id}/`);
           return {
             ...model,
             features: featuresResponse.data.map(featureObj => featureObj.feature),

@@ -1,100 +1,147 @@
-import React, { useState, useEffect } from 'react';
-import { Layout, Input, Button, Card, message } from 'antd';
-import { SendOutlined } from '@ant-design/icons';
+import React, { useState, useEffect, useRef } from 'react';
+import { Input, Button, List, Avatar, Typography, Badge } from 'antd';
+import { SendOutlined, UserOutlined } from '@ant-design/icons';
+import HTTPService from '../../../Service/HTTPService';
 import './Chat.css';
 
-const { Content } = Layout;
+const { Text } = Typography;
 
 const Chat = () => {
     const [messages, setMessages] = useState([]);
     const [messageInput, setMessageInput] = useState('');
     const [ws, setWs] = useState(null);
-    const [username, setUsername] = useState('');
+    const [users, setUsers] = useState([]);
+    const [selectedUser, setSelectedUser] = useState(null);
+    const messagesEndRef = useRef(null);
+
+    const adminId = localStorage.getItem('admin_id');
 
     useEffect(() => {
-        // Get username from localStorage or prompt user
-        let storedUsername = localStorage.getItem('username');
-        if (!storedUsername) {
-            storedUsername = prompt('Please enter your username:');
-            if (storedUsername) {
-                localStorage.setItem('username', storedUsername);
-            } else {
-                message.error('Username is required to chat.');
-                return;
-            }
-        }
-        setUsername(storedUsername);
-
-        // Connect to WebSocket
-        const newWs = new WebSocket('ws://localhost:8000/ws/chat/');
-        setWs(newWs);
-
-        newWs.onopen = () => {
-            console.log('WebSocket Connected');
-        };
-
-        newWs.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            setMessages(prevMessages => [...prevMessages, data]);
-        };
-
-        newWs.onerror = (error) => {
-            console.error('WebSocket error:', error);
-            message.error('Failed to connect to chat server.');
-        };
-
-        return () => {
-            if (newWs) newWs.close();
-        };
+        fetchUsers();
+        return () => { if (ws) ws.close(); };
     }, []);
 
-    const sendMessage = () => {
-        if (ws && messageInput.trim() !== '') {
-            const messageObject = {
-                username: username,
-                message: messageInput,
-                timestamp: new Date().toISOString()
+    useEffect(() => {
+        if (selectedUser) {
+            const newWs = new WebSocket(`ws://localhost:8000/ws/chat/admin/${adminId}/${selectedUser.type}/${selectedUser.id}/`);
+            setWs(newWs);
+            newWs.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                setMessages(prevMessages => [...prevMessages, data]);
+                scrollToBottom();
             };
-            ws.send(JSON.stringify(messageObject));
-            setMessageInput('');
+            fetchChatHistory(selectedUser.id, selectedUser.type);
+        }
+    }, [selectedUser]);
+
+    const fetchUsers = async () => {
+        try {
+            const response = await HTTPService.get(`chat/users/${adminId}/`);
+            setUsers(response.data);
+        } catch (error) {
+            console.error('Error fetching users:', error);
         }
     };
 
+    const fetchChatHistory = async (otherUserId, userType) => {
+        try {
+            const response = await HTTPService.get(`chat/history/${adminId}/${otherUserId}/${userType}/`);
+            setMessages(response.data);
+            scrollToBottom();
+        } catch (error) {
+            console.error('Error fetching chat history:', error);
+        }
+    };
+
+    const sendMessage = () => {
+        if (ws && messageInput.trim() !== '' && selectedUser) {
+            const messageObject = {
+                content: messageInput,
+                sender_id: adminId,
+                timestamp: new Date().toISOString()
+            };
+            ws.send(JSON.stringify(messageObject));
+            setMessages(prevMessages => [...prevMessages, messageObject]);
+            setMessageInput('');
+            scrollToBottom();
+        }
+    };
+
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    };
+
+    const formatTimestamp = (timestamp) => {
+        const date = new Date(timestamp);
+        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    };
+
     return (
-        <Layout className="chat-layout">
-            <Content className="chat-content">
-                <Card className="chat-card" title={`Chat as ${username}`}>
-                <div className="messages-container">
-    {messages.map((msg, index) => (
-        <div key={index} className={`message ${msg.username === username ? 'sent' : 'received'}`}>
-            <div className="message-content">
-                {msg.username !== username && <strong>{msg.username}: </strong>}
-                {msg.message}
-            </div>
-            <span className="timestamp">{new Date(msg.timestamp).toLocaleTimeString()}</span>
-        </div>
-    ))}
-</div>
+        <div className="chat-wrapper">
+            <div className="chat-layout">
+                <div className="chat-sider">
+                    <div className="chat-requests-header">
+                        <Text strong>Chat Requests</Text>
+                    </div>
+                    <div className="user-list">
+                        {users.map(user => (
+                            <div 
+                                key={user.id} 
+                                onClick={() => setSelectedUser(user)}
+                                className={`user-item ${selectedUser && selectedUser.id === user.id ? 'selected' : ''}`}
+                            >
+                                <Avatar icon={<UserOutlined />} />
+                                <div className="user-info">
+                                    <Text>{user.username}</Text>
+                                    <Text type="secondary">{user.type}</Text>
+                                </div>
+                                {user.unreadCount > 0 && (
+                                    <Badge count={user.unreadCount} className="unread-badge" />
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+                <div className="chat-content">
+                    <div className="chat-header">
+                        {selectedUser && (
+                            <>
+                                <Avatar icon={<UserOutlined />} />
+                                <Text strong>{selectedUser.username}</Text>
+                            </>
+                        )}
+                    </div>
+                    <div className="messages-container">
+                        {messages.map((msg, index) => (
+                            <div key={index} className={`message ${msg.sender_id === adminId ? 'sent' : 'received'}`}>
+                                <div className="message-content">
+                                    {msg.content}
+                                    <span className="timestamp">{formatTimestamp(msg.timestamp)}</span>
+                                </div>
+                            </div>
+                        ))}
+                        <div ref={messagesEndRef} />
+                    </div>
                     <div className="input-area">
                         <Input
                             value={messageInput}
                             onChange={(e) => setMessageInput(e.target.value)}
                             onPressEnter={sendMessage}
-                            placeholder="Type a message..."
+                            placeholder="Type a message"
                             className="chat-input"
+                            disabled={!selectedUser}
                         />
                         <Button 
                             type="primary" 
                             icon={<SendOutlined />} 
                             onClick={sendMessage}
                             className="send-button"
-                        >
-                            Send
-                        </Button>
+                            disabled={!selectedUser}
+                        />
                     </div>
-                </Card>
-            </Content>
-        </Layout>
+                </div>
+            </div>
+        </div>
     );
 };
 

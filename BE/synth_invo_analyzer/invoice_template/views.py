@@ -1,14 +1,16 @@
 # views.py
 from .models import Template
 from .serializers import TemplateSerializer
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
 from django.core.files.uploadedfile import InMemoryUploadedFile
 import json
+from authentication.permissions import IsSystemAdmin, IsOrganization, IsSupplier
 
 
 @api_view(['POST'])
+@permission_classes([IsSupplier])
 def save_invoice_template(request):
 
     template_file = request.FILES.get('template')
@@ -39,6 +41,7 @@ def save_invoice_template(request):
 
 
 @api_view(['PUT'])
+@permission_classes([IsSystemAdmin])
 def update_mapping(request):
     template_id = request.data.get('template_id')
     mapping_file = request.FILES.get('mapping')
@@ -69,6 +72,7 @@ def update_mapping(request):
 
 
 @api_view(['GET'])
+@permission_classes([IsSystemAdmin])
 def get_unmapped_templates(request):
     unmapped_templates = Template.objects.filter(mapped_status = False)
     
@@ -77,6 +81,7 @@ def get_unmapped_templates(request):
     return Response({"unmapped_templates": templates.data}, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
+@permission_classes([IsSupplier])
 def get_supplier_template(request):
    try:
         supplier_id = request.query_params.get('supplier_id')

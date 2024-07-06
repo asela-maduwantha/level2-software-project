@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Divider, Button, Modal } from 'antd';
-import axios from 'axios';
+import HTTPService from '../../../Service/HTTPService';
 import fileDownload from 'js-file-download';
 
 const { Meta } = Card;
@@ -14,7 +14,7 @@ const ViewTemplate = () => {
   useEffect(() => {
     const fetchTemplate = async () => {
       try {
-        const response = await axios.get('http://localhost:8000/invoice-template/get-supplier-template/', {
+        const response = await HTTPService.get('invoice-template/get-supplier-template/', {
           params: {
             supplier_id: localStorage.getItem('supplier_id'), 
           },

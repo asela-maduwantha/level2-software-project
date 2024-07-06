@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import HTTPService from '../../../Service/HTTPService';
 import { Card, Typography, message, Row, Col, Select, Button, Table, Switch } from 'antd';
 import { Pie } from 'react-chartjs-2';
 
@@ -23,7 +23,7 @@ const SupplierAnalysis = () => {
                 throw new Error('Organization ID not found in localStorage');
             }
 
-            const response = await axios.get(`http://localhost:8000/analysis/supplier-expenditures/`, {
+            const response = await HTTPService.get(`analysis/supplier-expenditures/`, {
                 params: { organization_id, year: selectedYear }
             });
 

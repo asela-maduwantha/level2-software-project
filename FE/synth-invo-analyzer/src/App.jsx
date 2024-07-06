@@ -49,7 +49,6 @@ import MapTemplates from './components/admin/MapTemplates/MapTemplates'
 import SeasonalAnalysis from './components/organization/SeasonalAnalysis/SeasonalAnalysis'
 import RevenueAnalysis from './components/organization/RevenueAnalysis/RevenueAnalysis'
 import Chat from './components/common/Chat/Chat'
-import SubscriptionForm from './components/common/SubscriptionForm/SubscriptionForm'
 import SubscriptionPage from './pages/SubscriptionPage/SubscriptionPage'
 import SupplierAnalysis from './components/organization/SupplierAnalysis/SupplierAnalysis'
 import ForgotPasswordVerifyOTP from './components/common/ForgotPasswordVerifyOTP/ForgotPasswordVerifyOTP'
@@ -106,6 +105,7 @@ const App = () => {
         <Route path='modify-feature' element={<ModifyModelFeatures/>}/>
         <Route path='upload-mapping' element={<MapTemplates/>}/>
         <Route path='advanced-search' element={<AdvancedSearch/>}/>
+        <Route path="chat" element={<Chat/>}/>
       </Route>
 
       <Route
@@ -128,7 +128,6 @@ const App = () => {
         <Route path = "search" element={<SearchInvoices/>}/>
         <Route path = 'supplierrequests' element ={<OutgoingSupplierRequests/>}/>
         <Route path = 'addemployee' element={<AddEmployee/>}/>
-        <Route path="chat" element={<Chat/>}/>
         <Route path="changeplan" element={<SubscriptionManagement/>}/>
       </Route>
 

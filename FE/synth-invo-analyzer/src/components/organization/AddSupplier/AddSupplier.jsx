@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import HTTPService from '../../../Service/HTTPService';
 import { Form, Input, Button, message, Row, Col, Typography, Card, Space } from 'antd';
 import { MailOutlined, UserOutlined, HomeOutlined } from '@ant-design/icons';
 import AddSupImg from '../../../assets/addsupplier.svg';
@@ -18,7 +18,7 @@ const AddSupplier = () => {
     if (email) {
       try {
         setLoading(true);
-        const response = await axios.get(`http://127.0.0.1:8000/auth/supplier/check/?email=${email}`);
+        const response = await HTTPService.get(`auth/supplier/check/?email=${email}`);
         if (response.data.exists) {
           form.setFieldsValue({
             name: response.data.name,
@@ -42,7 +42,7 @@ const AddSupplier = () => {
     try {
       setLoading(true);
       const data = { ...values, organization_id: orgId };
-      const response = await axios.post('http://127.0.0.1:8000/auth/supplier/add/', data);
+      const response = await HTTPService.post('auth/supplier/add/', data);
       message.success(response.data.message);
       form.resetFields();
       setIsRegistered(false);

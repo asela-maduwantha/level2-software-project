@@ -14,7 +14,7 @@ from elasticsearch import Elasticsearch
 
 plt.switch_backend('Agg')
 
-es = Elasticsearch(['http://localhost:9200'])
+es = Elasticsearch(['http://43.204.122.107:9200'])
 
 @api_view(['GET'])
 def product_price_deviations(request):
@@ -81,7 +81,6 @@ def monthly_expenditures(request):
             end_date = f"{year}-12-31"
             search = search.filter('range', invoice_date={'gte': start_date, 'lte': end_date})
 
-        # Setting size to a large number or using scroll API for large result sets
         search = search.extra(size=10000)
 
         response = search.execute()

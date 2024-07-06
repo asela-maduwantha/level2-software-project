@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Input, Button, Table, message, Select } from 'antd';
-import axios from 'axios';
+import HTTPService from '../../../Service/HTTPService';
 
 const { Search } = Input;
 const { Option } = Select;
@@ -18,7 +18,7 @@ const SearchInvoices = () => {
     const fetchSuppliers = async () => {
       const user_id = localStorage.getItem('user_id');
       try {
-        const response = await axios.get(`http://localhost:8000/auth/get-suppliers-by-organization/${user_id}`);
+        const response = await HTTPService.get(`auth/get-suppliers-by-organization/${user_id}`);
         setSuppliers(response.data.suppliers);
       } catch (error) {
         message.error('Failed to fetch suppliers');
@@ -60,7 +60,7 @@ const SearchInvoices = () => {
     try {
       const recipient = localStorage.getItem('user_id');
       
-      const response = await axios.get('http://localhost:8000/search/', {  params: { issuer, recipient }, });
+      const response = await HTTPService.get('search/', {  params: { issuer, recipient }, });
       setData(response.data);
     } catch (error) {
       message.error('Failed to fetch data');

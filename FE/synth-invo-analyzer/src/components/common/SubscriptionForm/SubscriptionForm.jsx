@@ -3,7 +3,7 @@ import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { Form, Input, Select, Button, Typography, Space, message } from 'antd';
 import { CreditCardOutlined } from '@ant-design/icons';
 import { useLocation, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import HTTPService from '../../../Service/HTTPService';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -49,7 +49,7 @@ const SubscriptionForm = () => {
         throw new Error(error.message);
       }
 
-      const response = await axios.post('http://127.0.0.1:8000/subscriptions/create-subscription/', {
+      const response = await HTTPService.post('subscriptions/create-subscription/', {
         priceId: plan.price_id,
         paymentMethodId: paymentMethod.id,
         email: values.email,

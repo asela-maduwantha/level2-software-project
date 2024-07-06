@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Form, Input, Button, Alert, Typography, Row, Col } from 'antd';
 import { LockOutlined } from '@ant-design/icons';
-import axios from 'axios';
+import HTTPService from '../../../Service/HTTPService';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Header from '../../common/Header/Header';
 
@@ -23,7 +23,7 @@ const ChangePassword = () => {
     }
 
     try {
-      const response = await axios.post('http://127.0.0.1:8000/auth/change-password/', {
+      const response = await HTTPService.post('auth/change-password/', {
         new_password,
         confirm_password,
         user_id,

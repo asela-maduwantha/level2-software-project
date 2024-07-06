@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Form, Input, Button, Alert, Typography, Row, Col } from 'antd';
 import { LockOutlined, MailOutlined } from '@ant-design/icons';
-import axios from 'axios';
+import HTTPService from '../../../Service/HTTPService';
 import Header from '../../common/Header/Header';
 import { useNavigate } from 'react-router-dom';
 import './AdminSignIn.css';
@@ -29,7 +29,7 @@ const AdminSignIn = () => {
     const { email, password } = values;
 
     try {
-      const response = await axios.post("http://127.0.0.1:8000/auth/admin/signin/", {
+      const response = await HTTPService.post("auth/admin/signin/", {
         email,
         password,
       });

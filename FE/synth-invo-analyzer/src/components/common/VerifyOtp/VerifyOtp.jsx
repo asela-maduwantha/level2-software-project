@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button, Input, message, Progress } from 'antd';
 import { LockOutlined } from '@ant-design/icons';
-import axios from 'axios';
+import HTTPService from '../../../Service/HTTPService';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Header from '../../common/Header/Header'
 
@@ -52,7 +52,7 @@ const VerifyOtp = () => {
     try {
       setIsLoading(true);
       const otpCode = otp.join('');
-      const response = await axios.post('http://127.0.0.1:8000/auth/otp/verify-otp/', {
+      const response = await HTTPService.post('auth/otp/verify-otp/', {
         email,
         otp: otpCode,
       });
@@ -76,7 +76,7 @@ const VerifyOtp = () => {
   const handleResendOtp = async () => {
     try {
       setIsLoading(true);
-      const response = await axios.post('http://127.0.0.1:8000/auth/otp/resend-otp/', {
+      const response = await HTTPService.post('auth/otp/resend-otp/', {
         email,
       });
       setIsLoading(false);

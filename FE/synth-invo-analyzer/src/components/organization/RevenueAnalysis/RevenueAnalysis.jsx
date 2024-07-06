@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import HTTPService from '../../../Service/HTTPService';
 import { Card, Typography, message, Row, Col, Select, Table, Switch } from 'antd';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement } from 'chart.js';
@@ -20,7 +20,7 @@ const RevenueAnalysis = () => {
     const fetchData = async () => {
       try {
         const params = { organization_id: localStorage.getItem('organization_id') };
-        const response = await axios.get('http://127.0.0.1:8000/analysis/monthly-expenditure/', { params });
+        const response = await HTTPService.get('analysis/monthly-expenditure/', { params });
         setExpendituresData(response.data);
         setFilteredData(response.data);
         

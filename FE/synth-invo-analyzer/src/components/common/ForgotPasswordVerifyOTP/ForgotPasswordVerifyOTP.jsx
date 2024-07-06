@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button, Input, message, Progress } from 'antd';
 import { LockOutlined } from '@ant-design/icons';
-import axios from 'axios';
+import HTTPService from '../../../Service/HTTPService';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../common/Header/Header';
 
@@ -48,7 +48,7 @@ const ForgotPasswordVerifyOTP = () => {
     try {
       setIsLoading(true);
       const otpCode = otp.join('');
-      await axios.post('http://127.0.0.1:8000/auth/otp/verify-otp/', {
+      await HTTPService.post('auth/otp/verify-otp/', {
         email,
         otp: otpCode,
       });
@@ -68,7 +68,7 @@ const ForgotPasswordVerifyOTP = () => {
   const handleResendOtp = async () => {
     try {
       setIsLoading(true);
-      await axios.post('http://127.0.0.1:8000/auth/otp/resend-otp/', {
+      await HTTPService.post('auth/otp/resend-otp/', {
         email,
       });
       setIsLoading(false);

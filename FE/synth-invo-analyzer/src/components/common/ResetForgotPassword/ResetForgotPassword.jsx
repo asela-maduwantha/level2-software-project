@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Form, Input, Button, Alert, Typography, Row, Col } from 'antd';
 import { LockOutlined } from '@ant-design/icons';
-import axios from 'axios';
+import HTTPService from '../../../Service/HTTPService';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Header from '../Header/Header';
 
@@ -21,7 +21,7 @@ const ResetForgotPassword = () => {
     }
 
     try {
-      const response = await axios.post('http://127.0.0.1:8000/auth/reset-password/', {
+      const response = await HTTPService.post('auth/reset-password/', {
         email,
         new_password,
       });

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Input, Table, message, Typography, Layout, Space, Card } from 'antd';
 import { PlusOutlined, DollarOutlined, CalendarOutlined } from '@ant-design/icons';
-import axios from 'axios';
+import HTTPService from '../../../Service/HTTPService';
 
 const { Title } = Typography;
 const { Content } = Layout;
@@ -20,7 +20,7 @@ const AddFeatureModel = () => {
 
   const fetchModels = () => {
     setLoading(true);
-    axios.get('http://127.0.0.1:8000/subscription-models/get_subscription_models/')
+    HTTPService.get('subscription-models/get_subscription_models/')
       .then(response => {
         setModels(response.data);
         setLoading(false);
@@ -50,7 +50,7 @@ const AddFeatureModel = () => {
     }
 
     const userId = localStorage.getItem('admin_id');
-    axios.post('http://127.0.0.1:8000/subscription-models/create-feature/', {
+    HTTPService.post('subscription-models/create-feature/', {
       created_by: userId,
       model: selectedModel,
       feature: feature.trim()

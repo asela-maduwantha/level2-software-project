@@ -1,7 +1,7 @@
 import React from 'react';
 import { Form, Input, Button, Checkbox, message } from 'antd';
 import { UserOutlined, MailOutlined, LockOutlined, EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons';
-import axios from 'axios';
+import HTTPService from '../../../Service/HTTPService';
 import './AdminSignUp.css';
 import OrgSignupImg from '../../../assets/OrgSignup.svg';
 import Header from '../../common/Header/Header';
@@ -13,7 +13,7 @@ const AdminSignUp = () => {
       return;
     }
     try {
-      const response = await axios.post('http://127.0.0.1:8000/auth/admin/signup/', values, {
+      const response = await HTTPService.post('auth/admin/signup/', values, {
         headers: {
           'Content-Type': 'application/json',
         },

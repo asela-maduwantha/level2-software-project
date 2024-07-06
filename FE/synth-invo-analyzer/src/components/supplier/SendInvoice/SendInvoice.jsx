@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import axios from "axios";
+import HTTPService from '../../../Service/HTTPService';
 import { Button, Upload as AntUpload, notification, Select, Spin, Alert } from "antd";
 import { InboxOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
@@ -22,7 +22,7 @@ function SendInvoice() {
     const fetchData = async () => {
       const userId = localStorage.getItem("supplier_id");
       try {
-        const response = await axios.get(`http://127.0.0.1:8000/auth/get-org-by-sup/`,{
+        const response = await HTTPService.get(`auth/get-org-by-sup/`,{
           params :{
             supplier_id : userId
           }
@@ -35,7 +35,7 @@ function SendInvoice() {
 
     const checkTemplate = async () => {
       try {
-        const response = await axios.get("http://localhost:8000/invoice-template/get-supplier-template/", {
+        const response = await HTTPService.get("invoice-template/get-supplier-template/", {
           params: { supplier_id: localStorage.getItem("supplier_id") },
         });
        
@@ -70,7 +70,7 @@ function SendInvoice() {
 
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.post("http://127.0.0.1:8000/invoice/create_invoice/", formData, {
+      const response = await HTTPService.post("invoice/create_invoice/", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,

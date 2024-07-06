@@ -2,13 +2,13 @@
 
 import React, { useEffect, useState } from 'react';
 import { Line } from 'react-chartjs-2';
-import axios from 'axios';
+import HTTPService from '../../../Service/HTTPService';
 
 const MonthlySubscriptionsChart = () => {
   const [monthlyData, setMonthlyData] = useState([]);
 
   useEffect(() => {
-    axios.get('http://127.0.0.1:8000/subscriptions/monthly-subscriptions/')
+    HTTPService.get('subscriptions/monthly-subscriptions/')
       .then(response => {
         setMonthlyData(response.data);
       })

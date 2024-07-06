@@ -10,7 +10,7 @@ from elasticsearch_dsl import Search
 from elasticsearch import Elasticsearch
 
 
-es = Elasticsearch(['http://localhost:9200'])
+es = Elasticsearch(['http://43.204.122.107:9200'])
 
 
 def get_invoice_data(year, product_name, organization_id, es, index="invoices"):
@@ -119,6 +119,15 @@ def calculate_monthly_expenditures(hits):
         })
 
     return expenditures
+
+
+
+
+
+
+
+
+
 
 
 

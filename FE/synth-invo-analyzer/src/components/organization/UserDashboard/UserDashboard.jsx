@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Layout, Input, Button, Table, Modal, message, DatePicker } from "antd";
-import axios from "axios";
+import HTTPService from "../../../Service/HTTPService";
 import moment from "moment";
 
 const { Content } = Layout;
@@ -20,8 +20,8 @@ const UserDashboard = () => {
     setLoading(true);
     try {
       const organization_id = localStorage.getItem("organization_id");
-      const url = `http://localhost:8000/search/search-invoices?organization_id=${organization_id}`;
-      const response = await axios.get(url);
+      const url = `search/search-invoices?organization_id=${organization_id}`;
+      const response = await HTTPService.get(url);
       console.log(response.data);
 
       if (response.status === 200) {
@@ -48,12 +48,12 @@ const UserDashboard = () => {
       const startDateString = startDate ? startDate.format("YYYY-MM-DD") : "";
       const endDateString = endDate ? endDate.format("YYYY-MM-DD") : "";
 
-      let url = `http://localhost:8000/search/search-invoices?organization_id=${organization_id}&query=${query}`;
+      let url = `search/search-invoices?organization_id=${organization_id}&query=${query}`;
       if (supplierName) url += `&supplier_name=${supplierName}`;
       if (startDateString) url += `&start_date=${startDateString}`;
       if (endDateString) url += `&end_date=${endDateString}`;
 
-      const response = await axios.get(url);
+      const response = await HTTPService.get(url);
 
       if (response.status === 200) {
         const extractedInvoices = response.data.map((item) => item._source);

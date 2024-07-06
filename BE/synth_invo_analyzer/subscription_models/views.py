@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
 from .models import SubscriptionModel, SubscriptionModelFeatures
@@ -8,12 +8,14 @@ from .serializers import SubscriptionModelSerializer, SubscriptionModelFeaturesS
 import stripe
 import os
 from dotenv import load_dotenv
+from authentication.permissions import IsSystemAdmin, IsOrganization, IsSupplier
 
 load_dotenv()
 
 stripe.api_key = os.getenv("STRIPE_KEY")
 
 @api_view(['POST'])
+@permission_classes([IsSystemAdmin])
 def create_subscription_model(request):
     admin_id = request.data.get('admin_id')
     model_name = request.data.get('model_name')
@@ -71,6 +73,7 @@ def create_subscription_model(request):
 
 
 @api_view(["POST"])
+@permission_classes([IsSystemAdmin])
 def archive_product(request):
     admin_id = request.data.get('admin_id')
 
@@ -99,6 +102,7 @@ def get_subscription_models(request):
     
     
 @api_view(["PUT"])
+@permission_classes([IsSystemAdmin])
 def update_subscription_model(request):
     try:
         admin_id = request.data.get('admin_id')
@@ -152,6 +156,7 @@ def update_subscription_model(request):
         return Response("Internal Server Error: " + error_message, status=500)
 
 @api_view(['POST'])
+@permission_classes([IsSystemAdmin])
 def create_feature(request):
     print(request.data)
     model_id = request.data.get('model')
@@ -168,6 +173,7 @@ def create_feature(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['PUT'])
+@permission_classes([IsSystemAdmin])
 def modify_feature(request, pk):
     try:
         feature = SubscriptionModelFeatures.objects.get(pk=pk)
@@ -181,6 +187,7 @@ def modify_feature(request, pk):
         return Response(status=404)
     
 @api_view(['DELETE'])
+@permission_classes([IsSystemAdmin])
 def remove_feature(request, pk):
     try:
         feature = SubscriptionModelFeatures.objects.get(pk=pk)

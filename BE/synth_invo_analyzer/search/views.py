@@ -1,12 +1,13 @@
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view,permission_classes
 from rest_framework.response import Response
 from rest_framework import status
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Q, Search, A
 import json
 from datetime import datetime
+from authentication.permissions import IsOrganization,IsSupplier, IsSystemAdmin
 
-es = Elasticsearch(['http://localhost:9200'])
+es = Elasticsearch(['http://43.204.122.107:9200'])
 
 def build_search_query(params):
     must_clauses = []
@@ -66,6 +67,7 @@ def build_search_query(params):
 
 
 @api_view(['GET'])
+@permission_classes([IsOrganization])
 def search_invoices(request):
     query_params = request.query_params
     size = query_params.get('size', 1000)  
@@ -90,6 +92,7 @@ def search_invoices(request):
 
 
 @api_view(['GET'])
+@permission_classes([IsOrganization])
 def organization_products(request):
     organization_id = request.query_params.get('organization_id')
 
@@ -112,6 +115,7 @@ def organization_products(request):
         response = search.execute()
         products = {}
         for hit in response.hits:
+            print(hit.items)
             invoice_year = datetime.strptime(hit.invoice_date, "%Y-%m-%dT%H:%M:%S").year
             for item in hit.items:
                 description = item['description']
@@ -134,6 +138,7 @@ def organization_products(request):
     
     
 @api_view(['POST'])
+@permission_classes([IsSystemAdmin])
 def build_query(request):
     try:
         params = request.data.get('params', {})
@@ -143,6 +148,7 @@ def build_query(request):
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['POST'])
+@permission_classes([IsSystemAdmin])
 def execute_search(request):
     query_params = request.data
     size = query_params.get('size', 1000)

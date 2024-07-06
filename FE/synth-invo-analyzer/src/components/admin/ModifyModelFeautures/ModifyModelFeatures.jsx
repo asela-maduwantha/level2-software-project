@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, message, Popconfirm, Table, Input, Select } from 'antd';
-import axios from 'axios';
+import HTTPService from '../../../Service/HTTPService';
 
 const { Option } = Select;
 
@@ -18,14 +18,14 @@ const ModifyModelFeatures = () => {
   }, []);
 
   const fetchModelsData = () => {
-    axios.get('http://127.0.0.1:8000/subscription-models/get_subscription_models/')
+    HTTPService.get('subscription-models/get_subscription_models/')
       .then(response => setModels(response.data))
       .catch(error => message.error('Error fetching models.'));
   };
 
   const fetchFeatures = (modelId) => {
     setLoading(true);
-    axios.get(`http://127.0.0.1:8000/subscription-models/get-features/${modelId}/`)
+    HTTPService.get(`subscription-models/get-features/${modelId}/`)
       .then(response => {
         setFeatures(response.data);
         setSelectedModelId(modelId);
@@ -35,7 +35,7 @@ const ModifyModelFeatures = () => {
   };
 
   const handleModifyFeatureSubmit = (featureId) => {
-    axios.put(`http://127.0.0.1:8000/subscription-models/modify-feature/${featureId}/`, {
+    HTTPService.put(`subscription-models/modify-feature/${featureId}/`, {
       feature: newFeatureName,
       userId : localStorage.getItem('admin_id')
     })
@@ -50,7 +50,7 @@ const ModifyModelFeatures = () => {
   };
 
   const handleRemoveFeature = (featureId) => {
-    axios.delete(`http://127.0.0.1:8000/subscription-models/remove-feature/${featureId}/`)
+    HTTPService.delete(`subscription-models/remove-feature/${featureId}/`)
     .then(() => {
       message.success('Feature removed successfully');
       fetchFeatures(selectedModelId);

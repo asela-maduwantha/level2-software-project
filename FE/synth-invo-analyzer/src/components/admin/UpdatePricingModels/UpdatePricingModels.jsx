@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Button, Modal, Form, Input, message, Row, Col, Typography, Select, Layout } from 'antd';
 import { EditOutlined, DollarOutlined, GlobalOutlined, CalendarOutlined } from '@ant-design/icons';
-import axios from 'axios';
+import HTTPService from '../../../Service/HTTPService';
 
 const { Title } = Typography;
 const { Content } = Layout;
@@ -18,8 +18,8 @@ const UpdatePricingModels = () => {
   }, []);
 
   const fetchData = () => {
-    axios
-      .get('http://127.0.0.1:8000/subscription-models/get_subscription_models/')
+    HTTPService
+      .get('subscription-models/get_subscription_models/')
       .then((response) => {
         setData(response.data);
       })
@@ -45,8 +45,8 @@ const UpdatePricingModels = () => {
   };
 
   const handleUpdate = (values) => {
-    axios
-      .put('http://127.0.0.1:8000/subscription-models/update-subscription-model/', {
+    HTTPService
+      .put('subscription-models/update-subscription-model/', {
         admin_id: localStorage.getItem('admin_id'),
         product_id: editingModel.stripe_id,
         model_name: values.model_name,
