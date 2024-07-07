@@ -7,3 +7,4 @@ urlpatterns = [
     path('monthly-expenditure/', views.monthly_expenditures, name='monthly-expenditure'),
     path('suppliers-price-by-month/', views.suppliers_price_by_month, name='suppliers_price_by_month'),
 ]
+

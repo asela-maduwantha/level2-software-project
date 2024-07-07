@@ -7,6 +7,13 @@ from .models import Organization, Supplier, SystemAdmin, AdminSupplierMessage, A
 from .serializers import AdminSupplierMessageSerializer, AdminOrganizationMessageSerializer
 import uuid
 
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
+from django.db.models import Q
+from .models import AdminSupplierMessage, AdminOrganizationMessage
+from .serializers import AdminSupplierMessageSerializer, AdminOrganizationMessageSerializer
+
 @api_view(['GET'])
 def chat_history(request, admin_id, user_id, user_type):
     try:
@@ -20,17 +27,18 @@ def chat_history(request, admin_id, user_id, user_type):
             Q(admin_id=admin_uuid, supplier_id=user_uuid) |
             Q(admin_id=user_uuid, supplier_id=admin_uuid)
         ).order_by('timestamp')
-        serializer = AdminSupplierMessageSerializer(messages, many=True, context={'admin_id': admin_uuid})
+        serializer = AdminSupplierMessageSerializer(messages, many=True, context={'user_id': user_uuid})
     elif user_type == 'organization':
         messages = AdminOrganizationMessage.objects.filter(
             Q(admin_id=admin_uuid, organization_id=user_uuid) |
             Q(admin_id=user_uuid, organization_id=admin_uuid)
         ).order_by('timestamp')
-        serializer = AdminOrganizationMessageSerializer(messages, many=True, context={'admin_id': admin_uuid})
+        serializer = AdminOrganizationMessageSerializer(messages, many=True, context={'user_id': admin_uuid})
     else:
         return Response({"error": "Unknown user type"}, status=status.HTTP_400_BAD_REQUEST)
-
+    print(serializer.data)
     return Response(serializer.data)
+
 
 
 @api_view(['GET'])

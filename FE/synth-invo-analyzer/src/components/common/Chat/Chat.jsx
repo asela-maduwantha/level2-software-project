@@ -3,6 +3,7 @@ import { Input, Button, Avatar, Typography, Badge } from 'antd';
 import { SendOutlined, UserOutlined } from '@ant-design/icons';
 import HTTPService from '../../../Service/HTTPService';
 import './Chat.css';
+import { Element, animateScroll as scroll } from 'react-scroll';
 
 const { Text } = Typography;
 
@@ -56,7 +57,7 @@ const Chat = () => {
     const sendMessage = () => {
         if (ws && messageInput.trim() !== '' && selectedUser) {
             const messageObject = {
-                message: messageInput,  // Ensure 'message' key is used
+                content: messageInput,
                 sender_id: adminId
             };
             ws.send(JSON.stringify(messageObject));
@@ -66,7 +67,12 @@ const Chat = () => {
     };
 
     const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        scroll.scrollToBottom({
+            containerId: 'messages-container',
+            duration: 250,
+            delay: 100,
+            smooth: 'easeInOutQuint'
+        });
     };
 
     const formatTimestamp = (timestamp) => {
@@ -90,7 +96,7 @@ const Chat = () => {
                             >
                                 <Avatar icon={<UserOutlined />} />
                                 <div className="user-info">
-                                    <Text>{user.username}</Text>
+                                    <Text>{user.username}</Text><br></br>
                                     <Text type="secondary">{user.type}</Text>
                                 </div>
                                 {user.unreadCount > 0 && (
@@ -109,17 +115,17 @@ const Chat = () => {
                             </>
                         )}
                     </div>
-                    <div className="messages-container">
+                    <Element id="messages-container" className="messages-container">
                         {messages.map((msg, index) => (
-                            <div key={index} className={`message ${msg.sender_id === adminId ? 'sent' : 'received'}`}>
+                            <div key={index} className={`message ${msg.user_role === 'admin' ? 'sent' : 'received'}`}>
                                 <div className="message-content">
-                                    {msg.message}
+                                    {msg.content}
                                     <span className="timestamp">{formatTimestamp(msg.timestamp)}</span>
                                 </div>
                             </div>
                         ))}
                         <div ref={messagesEndRef} />
-                    </div>
+                    </Element>
                     <div className="input-area">
                         <Input
                             value={messageInput}

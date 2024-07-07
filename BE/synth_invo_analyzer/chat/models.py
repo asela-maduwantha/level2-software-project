@@ -9,6 +9,7 @@ class AdminSupplierMessage(models.Model):
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
     is_read = models.BooleanField(default=False)
+    user_role = models.CharField(max_length=20, default='unknown')  # New field for sender's role
 
     def __str__(self):
         return f'{self.admin} to {self.supplier}: {self.content}'
@@ -20,6 +21,7 @@ class AdminOrganizationMessage(models.Model):
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
     is_read = models.BooleanField(default=False)
+    user_role = models.CharField(max_length=20, default='unknown')  # New field for sender's role
 
     def __str__(self):
         return f'{self.admin} to {self.organization}: {self.content}'

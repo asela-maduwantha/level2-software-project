@@ -1,7 +1,10 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
-from .models import Organization, SystemAdmin, AdminOrganizationMessage, Supplier, AdminSupplierMessage
+from .models import Organization, SystemAdmin, AdminOrganizationMessage
+from .serializers import AdminOrganizationMessageSerializer
+from .models import Supplier, SystemAdmin, AdminSupplierMessage
+from .serializers import AdminSupplierMessageSerializer
 
 class AdminOrganizationChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -23,44 +26,46 @@ class AdminOrganizationChatConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
-        print(f"Received data: {text_data_json}")  # Debugging line
 
-        if 'message' in text_data_json:
-            message = text_data_json["message"]
+        if 'content' in text_data_json and 'sender_id' in text_data_json:
+            content = text_data_json["content"]
+            sender_id = text_data_json["sender_id"]
+            sender_role = 'admin' if sender_id == self.admin_id else 'organization'
 
-            await self.save_message(message)
+            message = await self.save_message(content, sender_id, sender_role)
 
+            serializer = AdminOrganizationMessageSerializer(message)
             await self.channel_layer.group_send(
                 self.room_group_name, {
                     "type": "chat.message",
-                    "message": message,
-                    "admin_id": self.admin_id,
-                    "organization_id": self.organization_id,
+                    "message": {
+                        **serializer.data,
+                        "admin": str(serializer.data["admin"]),
+                        "organization": str(serializer.data["organization"]),
+                    }
                 }
             )
         else:
-            print(f"Invalid data received: {text_data_json}")  # Debugging line
+            print(f"Invalid data received: {text_data_json}")  
 
     async def chat_message(self, event):
         message = event["message"]
-        admin_id = event["admin_id"]
-        organization_id = event["organization_id"]
 
-        await self.send(text_data=json.dumps({
-            "message": message,
-            "admin_id": admin_id,
-            "organization_id": organization_id,
-        }))
+        await self.send(text_data=json.dumps(message))
 
     @database_sync_to_async
-    def save_message(self, message):
+    def save_message(self, content, sender_id, sender_role):
         admin = SystemAdmin.objects.get(id=self.admin_id)
         organization = Organization.objects.get(id=self.organization_id)
-        AdminOrganizationMessage.objects.create(
+
+        return AdminOrganizationMessage.objects.create(
             admin=admin,
             organization=organization,
-            content=message
+            content=content,
+            user_role=sender_role  
         )
+
+
 
 class AdminSupplierChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -84,17 +89,18 @@ class AdminSupplierChatConsumer(AsyncWebsocketConsumer):
         text_data_json = json.loads(text_data)
         print(f"Received data: {text_data_json}")  # Debugging line
 
-        if 'message' in text_data_json:
-            message = text_data_json["message"]
+        if 'content' in text_data_json and 'sender_id' in text_data_json:
+            content = text_data_json["content"]
+            sender_id = text_data_json["sender_id"]
+            sender_role = 'admin' if sender_id == self.admin_id else 'supplier'
 
-            await self.save_message(message)
+            message = await self.save_message(content, sender_id, sender_role)
 
+            serializer = AdminSupplierMessageSerializer(message)
             await self.channel_layer.group_send(
                 self.room_group_name, {
                     "type": "chat.message",
-                    "message": message,
-                    "admin_id": self.admin_id,
-                    "supplier_id": self.supplier_id,
+                    "message": serializer.data
                 }
             )
         else:
@@ -102,21 +108,17 @@ class AdminSupplierChatConsumer(AsyncWebsocketConsumer):
 
     async def chat_message(self, event):
         message = event["message"]
-        admin_id = event["admin_id"]
-        supplier_id = event["supplier_id"]
 
-        await self.send(text_data=json.dumps({
-            "message": message,
-            "admin_id": admin_id,
-            "supplier_id": supplier_id,
-        }))
+        await self.send(text_data=json.dumps(message))
 
     @database_sync_to_async
-    def save_message(self, message):
+    def save_message(self, content, sender_id, sender_role):
         admin = SystemAdmin.objects.get(id=self.admin_id)
         supplier = Supplier.objects.get(id=self.supplier_id)
-        AdminSupplierMessage.objects.create(
+
+        return AdminSupplierMessage.objects.create(
             admin=admin,
             supplier=supplier,
-            content=message
+            content=content,
+            user_role=sender_role  # Save the sender's role
         )
