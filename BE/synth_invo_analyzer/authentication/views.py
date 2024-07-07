@@ -54,19 +54,25 @@ def organization_signin(request):
     user = authenticate(request, email=email, password=password)
 
     if user:
-        access_token = generate_token(str(user.id), 'organization', '')
-        refresh_token = generate_refresh_token(access_token)
-        
-        if(user.is_verified_email):
-            return Response({
-                'access': access_token, 
-                'refresh': refresh_token, 
-                'organization_id': str(user.organization.id),
-            }, status=status.HTTP_200_OK)
+        organization = Organization.objects.filter(user=user).first()
+        if organization:
+            access_token = generate_token(str(user.id), 'organization', str(organization.id))
+            refresh_token = generate_refresh_token(access_token)
+
+            if user.is_verified_email:
+                return Response({
+                    'access': access_token,
+                    'refresh': refresh_token,
+                    'organization_id': str(organization.id),
+                }, status=status.HTTP_200_OK)
+            else:
+                return Response({'message': 'Not a verified e-mail', 'email': user.email}, status=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION)
         else:
-            return Response({'message': 'Not a verified e-mail', 'email': user.email}, status=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION)
+            return Response({'error': 'Organization not found'}, status=status.HTTP_404_NOT_FOUND)
     else:
         return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+
+
     
     
 

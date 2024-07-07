@@ -11,23 +11,47 @@ from django.core.mail import EmailMessage, get_connection
 from django.conf import settings
 from django.utils import timezone
 from django.template.loader import render_to_string
+from subscriptions.models import Subscription
+from .models import Organization
 
 
 
 load_dotenv()
 
-def generate_token(user, role, organization_id):
+
+def generate_token(user, role, organization_id=None):
     SECRET_KEY = os.getenv('SECRET_KEY')
     expiry_time = datetime.datetime.utcnow() + datetime.timedelta(minutes=30)  
     created_time = datetime.datetime.utcnow()
     random_value = random.randint(1, 1000000)  
-    
+
     if not isinstance(user, str):
         user = json.dumps(user)
-        
-    payload = {'rand': random_value, 'user_id': user, 'role': role, 'organization_id': organization_id,'exp': expiry_time, 'iat': created_time}
+
+    model_name = 'none'
+    subscription_status = 'inactive'
+    if role == 'organization' and organization_id:
+        organization = Organization.objects.filter(id=organization_id).first()
+        if organization:
+            subscription = Subscription.objects.filter(organization=organization).first()
+            if subscription:
+                model_name = subscription.subscription_model.model_name
+                subscription_status = 'active' if subscription.is_current_period_paid() else 'inactive'
+
+    payload = {
+        'rand': random_value,
+        'user_id': user,
+        'role': role,
+        'organization_id': organization_id,
+        'model_name': model_name,
+        'subscription_status': subscription_status,
+        'exp': expiry_time,
+        'iat': created_time
+    }
     token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
     return f"Bearer {token}"
+
+
 
 def decode_token(token):
     SECRET_KEY = os.getenv('SECRET_KEY')
