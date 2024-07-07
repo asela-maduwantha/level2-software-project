@@ -1,7 +1,7 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
-from .models import Organization, SystemAdmin, AdminOrganizationMessage
+from .models import Organization, SystemAdmin, AdminOrganizationMessage, Supplier, AdminSupplierMessage
 
 class AdminOrganizationChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -23,18 +23,23 @@ class AdminOrganizationChatConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
-        message = text_data_json["message"]
+        print(f"Received data: {text_data_json}")  # Debugging line
 
-        await self.save_message(message)
+        if 'message' in text_data_json:
+            message = text_data_json["message"]
 
-        await self.channel_layer.group_send(
-            self.room_group_name, {
-                "type": "chat.message",
-                "message": message,
-                "admin_id": self.admin_id,
-                "organization_id": self.organization_id,
-            }
-        )
+            await self.save_message(message)
+
+            await self.channel_layer.group_send(
+                self.room_group_name, {
+                    "type": "chat.message",
+                    "message": message,
+                    "admin_id": self.admin_id,
+                    "organization_id": self.organization_id,
+                }
+            )
+        else:
+            print(f"Invalid data received: {text_data_json}")  # Debugging line
 
     async def chat_message(self, event):
         message = event["message"]
@@ -57,11 +62,6 @@ class AdminOrganizationChatConsumer(AsyncWebsocketConsumer):
             content=message
         )
 
-import json
-from channels.generic.websocket import AsyncWebsocketConsumer
-from channels.db import database_sync_to_async
-from .models import Supplier, SystemAdmin, AdminSupplierMessage
-
 class AdminSupplierChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.admin_id = self.scope['url_route']['kwargs']['admin_id']
@@ -82,18 +82,23 @@ class AdminSupplierChatConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
-        message = text_data_json["message"]
+        print(f"Received data: {text_data_json}")  # Debugging line
 
-        await self.save_message(message)
+        if 'message' in text_data_json:
+            message = text_data_json["message"]
 
-        await self.channel_layer.group_send(
-            self.room_group_name, {
-                "type": "chat.message",
-                "message": message,
-                "admin_id": self.admin_id,
-                "supplier_id": self.supplier_id,
-            }
-        )
+            await self.save_message(message)
+
+            await self.channel_layer.group_send(
+                self.room_group_name, {
+                    "type": "chat.message",
+                    "message": message,
+                    "admin_id": self.admin_id,
+                    "supplier_id": self.supplier_id,
+                }
+            )
+        else:
+            print(f"Invalid data received: {text_data_json}")  # Debugging line
 
     async def chat_message(self, event):
         message = event["message"]

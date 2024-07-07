@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Input, Button, List, Avatar, Typography, Badge } from 'antd';
+import { Input, Button, Avatar, Typography, Badge } from 'antd';
 import { SendOutlined, UserOutlined } from '@ant-design/icons';
 import HTTPService from '../../../Service/HTTPService';
 import './Chat.css';
@@ -56,12 +56,10 @@ const Chat = () => {
     const sendMessage = () => {
         if (ws && messageInput.trim() !== '' && selectedUser) {
             const messageObject = {
-                content: messageInput,
-                sender_id: adminId,
-                timestamp: new Date().toISOString()
+                message: messageInput,  // Ensure 'message' key is used
+                sender_id: adminId
             };
             ws.send(JSON.stringify(messageObject));
-            setMessages(prevMessages => [...prevMessages, messageObject]);
             setMessageInput('');
             scrollToBottom();
         }
@@ -115,7 +113,7 @@ const Chat = () => {
                         {messages.map((msg, index) => (
                             <div key={index} className={`message ${msg.sender_id === adminId ? 'sent' : 'received'}`}>
                                 <div className="message-content">
-                                    {msg.content}
+                                    {msg.message}
                                     <span className="timestamp">{formatTimestamp(msg.timestamp)}</span>
                                 </div>
                             </div>

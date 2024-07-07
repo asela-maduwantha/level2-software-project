@@ -91,3 +91,50 @@ def monthly_expenditures(request):
 
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+
+@api_view(['GET'])
+def suppliers_price_by_month(request):
+    year = request.query_params.get('year')
+    product_name = request.query_params.get('product_name')
+    organization_id = request.query_params.get('organization_id')
+    suppliers = request.query_params.getlist('suppliers')
+
+    if not year or not product_name or not organization_id:
+        return Response({"error": "Both 'year', 'product_name', and 'organization_id' parameters are required"},
+                        status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        data = get_invoice_data(year, product_name, organization_id, es)
+
+        if not data:
+            return Response({"error": "No data found for the given product, year, and organization"},
+                            status=status.HTTP_404_NOT_FOUND)
+
+        df = pd.DataFrame(data)
+        df['date'] = pd.to_datetime(df['date'])
+        df['month'] = df['date'].dt.month
+
+        monthly_avg = df.groupby(['supplier', 'month'])['price'].mean().reset_index()
+
+        if suppliers:
+            monthly_avg = monthly_avg[monthly_avg['supplier'].isin(suppliers)]
+
+        result = []
+        for index, row in monthly_avg.iterrows():
+            result.append({
+                'supplier': row['supplier'],
+                'avg_price': row['price'],  # Assuming 'price' is the column name for average price
+                'product_name': product_name  # Add product_name to the response
+            })
+
+        return Response(result, status=status.HTTP_200_OK)
+
+    except ValueError as e:
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        print(e)
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+

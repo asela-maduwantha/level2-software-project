@@ -13,6 +13,8 @@ from elasticsearch import Elasticsearch
 es = Elasticsearch(['http://43.204.122.107:9200'])
 
 
+
+
 def get_invoice_data(year, product_name, organization_id, es, index="invoices"):
     try:
         year = int(year)
@@ -23,7 +25,7 @@ def get_invoice_data(year, product_name, organization_id, es, index="invoices"):
 
     search = Search(using=es, index=index)
     search = search.filter('range', invoice_date={'gte': f'{year}-01-01', 'lte': f'{year}-12-31'})
-    search = search.filter('term', recipient = organization_id)
+    search = search.filter('term', recipient=organization_id)
     search = search.query('nested', path='items', query=Q('match', items__description=product_name))
 
     response = search.execute()
@@ -33,13 +35,16 @@ def get_invoice_data(year, product_name, organization_id, es, index="invoices"):
         invoice_date = hit.invoice_date
         for item in hit.items:
             if item['description'] == product_name:
+                supplier_name = hit.seller.company_name
                 data.append({
                     'product': item['description'],
                     'price': item['unit_price'],
-                    'date': invoice_date
+                    'date': invoice_date,
+                    'supplier': supplier_name
                 })
 
     return data
+
 
 def calculate_price_deviations(data, year):
     df = pd.DataFrame(data)

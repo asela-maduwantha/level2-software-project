@@ -5,10 +5,10 @@ import {
   DashboardOutlined,
   LineChartOutlined,
   UserOutlined,
-  ContainerOutlined,
+  ProfileOutlined,
   ShopOutlined,
   LogoutOutlined,
-  UpCircleOutlined,
+  ArrowUpOutlined,
   FileSearchOutlined
 } from '@ant-design/icons';
 import './menulist.css';
@@ -35,41 +35,52 @@ const MenuList = () => {
         onOpenChange={onOpenChange}
       >
         <Menu.Item key="home" icon={<DashboardOutlined />}>
-          <Link to="dashboard" style={{textDecoration:"none"}}>Dashboard</Link>
+          <Link to="dashboard" style={{ textDecoration: "none" }}>Dashboard</Link>
         </Menu.Item>
-        <Menu.SubMenu key="invoices" icon={<ContainerOutlined />} title="Invoices">
+        
+        <Menu.SubMenu key="invoices" icon={<FileSearchOutlined />} title="Invoices">
           <Menu.Item key="view-invoices">
-            <Link to="viewinvoices" style={{textDecoration:"none"}}>View Invoices</Link>
+            <Link to="viewinvoices" style={{ textDecoration: "none" }}>View Invoices</Link>
           </Menu.Item>
         </Menu.SubMenu>
+        
         <Menu.SubMenu key="suppliers" icon={<ShopOutlined />} title="Suppliers">
           <Menu.Item key="add-supplier">
-            <Link to="addsupplier" style={{textDecoration:"none"}}>Add Supplier</Link>
+            <Link to="addsupplier" style={{ textDecoration: "none" }}>Add Supplier</Link>
           </Menu.Item>
           <Menu.Item key="supplier-requests">
-            <Link to="supplierrequests" style={{textDecoration:"none"}}>Outgoing Requests</Link>
+            <Link to="supplierrequests" style={{ textDecoration: "none" }}>Outgoing Requests</Link>
           </Menu.Item>
         </Menu.SubMenu>
+        
         <Menu.SubMenu key="analysis" icon={<LineChartOutlined />} title="Analysis">
           <Menu.Item key="product-analysis">
-            <Link to="productanalysis" style={{textDecoration:"none"}}>Product Analysis</Link>
+            <Link to="productanalysis" style={{ textDecoration: "none" }}>Product Analysis</Link>
           </Menu.Item>
           <Menu.Item key="seasonal-analysis">
-            <Link to="seasonalanalysis" style={{textDecoration:"none"}}>Seasonal Analysis</Link>
+            <Link to="seasonalanalysis" style={{ textDecoration: "none" }}>Seasonal Analysis</Link>
           </Menu.Item>
           <Menu.Item key="expenditure-analysis">
-            <Link to="revenueanalysis" style={{textDecoration:"none"}}>Expenditure Analysis</Link>
+            <Link to="revenueanalysis" style={{ textDecoration: "none" }}>Expenditure Analysis</Link>
+          </Menu.Item>
+          <Menu.Item key="supplier-analysis">
+            <Link to="supplieranalysis" style={{ textDecoration: "none" }}>Supplier Analysis</Link>
           </Menu.Item>
         </Menu.SubMenu>
+        
         <Menu.SubMenu key="account" icon={<UserOutlined />} title="Account">
           <Menu.Item key="edit-account">
-            <Link to="accountsettings" style={{textDecoration:"none"}}>Edit Account</Link>
+            <Link to="accountsettings" style={{ textDecoration: "none" }}>Edit Account</Link>
           </Menu.Item>
         </Menu.SubMenu>
-        <Menu.Item key="change-plan" icon={<UpCircleOutlined />}>
-          <Link to="changeplan" style={{textDecoration:"none"}}>Upgrade</Link>
+        
+        <Menu.Item key="change-plan" icon={<ArrowUpOutlined />}>
+          <Link to="changeplan" style={{ textDecoration: "none" }}>Upgrade</Link>
         </Menu.Item>
-        <Menu.Item key="logout" icon={<LogoutOutlined />}>Logout</Menu.Item>
+        
+        <Menu.Item key="logout" icon={<LogoutOutlined />}>
+          <Link to="logout" style={{ textDecoration: "none" }}>Logout</Link>
+        </Menu.Item>
       </Menu>
     </div>
   );

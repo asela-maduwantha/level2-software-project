@@ -20,13 +20,13 @@ def chat_history(request, admin_id, user_id, user_type):
             Q(admin_id=admin_uuid, supplier_id=user_uuid) |
             Q(admin_id=user_uuid, supplier_id=admin_uuid)
         ).order_by('timestamp')
-        serializer = AdminSupplierMessageSerializer(messages, many=True)
+        serializer = AdminSupplierMessageSerializer(messages, many=True, context={'admin_id': admin_uuid})
     elif user_type == 'organization':
         messages = AdminOrganizationMessage.objects.filter(
             Q(admin_id=admin_uuid, organization_id=user_uuid) |
             Q(admin_id=user_uuid, organization_id=admin_uuid)
         ).order_by('timestamp')
-        serializer = AdminOrganizationMessageSerializer(messages, many=True)
+        serializer = AdminOrganizationMessageSerializer(messages, many=True, context={'admin_id': admin_uuid})
     else:
         return Response({"error": "Unknown user type"}, status=status.HTTP_400_BAD_REQUEST)
 

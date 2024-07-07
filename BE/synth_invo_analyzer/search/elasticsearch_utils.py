@@ -153,3 +153,7 @@ def async_index_invoices(invoice_jsons, supplier_id, organization_id):
 
     for thread in threads:
         thread.join()
+
+
+def delete_invoice_index(invoice_id):
+    es.delete(index='invoices', id=invoice_id)
