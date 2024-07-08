@@ -2,9 +2,9 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 import json
 import xmltodict
-from .models import Invoice, ArchiveInvoice
+from .models import Invoice
 from .utils import format_invoice, map_csv_row_to_invoice
-from .serializers import InvoiceSerializer, ArchiveInvoiceSerializer
+from .serializers import InvoiceSerializer
 from rest_framework import status
 from search.elasticsearch_utils import async_index_invoices, delete_invoice_index
 import threading
@@ -13,6 +13,9 @@ import io
 from authentication.permissions import IsOrganization, IsSystemAdmin, IsSupplier
 from datetime import datetime, timedelta
 
+
+
+
 @api_view(['POST'])
 @permission_classes([IsSupplier])
 def create_invoice(request):
@@ -20,9 +23,7 @@ def create_invoice(request):
         source_invoice = request.data.get('source_invoice')
         
         if isinstance(source_invoice, str):
-           
             if source_invoice.strip().startswith('<'):
-           
                 source_invoice = xmltodict.parse(source_invoice)
             else:
                 source_invoice = json.loads(source_invoice)
@@ -30,7 +31,6 @@ def create_invoice(request):
         elif 'source_invoice' in request.FILES:
             source_invoice_file = request.FILES['source_invoice']
             if source_invoice_file.name.endswith('.xml'):
-              
                 source_invoice = xmltodict.parse(source_invoice_file.read())
             else:
                 source_invoice = json.load(source_invoice_file)
@@ -39,6 +39,7 @@ def create_invoice(request):
         organization_id = request.data.get("organization_id")
 
         converted_invoice = format_invoice(source_invoice, supplier_id)
+        
         
         invoice_data = {
             'issuer': supplier_id,
@@ -50,22 +51,19 @@ def create_invoice(request):
         serializer = InvoiceSerializer(data=invoice_data)
         
         if serializer.is_valid():
-            invoice = serializer.save()
             
-           
-            threading.Thread(target=async_index_invoices, args=([json.dumps(converted_invoice)], supplier_id, organization_id)).start()
+            invoice = serializer.save()
+         
+            threading.Thread(target=async_index_invoices, args=([json.dumps(converted_invoice)], supplier_id, organization_id, invoice.id)).start()
             
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
+            print(serializer.errors)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     except Exception as e:
         print(e)
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-
-
-
 
 @api_view(['POST'])
 @permission_classes([IsSupplier])
@@ -87,7 +85,7 @@ def bulk_upload_invoices(request):
             if serializer.is_valid():
                 invoice = serializer.save()
                 invoices.append(invoice)
-                threading.Thread(target=async_index_invoices, args=([(invoice_data['internal_format'])], invoice.issuer, invoice.recipient)).start()
+                threading.Thread(target=async_index_invoices, args=([(invoice_data['internal_format'])], invoice.issuer, invoice.recipient, invoice.id)).start()
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -128,73 +126,70 @@ def organization_invoice_view(request):
         print(e)
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
     
-@api_view(['DELETE'])  
+@api_view(['POST'])
+@permission_classes([IsOrganization | IsSupplier])
 def archive_invoice(request, invoice_id):
     try:
         invoice = Invoice.objects.get(id=invoice_id)
-        archived_invoice_data = {
-            'id': invoice.id,
-            'issuer': invoice.issuer,
-            'recipient': invoice.recipient,
-            'source_format': invoice.source_format,
-            'internal_format': invoice.internal_format,
-            'created_at': invoice.created_at,
-            'archived_at': datetime.now(),
-            'expiry_date': datetime.now() + timedelta(days=30),
-        }
-        serializer = ArchiveInvoiceSerializer(data=archived_invoice_data)
-        if serializer.is_valid():
-            serializer.save()
-            invoice.delete()
-            
-            # Delete the invoice index from Elasticsearch
-            delete_invoice_index(invoice.id)
-            
-            return Response({'message': 'Invoice archived successfully.'}, status=status.HTTP_200_OK)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        user_id = str(request.user.id)
+
+        if user_id not in [str(invoice.recipient), str(invoice.issuer)]:
+            return Response({'error': 'You do not have permission to archive this invoice.'}, status=status.HTTP_403_FORBIDDEN)
+
+        invoice.archived = True
+        invoice.archived_at = datetime.now()
+        invoice.archived_by = user_id
+        invoice.save()
+
+        serializer = InvoiceSerializer(invoice)
+        return Response(serializer.data, status=status.HTTP_200_OK)
     except Invoice.DoesNotExist:
         return Response({'error': 'Invoice not found.'}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
-def restore_invoice(request, archive_invoice_id):
+@permission_classes([IsOrganization | IsSupplier])
+def restore_invoice(request, invoice_id):
     try:
-        archive_invoice = ArchiveInvoice.objects.get(id=archive_invoice_id)
-        restored_invoice_data = {
-            'id': archive_invoice.id,
-            'issuer': archive_invoice.issuer,
-            'recipient': archive_invoice.recipient,
-            'source_format': archive_invoice.source_format,
-            'internal_format': archive_invoice.internal_format,
-            'created_at': archive_invoice.created_at,
-        }
-        serializer = InvoiceSerializer(data=restored_invoice_data)
-        if serializer.is_valid():
-            invoice = serializer.save()
-            archive_invoice.delete()
-            
-            threading.Thread(target=async_index_invoices, args=([archive_invoice.internal_format], archive_invoice.issuer, archive_invoice.recipient)).start()
-            
-            return Response({'message': 'Invoice restored successfully.'}, status=status.HTTP_200_OK)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    except ArchiveInvoice.DoesNotExist:
-        return Response({'error': 'Archived invoice not found.'}, status=status.HTTP_404_NOT_FOUND)
+        invoice = Invoice.objects.get(id=invoice_id)
+        user_id = str(request.user.id)
+
+        if user_id not in [str(invoice.recipient), str(invoice.issuer)]:
+            return Response({'error': 'You do not have permission to restore this invoice.'}, status=status.HTTP_403_FORBIDDEN)
+
+        invoice.archived = False
+        invoice.archived_at = None
+        invoice.archived_by = None
+        invoice.save()
+
+        serializer = InvoiceSerializer(invoice)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except Invoice.DoesNotExist:
+        return Response({'error': 'Invoice not found.'}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-    
-    
 
 @api_view(['DELETE'])
 @permission_classes([IsSystemAdmin])
-def delete_expired_archives(request):
+def delete_invoice(request, invoice_id):
     try:
-        now = datetime.now()
-        expired_archives = ArchiveInvoice.objects.filter(expiry_date__lt=now)
-        count = expired_archives.count()
-        expired_archives.delete()
-        return Response({'message': f'Deleted {count} expired archived invoices.'}, status=status.HTTP_200_OK)
+        invoice = Invoice.objects.get(id=invoice_id)
+        invoice.delete()
+        delete_invoice_index(invoice_id)
+        return Response({'success': 'Invoice deleted successfully.'}, status=status.HTTP_200_OK)
+    except Invoice.DoesNotExist:
+        return Response({'error': 'Invoice not found.'}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+@permission_classes([IsOrganization | IsSupplier])
+def view_archived_invoices(request):
+    try:
+        user_id = str(request.user.id)
+        archived_invoices = Invoice.objects.filter(archived=True).filter(issuer=user_id) | Invoice.objects.filter(archived=True).filter(recipient=user_id)
+        serializer = InvoiceSerializer(archived_invoices, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)

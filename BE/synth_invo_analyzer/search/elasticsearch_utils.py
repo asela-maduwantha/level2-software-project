@@ -51,14 +51,15 @@ class InvoiceDocument(Document):
     invoice_date = Date()
     due_date = Date()
     currency = Keyword()
-    issuer = Keyword()  # Add issuer field
-    recipient = Keyword()  # Add recipient field
+    issuer = Keyword()
+    recipient = Keyword()
     seller = Nested(CompanyDocument)
     buyer = Nested(CompanyDocument)
     items = Nested(ItemDocument)
     summary = Nested(SummaryDocument)
     payment_instructions = Nested(PaymentInstructionsDocument)
     notes = Nested(NotesDocument)
+    original_invoice_id = Keyword()  # Add this field
 
     class Index:
         name = 'invoices'
@@ -66,93 +67,95 @@ class InvoiceDocument(Document):
 # Ensure the index is created
 InvoiceDocument.init()
 
-def index_invoice(invoice_json, supplier_id, organization_id):
+def index_invoice(invoice_json, supplier_id, organization_id, original_invoice_id):
     try:
         # Parse the JSON invoice to extract relevant fields
         invoice = json.loads(invoice_json)
 
         # Extract and convert dates
-        invoice_date = datetime.strptime(invoice["Invoice"]["Header"]["InvoiceDate"], "%Y-%m-%d")
-        due_date = datetime.strptime(invoice["Invoice"]["Header"]["DueDate"], "%Y-%m-%d")
+        invoice_date = datetime.strptime(invoice["invoice"]["header"]["invoice_date"], "%Y-%m-%d")
+        due_date = datetime.strptime(invoice["invoice"]["header"]["due_date"], "%Y-%m-%d")
 
         # Prepare the document
         doc = InvoiceDocument(
-            invoice_number=invoice["Invoice"]["Header"]["InvoiceNumber"],
+            invoice_number=invoice["invoice"]["header"]["invoice_number"],
             invoice_date=invoice_date,
             due_date=due_date,
-            currency=invoice["Invoice"]["Header"]["Currency"],
-            issuer=supplier_id,  # Use supplier_id for issuer
-            recipient=organization_id,  # Use organization_id for recipient
+            currency=invoice["invoice"]["header"]["currency"],
+            issuer=supplier_id,
+            recipient=organization_id,
             seller=CompanyDocument(
-                company_name=invoice["Invoice"]["Seller"]["CompanyName"],
+                company_name=invoice["invoice"]["seller"]["company_name"],
                 address=AddressDocument(
-                    street=invoice["Invoice"]["Seller"]["Address"]["Street"],
-                    city=invoice["Invoice"]["Seller"]["Address"]["City"],
-                    state=invoice["Invoice"]["Seller"]["Address"]["State"],
-                    zip_code=invoice["Invoice"]["Seller"]["Address"]["ZipCode"],
-                    country=invoice["Invoice"]["Seller"]["Address"]["Country"]
+                    street=invoice["invoice"]["seller"]["address"]["street"],
+                    city=invoice["invoice"]["seller"]["address"]["city"],
+                    state=invoice["invoice"]["seller"]["address"]["state"],
+                    zip_code=invoice["invoice"]["seller"]["address"]["zip_code"],
+                    country=invoice["invoice"]["seller"]["address"]["country"]
                 ),
                 contact=ContactDocument(
-                    name=invoice["Invoice"]["Seller"]["Contact"]["Name"],
-                    phone=invoice["Invoice"]["Seller"]["Contact"]["Phone"],
-                    email=invoice["Invoice"]["Seller"]["Contact"]["Email"]
+                    name=invoice["invoice"]["seller"]["contact"]["name"],
+                    phone=invoice["invoice"]["seller"]["contact"]["phone"],
+                    email=invoice["invoice"]["seller"]["contact"]["email"]
                 )
             ),
             buyer=CompanyDocument(
-                company_name=invoice["Invoice"]["Buyer"]["CompanyName"],
+                company_name=invoice["invoice"]["buyer"]["company_name"],
                 address=AddressDocument(
-                    street=invoice["Invoice"]["Buyer"]["Address"]["Street"],
-                    city=invoice["Invoice"]["Buyer"]["Address"]["City"],
-                    state=invoice["Invoice"]["Buyer"]["Address"]["State"],
-                    zip_code=invoice["Invoice"]["Buyer"]["Address"]["ZipCode"],
-                    country=invoice["Invoice"]["Buyer"]["Address"]["Country"]
+                    street=invoice["invoice"]["buyer"]["address"]["street"],
+                    city=invoice["invoice"]["buyer"]["address"]["city"],
+                    state=invoice["invoice"]["buyer"]["address"]["state"],
+                    zip_code=invoice["invoice"]["buyer"]["address"]["zip_code"],
+                    country=invoice["invoice"]["buyer"]["address"]["country"]
                 ),
                 contact=ContactDocument(
-                    name=invoice["Invoice"]["Buyer"]["Contact"]["Name"],
-                    phone=invoice["Invoice"]["Buyer"]["Contact"]["Phone"],
-                    email=invoice["Invoice"]["Buyer"]["Contact"]["Email"]
+                    name=invoice["invoice"]["buyer"]["contact"]["name"],
+                    phone=invoice["invoice"]["buyer"]["contact"]["phone"],
+                    email=invoice["invoice"]["buyer"]["contact"]["email"]
                 )
             ),
             items=[
                 ItemDocument(
-                    description=item["Description"],
-                    quantity=item["Quantity"],
-                    unit_price=item["UnitPrice"],
-                    total_price=item["TotalPrice"]
+                    description=item["description"],
+                    quantity=item["quantity"],
+                    unit_price=item["unit_price"],
+                    total_price=item["total_price"]
                 )
-                for item in invoice["Invoice"]["Items"]
+                for item in invoice["invoice"]["items"]
             ],
             summary=SummaryDocument(
-                subtotal=invoice["Invoice"]["Summary"]["Subtotal"],
-                tax_rate=invoice["Invoice"]["Summary"]["TaxRate"],
-                tax_amount=invoice["Invoice"]["Summary"]["TaxAmount"],
-                total_amount=invoice["Invoice"]["Summary"]["TotalAmount"],
-                discount=invoice["Invoice"]["Summary"]["Discount"]
+                subtotal=invoice["invoice"]["summary"]["subtotal"],
+                tax_rate=invoice["invoice"]["summary"]["tax_rate"],
+                tax_amount=invoice["invoice"]["summary"]["tax_amount"],
+                total_amount=invoice["invoice"]["summary"]["total_amount"],
+                discount=invoice["invoice"]["summary"]["discount"]
             ),
             payment_instructions=PaymentInstructionsDocument(
-                bank_name=invoice["Invoice"]["PaymentInstructions"]["BankName"],
-                account_number=invoice["Invoice"]["PaymentInstructions"]["AccountNumber"],
-                routing_number=invoice["Invoice"]["PaymentInstructions"]["RoutingNumber"],
-                swift=invoice["Invoice"]["PaymentInstructions"]["SWIFT"]
+                bank_name=invoice["invoice"]["payment_instructions"]["bank_name"],
+                account_number=invoice["invoice"]["payment_instructions"]["account_number"],
+                routing_number=invoice["invoice"]["payment_instructions"]["routing_number"],
+                swift=invoice["invoice"]["payment_instructions"]["swift"]
             ),
             notes=NotesDocument(
-                note=invoice["Invoice"]["Notes"]["Note"]
-            )
+                note=invoice["invoice"]["notes"]["note"]
+            ),
+            original_invoice_id=str(original_invoice_id)  
         )
         doc.save()
-        print(f"Invoice {invoice['Invoice']['Header']['InvoiceNumber']} indexed successfully.")
+        print(f"Invoice {invoice['invoice']['header']['invoice_number']} indexed successfully.")
     except Exception as e:
         print(f"Error indexing invoice: {str(e)}")
 
-def async_index_invoices(invoice_jsons, supplier_id, organization_id):
+def async_index_invoices(invoice_jsons, supplier_id, organization_id, original_invoice_id):
     threads = []
     for invoice_json in invoice_jsons:
-        thread = threading.Thread(target=index_invoice, args=(invoice_json, supplier_id, organization_id))
+        thread = threading.Thread(target=index_invoice, args=(invoice_json, supplier_id, organization_id, original_invoice_id))
         thread.start()
         threads.append(thread)
 
     for thread in threads:
         thread.join()
+
 
 
 def delete_invoice_index(invoice_id):

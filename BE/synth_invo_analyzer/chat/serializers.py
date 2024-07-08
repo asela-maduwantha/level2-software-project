@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import AdminSupplierMessage, AdminOrganizationMessage
+from authentication.serializers import SystemAdminSerializer
 
 class AdminSupplierMessageSerializer(serializers.ModelSerializer):
     class Meta:

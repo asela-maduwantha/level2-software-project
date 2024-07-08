@@ -1,14 +1,83 @@
 import React, { useState } from 'react';
 import { Form, Input, Button, Alert, Typography, Row, Col, Divider } from 'antd';
 import { LockOutlined, MailOutlined } from '@ant-design/icons';
-import { GoogleLogin } from '@react-oauth/google';
 import HTTPService from '../../../Service/HTTPService';
 import { useNavigate } from 'react-router-dom';
-import './SupplierSignIn.css';
+import styled from 'styled-components';
 import Header from '../../common/Header/Header';
-import SupplierSignInImg from '../../../assets/SupplierSignIn.svg';
+import SupplierSignInImg from '../../../assets/Supplier.svg';
 
 const { Title, Text } = Typography;
+
+const SignInContainer = styled.div`
+  min-height: 100vh;
+  background-color: #fffff;
+`;
+
+const SignInContent = styled.div`
+  display: flex;
+  min-height: calc(100vh - 64px); /* Adjust based on your header height */
+`;
+
+const ImageContainer = styled.div`
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #ffffff;
+  padding: 2rem;
+
+  @media (max-width: 768px) {
+    display: none;
+  }
+`;
+
+const SignInImage = styled.img`
+  max-width: 80%;
+  height: auto;
+`;
+
+const FormContainer = styled.div`
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+`;
+
+const StyledForm = styled(Form)`
+  background-color: #ffffff;
+  padding: 3rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+`;
+
+const SignInButton = styled(Button)`
+  height: 48px;
+  font-size: 16px;
+  background-color: #1890ff;
+  border-color: #1890ff;
+
+  &:hover,
+  &:focus {
+    background-color: #40a9ff;
+    border-color: #40a9ff;
+  }
+`;
+
+const FormFooter = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 1rem;
+
+  a {
+    color: #1890ff;
+    margin-top: 0.5rem;
+  }
+`;
 
 const SupplierSignIn = () => {
   const [form] = Form.useForm();
@@ -30,7 +99,7 @@ const SupplierSignIn = () => {
     const { email, password } = values;
 
     try {
-      const response = await HTTPService.post("auth/supplier/signin/", {
+      const response = await HTTPService.post('auth/supplier/signin/', {
         email,
         password,
       });
@@ -59,84 +128,50 @@ const SupplierSignIn = () => {
   };
 
   return (
-    <>
+    <SignInContainer>
       <Header />
-      <div className="signin-body">
-        <Row justify="center" align="middle" style={{ minHeight: '100vh', width: '100%' }}>
-          <Col xs={24} sm={24} md={12} lg={12} xl={12} style={{ padding: 0 }}>
-            <div className="signin-image" style={{ height: '100%' }}>
-              <img src={SupplierSignInImg} alt="Supplier Sign In" />
-            </div>
-          </Col>
-          <Col xs={24} sm={24} md={12} lg={12} xl={12} style={{ padding: '20px' }}>
-            <div className="signin-form-container" style={{ maxWidth: '400px', margin: 'auto' }}>
-              <Title level={1} className="signin-title" style={{ textAlign: 'center', color: '#6760EF' }}>
-                Supplier Sign In
-              </Title>
-
-              <Form form={form} name="signin" onFinish={onFinish} layout="vertical">
-                <Form.Item
-                  label="Email"
-                  name="email"
-                  rules={[
-                    { required: true, message: 'Email is required' },
-                    { validator: validateEmail },
-                  ]}
-                >
-                  <Input prefix={<MailOutlined />} placeholder="Email" size="large" />
-                </Form.Item>
-
-                <Form.Item
-                  label="Password"
-                  name="password"
-                  rules={[{ required: true, message: 'Password is required' }]}
-                >
-                  <Input.Password prefix={<LockOutlined />} placeholder="Password" size="large" />
-                </Form.Item>
-
-                {loginError && (
-                  <Alert message={loginError} type="error" showIcon style={{ marginBottom: '10px' }} />
-                )}
-
-                <Form.Item>
-                  <Button type="primary" htmlType="submit" style={{ backgroundColor: '#6760EF', height: '50px' }} block>
-                    Sign In
-                  </Button>
-                </Form.Item>
-
-                <div style={{ textAlign: 'center' }}>
-                  <a href="/forgot-password" style={{ color: '#6760EF' }}>
-                    Forgot password?
-                  </a>
-                </div>
-              </Form>
-
-              <Divider>or connect with</Divider>
-
-              <GoogleLogin
-                onSuccess={(credentialResponse) => {
-                  console.log('Google Login Successful:', credentialResponse);
-                }}
-                onError={() => {
-                  console.log('Google Login Failed');
-                }}
-              />
-
-              <Divider />
-
-              <div style={{ textAlign: 'center' }}>
-                <Text>
-                  Don't have an account?{' '}
-                  <a href="/supplier/signup" style={{ color: '#6760EF' }}>
-                    Sign Up
-                  </a>
-                </Text>
-              </div>
-            </div>
-          </Col>
-        </Row>
-      </div>
-    </>
+      <SignInContent>
+        <ImageContainer>
+          <SignInImage src={SupplierSignInImg} alt="Supplier Sign In" />
+        </ImageContainer>
+        <FormContainer>
+          <StyledForm form={form} name="signin" onFinish={onFinish} layout="vertical">
+            <Title level={2} style={{ color: '#1890ff', marginBottom: '0.5rem', textAlign: 'center' }}>
+              Supplier Sign In
+            </Title>
+            <Form.Item
+              label="Email"
+              name="email"
+              rules={[
+                { required: true, message: 'Email is required' },
+                { validator: validateEmail },
+              ]}
+            >
+              <Input prefix={<MailOutlined />} placeholder="Email" size="large" />
+            </Form.Item>
+            <Form.Item
+              label="Password"
+              name="password"
+              rules={[{ required: true, message: 'Password is required' }]}
+            >
+              <Input.Password prefix={<LockOutlined />} placeholder="Password" size="large" />
+            </Form.Item>
+            {loginError && <Alert message={loginError} type="error" showIcon style={{ marginBottom: '1rem' }} />}
+            <Form.Item>
+              <SignInButton type="primary" htmlType="submit" block size="large">
+                Sign In
+              </SignInButton>
+            </Form.Item>
+            <FormFooter>
+              <a href="/forgot-password">Forgot password?</a>
+              <Text>
+                Don't have an account? <a href="/supplier/signup">Sign Up</a>
+              </Text>
+            </FormFooter>
+          </StyledForm>
+        </FormContainer>
+      </SignInContent>
+    </SignInContainer>
   );
 };
 

@@ -28,138 +28,140 @@ def map_field(data, mapping, data_type=None):
 
 def format_invoice(invoice, supplier_id):
     template_mapping = Template.objects.get(supplier=supplier_id)
+   
     mapping = json.loads(template_mapping.mapping)
-    
+   
+   
     formatted_invoice = {
-        "Invoice": {
-            "Header": {
-                "InvoiceNumber": map_field(invoice, mapping.get("InvoiceNumber", "")),
-                "InvoiceDate": map_field(invoice, mapping.get("InvoiceDate", "")),
-                "DueDate": map_field(invoice, mapping.get("DueDate", "")),
-                "Currency": map_field(invoice, mapping.get("Currency", ""))
+        "invoice": {
+            "header": {
+                "invoice_number": map_field(invoice, mapping.get("invoice_number", "")),
+                "invoice_date": map_field(invoice, mapping.get("invoice_date", "")),
+                "due_date": map_field(invoice, mapping.get("due_date", "")),
+                "currency": map_field(invoice, mapping.get("currency", ""))
             },
-            "Seller": {
-                "CompanyName": map_field(invoice, mapping.get("Seller.CompanyName", "")),
-                "Address": {
-                    "Street": map_field(invoice, mapping.get("Seller.Address.Street", "")),
-                    "City": map_field(invoice, mapping.get("Seller.Address.City", "")),
-                    "State": map_field(invoice, mapping.get("Seller.Address.State", "")),
-                    "ZipCode": map_field(invoice, mapping.get("Seller.Address.ZipCode", "")),
-                    "Country": map_field(invoice, mapping.get("Seller.Address.Country", ""))
+            "seller": {
+                "company_name": map_field(invoice, mapping.get("seller.company_name", "")),
+                "address": {
+                    "street": map_field(invoice, mapping.get("seller.address.street", "")),
+                    "city": map_field(invoice, mapping.get("seller.address.city", "")),
+                    "state": map_field(invoice, mapping.get("seller.address.state", "")),
+                    "zip_code": map_field(invoice, mapping.get("seller.address.zip_code", "")),
+                    "country": map_field(invoice, mapping.get("seller.address.country", ""))
                 },
-                "Contact": {
-                    "Name": map_field(invoice, mapping.get("Seller.Contact.Name", "")),
-                    "Phone": map_field(invoice, mapping.get("Seller.Contact.Phone", "")),
-                    "Email": map_field(invoice, mapping.get("Seller.Contact.Email", ""))
+                "contact": {
+                    "name": map_field(invoice, mapping.get("seller.contact.name", "")),
+                    "phone": map_field(invoice, mapping.get("seller.contact.phone", "")),
+                    "email": map_field(invoice, mapping.get("seller.contact.email", ""))
                 }
             },
-            "Buyer": {
-                "CompanyName": map_field(invoice, mapping.get("Buyer.CompanyName", "")),
-                "Address": {
-                    "Street": map_field(invoice, mapping.get("Buyer.Address.Street", "")),
-                    "City": map_field(invoice, mapping.get("Buyer.Address.City", "")),
-                    "State": map_field(invoice, mapping.get("Buyer.Address.State", "")),
-                    "ZipCode": map_field(invoice, mapping.get("Buyer.Address.ZipCode", "")),
-                    "Country": map_field(invoice, mapping.get("Buyer.Address.Country", ""))
+            "buyer": {
+                "company_name": map_field(invoice, mapping.get("buyer.company_name", "")),
+                "address": {
+                    "street": map_field(invoice, mapping.get("buyer.address.street", "")),
+                    "city": map_field(invoice, mapping.get("buyer.address.city", "")),
+                    "state": map_field(invoice, mapping.get("buyer.address.state", "")),
+                    "zip_code": map_field(invoice, mapping.get("buyer.address.zip_code", "")),
+                    "country": map_field(invoice, mapping.get("buyer.address.country", ""))
                 },
-                "Contact": {
-                    "Name": map_field(invoice, mapping.get("Buyer.Contact.Name", "")),
-                    "Phone": map_field(invoice, mapping.get("Buyer.Contact.Phone", "")),
-                    "Email": map_field(invoice, mapping.get("Buyer.Contact.Email", ""))
+                "contact": {
+                    "name": map_field(invoice, mapping.get("buyer.contact.name", "")),
+                    "phone": map_field(invoice, mapping.get("buyer.contact.phone", "")),
+                    "email": map_field(invoice, mapping.get("buyer.contact.email", ""))
                 }
             },
-            "Items": [
+            "items": [
                 {
-                    "Description": map_field(item, mapping["Items.List"][1]["Description"]),
-                    "Quantity": map_field(item, mapping["Items.List"][1]["Quantity"], 'int'),
-                    "UnitPrice": map_field(item, mapping["Items.List"][1]["UnitPrice"], 'float'),
-                    "TotalPrice": map_field(item, mapping["Items.List"][1]["TotalPrice"], 'float')
-                } for item in map_field(invoice, mapping["Items.List"][0])
+                    "description": map_field(item, mapping["items.list"][1]["description"]),
+                    "quantity": map_field(item, mapping["items.list"][1]["quantity"], 'int'),
+                    "unit_price": map_field(item, mapping["items.list"][1]["unit_price"], 'float'),
+                    "total_price": map_field(item, mapping["items.list"][1]["total_price"], 'float')
+                } for item in map_field(invoice, mapping["items.list"][0])
             ],
-            "Summary": {
-                "Subtotal": map_field(invoice, mapping.get("Summary.Subtotal", 0.0), 'float'),
-                "TaxRate": map_field(invoice, mapping.get("Summary.TaxRate", 0.0), 'float'),
-                "TaxAmount": map_field(invoice, mapping.get("Summary.TaxAmount", 0.0), 'float'),
-                "TotalAmount": map_field(invoice, mapping.get("Summary.TotalAmount", 0.0), 'float'),
-                "Discount": map_field(invoice, mapping.get("Summary.Discount", 0.0), 'float')
+            "summary": {
+                "subtotal": map_field(invoice, mapping.get("summary.subtotal", 0.0), 'float'),
+                "tax_rate": map_field(invoice, mapping.get("summary.tax_rate", 0.0), 'float'),
+                "tax_amount": map_field(invoice, mapping.get("summary.tax_amount", 0.0), 'float'),
+                "total_amount": map_field(invoice, mapping.get("summary.total_amount", 0.0), 'float'),
+                "discount": map_field(invoice, mapping.get("summary.discount", 0.0), 'float')
             },
-            "PaymentInstructions": {
-                "BankName": map_field(invoice, mapping.get("PaymentInstructions.BankName", "")),
-                "AccountNumber": map_field(invoice, mapping.get("PaymentInstructions.AccountNumber", "")),
-                "RoutingNumber": map_field(invoice, mapping.get("PaymentInstructions.RoutingNumber", "")),
-                "SWIFT": map_field(invoice, mapping.get("PaymentInstructions.SWIFT", ""))
+            "payment_instructions": {
+                "bank_name": map_field(invoice, mapping.get("payment_instructions.bank_name", "")),
+                "account_number": map_field(invoice, mapping.get("payment_instructions.account_number", "")),
+                "routing_number": map_field(invoice, mapping.get("payment_instructions.routing_number", "")),
+                "swift": map_field(invoice, mapping.get("payment_instructions.swift", ""))
             },
-            "Notes": {
-                "Note": map_field(invoice, mapping.get("Notes.Note", ""))
+            "notes": {
+                "note": map_field(invoice, mapping.get("notes.note", ""))
             }
         }
     }
     
-    return formatted_invoice
 
+    return formatted_invoice
 
 def map_csv_row_to_invoice(row, organization_id, supplier_id):
     converted_invoice = {
-        "Invoice": {
-            "Header": {
-                "InvoiceNumber": row.get('InvoiceNumber') or 'N/A',
-                "InvoiceDate": convert_date_format(row.get('InvoiceDate')) if row.get('InvoiceDate') else 'N/A',
-                "DueDate": convert_date_format(row.get('DueDate')) if row.get('DueDate') else 'N/A',
-                "Currency": row.get('Currency') or 'N/A'
+        "invoice": {
+            "header": {
+                "invoice_number": row.get('InvoiceNumber') or 'N/A',
+                "invoice_date": convert_date_format(row.get('InvoiceDate')) if row.get('InvoiceDate') else 'N/A',
+                "due_date": convert_date_format(row.get('DueDate')) if row.get('DueDate') else 'N/A',
+                "currency": row.get('Currency') or 'N/A'
             },
-            "Seller": {
-                "CompanyName": row.get('SellerCompanyName') or 'N/A',
-                "Address": {
-                    "Street": row.get('SellerStreet') or 'N/A',
-                    "City": row.get('SellerCity') or 'N/A',
-                    "State": row.get('SellerState') or 'N/A',
-                    "ZipCode": row.get('SellerZipCode') or 'N/A',
-                    "Country": row.get('SellerCountry') or 'N/A'
+            "seller": {
+                "company_name": row.get('SellerCompanyName') or 'N/A',
+                "address": {
+                    "street": row.get('SellerStreet') or 'N/A',
+                    "city": row.get('SellerCity') or 'N/A',
+                    "state": row.get('SellerState') or 'N/A',
+                    "zip_code": row.get('SellerZipCode') or 'N/A',
+                    "country": row.get('SellerCountry') or 'N/A'
                 },
-                "Contact": {
-                    "Name": row.get('SellerContactName') or 'N/A',
-                    "Phone": row.get('SellerContactPhone') or 'N/A',
-                    "Email": row.get('SellerContactEmail') or 'N/A'
+                "contact": {
+                    "name": row.get('SellerContactName') or 'N/A',
+                    "phone": row.get('SellerContactPhone') or 'N/A',
+                    "email": row.get('SellerContactEmail') or 'N/A'
                 }
             },
-            "Buyer": {
-                "CompanyName": row.get('BuyerCompanyName') or 'N/A',
-                "Address": {
-                    "Street": row.get('BuyerStreet') or 'N/A',
-                    "City": row.get('BuyerCity') or 'N/A',
-                    "State": row.get('BuyerState') or 'N/A',
-                    "ZipCode": row.get('BuyerZipCode') or 'N/A',
-                    "Country": row.get('BuyerCountry') or 'N/A'
+            "buyer": {
+                "company_name": row.get('BuyerCompanyName') or 'N/A',
+                "address": {
+                    "street": row.get('BuyerStreet') or 'N/A',
+                    "city": row.get('BuyerCity') or 'N/A',
+                    "state": row.get('BuyerState') or 'N/A',
+                    "zip_code": row.get('BuyerZipCode') or 'N/A',
+                    "country": row.get('BuyerCountry') or 'N/A'
                 },
-                "Contact": {
-                    "Name": row.get('BuyerContactName') or 'N/A',
-                    "Phone": row.get('BuyerContactPhone') or 'N/A',
-                    "Email": row.get('BuyerContactEmail') or 'N/A'
+                "contact": {
+                    "name": row.get('BuyerContactName') or 'N/A',
+                    "phone": row.get('BuyerContactPhone') or 'N/A',
+                    "email": row.get('BuyerContactEmail') or 'N/A'
                 }
             },
-            "Items": [
+            "items": [
                 {
-                    "Description": row.get('ItemDescription') or 'N/A',
-                    "Quantity": int(row.get('ItemQuantity', '0') or '0'),
-                    "UnitPrice": float(row.get('ItemUnitPrice', '0.0') or '0.0'),
-                    "TotalPrice": float(row.get('ItemTotalPrice', '0.0') or '0.0')
+                    "description": row.get('ItemDescription') or 'N/A',
+                    "quantity": int(row.get('ItemQuantity', '0') or '0'),
+                    "unit_price": float(row.get('ItemUnitPrice', '0.0') or '0.0'),
+                    "total_price": float(row.get('ItemTotalPrice', '0.0') or '0.0')
                 }
             ],
-            "Summary": {
-                "Subtotal": float(row.get('InvoiceSubtotal', '0.0') or '0.0'),
-                "TaxRate": float(row.get('InvoiceTaxRate', '0.0') or '0.0'),
-                "TaxAmount": float(row.get('InvoiceTaxAmount', '0.0') or '0.0'),
-                "TotalAmount": float(row.get('InvoiceTotalAmount', '0.0') or '0.0'),
-                "Discount": float(row.get('InvoiceDiscount', '0.0') or '0.0')
+            "summary": {
+                "subtotal": float(row.get('InvoiceSubtotal', '0.0') or '0.0'),
+                "tax_rate": float(row.get('InvoiceTaxRate', '0.0') or '0.0'),
+                "tax_amount": float(row.get('InvoiceTaxAmount', '0.0') or '0.0'),
+                "total_amount": float(row.get('InvoiceTotalAmount', '0.0') or '0.0'),
+                "discount": float(row.get('InvoiceDiscount', '0.0') or '0.0')
             },
-            "PaymentInstructions": {
-                "BankName": row.get('BankName') or 'N/A',
-                "AccountNumber": row.get('AccountNumber') or 'N/A',
-                "RoutingNumber": row.get('RoutingNumber') or 'N/A',
-                "SWIFT": row.get('SWIFT') or 'N/A'
+            "payment_instructions": {
+                "bank_name": row.get('BankName') or 'N/A',
+                "account_number": row.get('AccountNumber') or 'N/A',
+                "routing_number": row.get('RoutingNumber') or 'N/A',
+                "swift": row.get('SWIFT') or 'N/A'
             },
-            "Notes": {
-                "Note": row.get('InvoiceNote') or 'N/A'
+            "notes": {
+                "note": row.get('InvoiceNote') or 'N/A'
             }
         }
     }
@@ -174,7 +176,7 @@ def map_csv_row_to_invoice(row, organization_id, supplier_id):
     return invoice_data
 
 def convert_date_format(date_str):
-        try:
-            return datetime.strptime(date_str, "%m/%d/%Y").strftime("%Y-%m-%d")
-        except ValueError:
-            return 'N/A'
+    try:
+        return datetime.strptime(date_str, "%m/%d/%Y").strftime("%Y-%m-%d")
+    except ValueError:
+        return 'N/A'

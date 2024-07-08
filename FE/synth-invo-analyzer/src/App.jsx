@@ -41,12 +41,9 @@ import SearchInvoices from './components/organization/SearchInvoices/SearchInvoi
 import OutgoingSupplierRequests from './components/organization/OutgoingSupplierRequests/OutgoingSupplierRequests'
 import ForgotPassword from './components/common/ForgotPassword/ForgotPassword'
 import AddEmployee from './components/organization/AddEmployee/AddEmployee'
-
 import VerifyOtp from './components/common/VerifyOtp/VerifyOtp'
 import ChangePassword from './components/common/ChangePassword/ChangePassword'
-
 import MapTemplates from './components/admin/MapTemplates/MapTemplates'
-import SeasonalAnalysis from './components/organization/SeasonalAnalysis/SeasonalAnalysis'
 import RevenueAnalysis from './components/organization/RevenueAnalysis/RevenueAnalysis'
 import Chat from './components/common/Chat/Chat'
 import SubscriptionPage from './pages/SubscriptionPage/SubscriptionPage'
@@ -55,6 +52,7 @@ import ForgotPasswordVerifyOTP from './components/common/ForgotPasswordVerifyOTP
 import ResetForgotPassword from './components/common/ResetForgotPassword/ResetForgotPassword'
 import SubscriptionManagement from './components/organization/SubscriptionManagement/SubscriptionManagement'
 import AdvancedSearch from './components/admin/AdvancedSearch/AdvancedSearch'
+import SupplierCompare from './components/organization/SupplierCompare/SupplierCompare'
 
 
 
@@ -122,7 +120,7 @@ const App = () => {
         <Route path="accountsettings" element={<AccountSettings />} />
         <Route path="addsupplier" element={<AddSupplier/>}/>
         <Route path = "productanalysis" element={<ProductAnalysis/>}/>
-        <Route path = "seasonalanalysis" element={<SeasonalAnalysis/>}/>
+        <Route path = "suppliercompare" element={<SupplierCompare/>}/>
         <Route path = "revenueanalysis" element={<RevenueAnalysis/>}/>
         <Route path = "supplieranalysis" element={<SupplierAnalysis/>}/>
         <Route path = "search" element={<SearchInvoices/>}/>

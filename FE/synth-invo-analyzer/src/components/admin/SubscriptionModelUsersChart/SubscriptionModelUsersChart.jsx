@@ -1,8 +1,7 @@
-// SubscriptionModelUsersChart.js
-
 import React, { useEffect, useState } from 'react';
 import { Doughnut } from 'react-chartjs-2';
 import HTTPService from '../../../Service/HTTPService';
+import { Card } from 'antd';
 
 const SubscriptionModelUsersChart = () => {
   const [modelData, setModelData] = useState([]);
@@ -21,7 +20,7 @@ const SubscriptionModelUsersChart = () => {
     labels: modelData.map(item => item.model_name),
     datasets: [
       {
-        label: 'Subscription Model-wise Users',
+        label: 'Users per Subscription Model',
         data: modelData.map(item => item.user_count),
         backgroundColor: [
           '#FF6384',
@@ -36,10 +35,9 @@ const SubscriptionModelUsersChart = () => {
   };
 
   return (
-    <div>
-      <h2>Subscription Model-wise Users</h2>
+    <Card title="Users per Subscription Model" bordered={false} style={{ height: '100%' }}>
       <Doughnut data={chartData} />
-    </div>
+    </Card>
   );
 };
 

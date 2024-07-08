@@ -18,8 +18,9 @@ const ViewReceivedInvoices = () => {
     try {
       const organization_id = localStorage.getItem('organization_id'); 
       const response = await HTTPService.get(`invoice/get-invoice-by-organization/?orgId=${organization_id}`);
-      const sortedData = response.data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)); // Sort by datetime
+      const sortedData = response.data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)); 
       setData(sortedData);
+      console.log(data)
     } catch (error) {
       console.error('Error fetching data:', error);
     }

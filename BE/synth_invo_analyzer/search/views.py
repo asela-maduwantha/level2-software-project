@@ -83,8 +83,7 @@ def search_invoices(request):
         if res['hits']['total']['value'] == 0:
             return Response({"error": "No invoices found matching the search criteria"}, status=status.HTTP_404_NOT_FOUND)
         
-        
-   
+        print(res['hits']['hits'])
         return Response(res['hits']['hits'], status=status.HTTP_200_OK)
 
     except Exception as e:
@@ -167,7 +166,7 @@ def execute_search(request):
         if total_hits == 0:
             return Response({"error": "No invoices found matching the search criteria"}, status=status.HTTP_404_NOT_FOUND)
 
-        # Extract only necessary data from each hit
+        
         formatted_hits = []
         for hit in hits:
             formatted_hit = {

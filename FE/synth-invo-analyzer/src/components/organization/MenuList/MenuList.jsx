@@ -57,8 +57,8 @@ const MenuList = () => {
           <Menu.Item key="product-analysis">
             <Link to="productanalysis" style={{ textDecoration: "none" }}>Product Analysis</Link>
           </Menu.Item>
-          <Menu.Item key="seasonal-analysis">
-            <Link to="seasonalanalysis" style={{ textDecoration: "none" }}>Seasonal Analysis</Link>
+          <Menu.Item key="supplier-compare-analysis">
+            <Link to="suppliercompare" style={{ textDecoration: "none" }}>Supplier Compare</Link>
           </Menu.Item>
           <Menu.Item key="expenditure-analysis">
             <Link to="revenueanalysis" style={{ textDecoration: "none" }}>Expenditure Analysis</Link>

@@ -1,8 +1,7 @@
-// MonthlyRevenueChart.js
-
 import React, { useEffect, useState } from 'react';
 import { Line } from 'react-chartjs-2';
 import HTTPService from '../../../Service/HTTPService';
+import { Card } from 'antd';
 
 const MonthlyRevenueChart = () => {
   const [revenueData, setRevenueData] = useState([]);
@@ -16,7 +15,6 @@ const MonthlyRevenueChart = () => {
         console.error('Error fetching monthly revenue data:', error);
       });
   }, []);
-
 
   if (!Array.isArray(revenueData)) {
     return <div>Loading...</div>; // Or handle error state here
@@ -36,10 +34,9 @@ const MonthlyRevenueChart = () => {
   };
 
   return (
-    <div>
-      <h2>Monthly Revenue</h2>
+    <Card title="Monthly Revenue" bordered={false} style={{ height: '100%' }}>
       <Line data={chartData} />
-    </div>
+    </Card>
   );
 };
 

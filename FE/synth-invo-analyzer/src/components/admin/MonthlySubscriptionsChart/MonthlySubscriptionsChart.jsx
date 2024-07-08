@@ -1,8 +1,7 @@
-// MonthlySubscriptionsChart.js
-
 import React, { useEffect, useState } from 'react';
 import { Line } from 'react-chartjs-2';
 import HTTPService from '../../../Service/HTTPService';
+import { Card } from 'antd';
 
 const MonthlySubscriptionsChart = () => {
   const [monthlyData, setMonthlyData] = useState([]);
@@ -21,7 +20,7 @@ const MonthlySubscriptionsChart = () => {
     labels: monthlyData.map(item => item.month),
     datasets: [
       {
-        label: 'Monthly Added Subscriptions',
+        label: 'Monthly Subscriptions',
         data: monthlyData.map(item => item.count),
         fill: false,
         borderColor: 'rgb(75, 192, 192)',
@@ -31,10 +30,9 @@ const MonthlySubscriptionsChart = () => {
   };
 
   return (
-    <div>
-      <h2>Monthly Added Subscriptions</h2>
+    <Card title="Monthly Subscriptions" bordered={false} style={{ height: '100%' }}>
       <Line data={chartData} />
-    </div>
+    </Card>
   );
 };
 

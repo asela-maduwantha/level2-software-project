@@ -6,7 +6,7 @@ import { Line } from 'react-chartjs-2';
 const { Title } = Typography;
 const { Option } = Select;
 
-const SupplierComparison = () => {
+const SupplierCompare = () => {
   const [products, setProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedYear, setSelectedYear] = useState(null);
@@ -196,4 +196,4 @@ const SupplierComparison = () => {
   );
 };
 
-export default SupplierComparison;
+export default SupplierCompare;

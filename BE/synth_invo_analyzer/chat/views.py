@@ -4,7 +4,7 @@ from rest_framework import status
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from .models import Organization, Supplier, SystemAdmin, AdminSupplierMessage, AdminOrganizationMessage
-from .serializers import AdminSupplierMessageSerializer, AdminOrganizationMessageSerializer
+from .serializers import AdminSupplierMessageSerializer, AdminOrganizationMessageSerializer, SystemAdminSerializer
 import uuid
 
 from rest_framework.decorators import api_view
@@ -101,3 +101,17 @@ def get_supplier_details(user_id):
 
 def get_admin_details(user_id):
     return get_object_or_404(SystemAdmin, id=user_id)
+
+
+
+@api_view(['GET'])
+def admin_list(request):
+    """
+    Fetch the list of system administrators.
+    """
+    try:
+        admins = SystemAdmin.objects.all()
+        serializer = SystemAdminSerializer(admins, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
